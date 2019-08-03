@@ -70,3 +70,6 @@ So as is often the case with open source projects, the name is meaningless.
 
 ## License
 Most of the code of rugburn is licensed under the ISC license. Some portions are licensed differently. See [LICENSE.md](./LICENSE.md) for complete licensing information.
+
+## Special Thanks
+Special thanks to the [PangyaTools](https://github.com/pangyatools) community for motivation and advice.
