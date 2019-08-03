@@ -49,7 +49,7 @@ VOID FatalError(PCHAR fmt, ...) {
     wvsprintfA(buffer, fmt, args);
     va_end(args);
 
-    MessageBoxA(HWND_DESKTOP, buffer, "ijlshim", MB_OK|MB_ICONERROR);
+    MessageBoxA(HWND_DESKTOP, buffer, "rugburn", MB_OK|MB_ICONERROR);
     LocalFree(buffer);
     ExitProcess(1);
 }
@@ -62,7 +62,7 @@ VOID Warning(PCHAR fmt, ...) {
     wvsprintfA(buffer, fmt, args);
     va_end(args);
 
-    MessageBoxA(HWND_DESKTOP, buffer, "ijlshim", MB_OK|MB_ICONWARNING);
+    MessageBoxA(HWND_DESKTOP, buffer, "rugburn", MB_OK|MB_ICONWARNING);
     LocalFree(buffer);
 }
 
