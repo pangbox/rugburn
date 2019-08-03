@@ -2,10 +2,10 @@
  * This is a shim for ijl15.dll that hooks various things. Its objectives are:
  *
  *  - To fully disable GameGuard.
- *  - To make using unmodified PangYa with custom servers easier.
+ *  - To make using unmodified PangYa™ with custom servers easier.
  *
  * As much as possible is accomplished by hooking Windows APIs, making many of
- * the patches portable across Pangya versions. The only bits that aren't
+ * the patches portable across PangYa™ versions. The only bits that aren't
  * implemented this way are a few bits related to disabling GameGuard, due to
  * the fact that the process will attempt to kill itself if GameGuard is not
  * present.
@@ -56,7 +56,7 @@ VOID PatchGG_US852(LPVOID param) {
             Patch((LPVOID)0x00A496B0, "\x90\x90\x90\x90\x90\x90\x90", 7);
             Patch((LPVOID)0x00A496E0, "\xC3", 1);
             Patch((LPVOID)0x00A49840, "\xC3", 1);
-            Log("Patched GG check routines (Pangya US 852)\r\n");
+            Log("Patched GG check routines (US 852)\r\n");
             return;
         }
 		Sleep(5);
@@ -76,7 +76,7 @@ VOID PatchGG_JP972(LPVOID param) {
             Patch((LPVOID)0x00A5CDE0, "\x90\x90\x90\x90\x90\x90\x90", 7);
             Patch((LPVOID)0x00A5CE10, "\xC3", 1);
             Patch((LPVOID)0x00A5CE40, "\xC3", 1);
-            Log("Patched GG check routines (Pangya JP 972)\r\n");
+            Log("Patched GG check routines (JP 972)\r\n");
             return;
         }
 		Sleep(5);
@@ -102,7 +102,7 @@ VOID InitGGPatch() {
     }
 
     if (!patchThread) {
-        MessageBoxA(NULL, "It looks like no patch exists for this version of PangYa.\nThe game will likely exit a couple minutes after detecting GameGuard is not present.", "rugburn", MB_OK);
+        MessageBoxA(NULL, "It looks like no patch exists for this version of PangYa™.\nThe game will likely exit a couple minutes after detecting GameGuard is not present.", "rugburn", MB_OK);
         return;
     }
 
@@ -120,7 +120,7 @@ extern BOOL STDCALL DllMain(HANDLE hInstance, DWORD dwReason, LPVOID reserved) {
         ExitProcess(0x755);
     }
 
-    // TODO(john): how do we reason about whether we're PangYa or not?
+    // TODO(john): how do we reason about whether we're ProjectG or not?
     // Just looking at whether the filename is ProjectG or not is not very
     // reliable, that would be annoying. For now we just treat everything
     // that isn't GameGuard as ProjectG...

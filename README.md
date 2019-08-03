@@ -1,7 +1,9 @@
 # rugburn
 
+_This project is not endorsed by or related to Ntreev Soft Corporation. See [Trademark Notice](#trademark-notice) for more information._
+
 `rugburn` is an unobtrusive and small shim for `ijl15.dll` that allows you to
-run unmodified Pangya without GameGuard.
+run unmodified PangYa™ without GameGuard.
 
 This also allows you to run PangYa under Wine :)
 
@@ -73,3 +75,6 @@ Most of the code of rugburn is licensed under the ISC license. Some portions are
 
 ## Special Thanks
 Special thanks to the [PangyaTools](https://github.com/pangyatools) community for motivation and advice.
+
+## Trademark Notice
+PangYa is a registered trademark of Ntreev Soft Co., Ltd. Corporation. Pangbox is not endorsed or related to Ntreev Soft Co., Ltd. Corporation in any way. "PangYa" and related trademarks are used strictly for purposes of identification.
