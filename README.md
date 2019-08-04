@@ -1,4 +1,4 @@
-# rugburn
+# rugburn :fire:
 
 _This project is not endorsed by or related to Ntreev Soft Corporation. See [Trademark Notice](#trademark-notice) for more information._
 
@@ -6,6 +6,8 @@ _This project is not endorsed by or related to Ntreev Soft Corporation. See [Tra
 run unmodified PangYa™ without GameGuard.
 
 This also allows you to run PangYa under Wine :)
+
+To get started, grab a binary from the [Releases](https://github.com/pangbox/rugburn/releases) page and follow the [installation instructions](#installation).
 
 Features:
 
@@ -38,10 +40,10 @@ environment, then run `make`. An `ijl15.dll` should appear in the `out` folder.
 
 ## Installation
 
- 1. Move the original ijl15.dll binary in the PangYa folder to ijl15_real.dll.
+ 1. Move the original `ijl15.dll` binary in the PangYa folder to `ijl15_real.dll`.
     The exact name is important.
 
- 2. Copy the rugburn ijl15.dll into the PangYa folder.
+ 2. Copy the rugburn `ijl15.dll` into the PangYa folder.
 
 Do not use update.exe anymore. Just run ProjectG directly. The update servers
 are still active in US, so if you run the updater you may accidentally patch
