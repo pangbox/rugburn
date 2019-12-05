@@ -10,6 +10,8 @@
 
 #include <windows.h>
 
+#ifndef DNS_QUERY_REQUEST_VERSION1
+
 typedef struct _DNS_QUERY_REQUEST {
   ULONG   Version;
   PCWSTR  QueryName;
@@ -32,6 +34,8 @@ typedef struct _DNS_QUERY_RESULT {
 typedef struct _DNS_QUERY_CANCEL {
   CHAR Reserved[32];
 } DNS_QUERY_CANCEL, *PDNS_QUERY_CANCEL;
+
+#endif
 
 // general
 typedef BOOL (WINAPI *PFNDLLMAINPROC)(HMODULE, DWORD, PVOID);

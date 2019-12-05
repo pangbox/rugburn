@@ -7,7 +7,9 @@
 #include "patch.h"
 #include <stddef.h>
 
-const IMAGE_ORDINAL_FLAG32 = 0x80000000;
+#ifndef IMAGE_ORDINAL_FLAG32
+#define IMAGE_ORDINAL_FLAG32 0x80000000
+#endif
 
 typedef struct _DLL_INJECT {
     PVOID ImageBase;
@@ -25,7 +27,7 @@ typedef struct _DLL_INJECT {
  */
 DWORD WINAPI LoadDll(PVOID p) {
     PDLL_INJECT injectData;
-    HMODULE hModule, hKernel32;
+    HMODULE hModule;
     DWORD dwBaseDelta;
     PIMAGE_BASE_RELOCATION pIBR;
     PIMAGE_IMPORT_DESCRIPTOR pIID;
@@ -212,7 +214,6 @@ VOID InjectProcess(HANDLE hProcess, LPCSTR dllName) {
 PPEB GetPeb(HANDLE ProcessHandle) {
     PROCESS_BASIC_INFORMATION processInfo = {0};
     NTSTATUS status;
-    PPEB pPeb;
 
     status = NtQueryInformationProcess(ProcessHandle, 0x0, &processInfo, sizeof(processInfo), NULL);
     if (!NT_SUCCESS(status)) {
@@ -234,7 +235,6 @@ DWORD FindEntrypoint(HANDLE hProcess) {
     PVOID pImage, pEntry;
     PIMAGE_NT_HEADERS pNtHeaders;
     LONG peHeaderAddr;
-    SIZE_T NumberOfBytesRead;
 
     pPeb = GetPeb(hProcess);
 
