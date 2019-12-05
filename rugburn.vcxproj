@@ -183,7 +183,6 @@
     <ClCompile Include="src\hooks\wininet\netredir.c" />
     <ClCompile Include="src\hooks\ws2_32\redir.c" />
     <ClCompile Include="src\ijlfwd.c" />
-    <ClCompile Include="src\inject.c" />
     <ClCompile Include="src\main.c" />
     <ClCompile Include="src\ntdll.c" />
     <ClCompile Include="src\patch.c" />

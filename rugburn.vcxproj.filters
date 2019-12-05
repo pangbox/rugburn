@@ -49,9 +49,6 @@
     <ClCompile Include="src\ijlfwd.c">
       <Filter>Code\src</Filter>
     </ClCompile>
-    <ClCompile Include="src\inject.c">
-      <Filter>Code\src</Filter>
-    </ClCompile>
     <ClCompile Include="src\third_party\lend\ld32.c">
       <Filter>Code\third_party\lend</Filter>
     </ClCompile>
@@ -70,9 +67,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\ijlfwd.h">
-      <Filter>Code\src</Filter>
-    </ClInclude>
-    <ClInclude Include="src\inject.h">
       <Filter>Code\src</Filter>
     </ClInclude>
     <ClInclude Include="src\hooks\kernel32\inject.h">
