@@ -147,8 +147,7 @@ PANGYAVER DetectPangyaVersion() {
     } else if (FileExists("PangyaJP.ini")) {
         return PANGYA_JP;
     } else if (FileExists("PangyaTH.ini")) {
-        // TODO: Detect actual PangyaTH separately.
-        return PANGYA_BR;
+        return PANGYA_TH;
     }
     return PANGYA_US;
 }
@@ -161,7 +160,7 @@ PSTR GetPangyaArg(PANGYAVER pangyaVersion) {
     case PANGYA_JP:
         return StrDupA("{E69B65A2-7A7E-4977-85E5-B19516D885CB}");
 
-    case PANGYA_BR:
+    case PANGYA_TH:
         return StrDupA("{E69B65A2-7A7E-4977-85E5-B19516D885CB}");
 
     default:

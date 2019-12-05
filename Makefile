@@ -29,7 +29,6 @@ OBJS   := \
 	obj/third_party/lend/ld32.o \
 	obj/common.o \
 	obj/ijlfwd.o \
-	obj/inject.o \
 	obj/main.o \
 	obj/ntdll.o \
 	obj/patch.o

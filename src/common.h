@@ -17,7 +17,7 @@
 typedef enum _PANGYAVER {
     PANGYA_US,
     PANGYA_JP,
-    PANGYA_BR,
+    PANGYA_TH,
 } PANGYAVER;
 
 extern PCHAR pszSelfName;

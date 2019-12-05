@@ -79,6 +79,16 @@ VOID PatchGG_JP972(LPVOID param) {
             Log("Patched GG check routines (JP 972)\r\n");
             return;
         }
+        if (*(DWORD*)0x00A5CF80 == 0x1BA43D83) {
+            Patch((LPVOID)0x00A5CF80, "\xC3\x90\x90\x90\x90\x90\x90", 7);
+            Patch((LPVOID)0x00A5C010, "\xC3\x90\x90\x90\x90\x90\x90", 7);
+            Patch((LPVOID)0x00A5C030, "\xC3\x90\x90\x90\x90\x90\x90", 7);
+            Patch((LPVOID)0x00A5C050, "\x90\x90\x90\x90\x90\x90\x90", 7);
+            Patch((LPVOID)0x00A5CE80, "\xC3", 1);
+            Patch((LPVOID)0x00A5CEB0, "\xC3", 1);
+            Log("Patched GG check routines (JP 974)\r\n");
+            return;
+        }
 		Sleep(5);
     }
 }
@@ -99,6 +109,9 @@ VOID InitGGPatch() {
     case PANGYA_JP:
         patchThread = (LPTHREAD_START_ROUTINE)PatchGG_JP972;
         break;
+    case PANGYA_TH:
+        MessageBoxA(NULL, "No GameGuard patch is available for PangyaTH.", "rugburn", MB_OK);
+        break;
     }
 
     if (!patchThread) {
@@ -115,16 +128,6 @@ extern BOOL STDCALL DllMain(HANDLE hInstance, DWORD dwReason, LPVOID reserved) {
     }
 
     LogInit();
-
-    if (StrCmpA(pszSelfName, "GameGuard.des") == 0) {
-        ExitProcess(0x755);
-    }
-
-    // TODO(john): how do we reason about whether we're ProjectG or not?
-    // Just looking at whether the filename is ProjectG or not is not very
-    // reliable, that would be annoying. For now we just treat everything
-    // that isn't GameGuard as ProjectG...
-
     InitGGPatch();
     InitIJL15();
     InitEnvironment();
