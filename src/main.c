@@ -89,6 +89,16 @@ VOID PatchGG_JP972(LPVOID param) {
             Log("Patched GG check routines (JP 974)\r\n");
             return;
         }
+        if (*(DWORD*)0x00A5CF80 == 0x1C143D83) {
+            Patch((LPVOID)0x00A5CF80, "\xC3\x90\x90\x90\x90\x90\x90", 7);
+            Patch((LPVOID)0x00A5C010, "\xC3\x90\x90\x90\x90\x90\x90", 7);
+            Patch((LPVOID)0x00A5C030, "\xC3\x90\x90\x90\x90\x90\x90", 7);
+            Patch((LPVOID)0x00A5C050, "\x90\x90\x90\x90\x90\x90\x90", 7);
+            Patch((LPVOID)0x00A5CE80, "\xC3", 1);
+            Patch((LPVOID)0x00A5CEB0, "\xC3", 1);
+            Log("Patched GG check routines (JP 983)\r\n");
+            return;
+        }
 		Sleep(5);
     }
 }
