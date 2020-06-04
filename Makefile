@@ -1,13 +1,25 @@
-WATCOM := $(HOME)/Programs/watcom
-WCC := $(WATCOM)/binl/wcc386
-WLINK := $(WATCOM)/binl/wlink
-MKDIR := mkdir
-CP := cp
+ifeq ($(OS),Windows_NT)
+	WATCOM := C:/WATCOM
+	WCC := $(WATCOM)/binnt64/wcc386
+	WLINK := $(WATCOM)/binnt64/wlink
+	RM := del
+	SRCDIR := src\\
+	OBJDIR := obj\\
+	PATHFIX = $(subst /,\,$1)
+else
+	WATCOM := /opt/watcom
+	WCC := $(WATCOM)/binl64/wcc386
+	WLINK := $(WATCOM)/binl64/wlink
+	RM := rm
+	SRCDIR := src/
+	OBJDIR := obj/
+	PATHFIX = $1
+endif
 
 CFLAGS := \
-	-i$(WATCOM)/h \
-	-i$(WATCOM)/h/nt \
-	-i$(WATCOM)/h/nt/ddk \
+	-i$(call PATHFIX,$(WATCOM)/h) \
+	-i$(call PATHFIX,$(WATCOM)/h/nt) \
+	-i$(call PATHFIX,$(WATCOM)/h/nt/ddk) \
 	-zl \
 	-s \
 	-bd \
@@ -17,43 +29,47 @@ CFLAGS := \
 	-zq
 
 LDFLAGS := \
-	LIBPATH $(WATCOM)/lib386 \
-	LIBPATH $(WATCOM)/lib386/nt
+	LIBPATH $(call PATHFIX,$(WATCOM)/lib386) \
+	LIBPATH $(call PATHFIX,$(WATCOM)/lib386/nt)
 
-OBJS   := \
-	obj/hooks/kernel32/inject.o \
-	obj/hooks/user32/window.o \
-	obj/hooks/ws2_32/redir.o \
-	obj/hooks/wininet/netredir.o \
-	obj/hooks/hooks.o \
-	obj/third_party/lend/ld32.o \
-	obj/common.o \
-	obj/ijlfwd.o \
-	obj/main.o \
-	obj/ntdll.o \
-	obj/patch.o
+OBJS := \
+	$(call PATHFIX,obj/hooks/kernel32/inject.o) \
+	$(call PATHFIX,obj/hooks/user32/window.o) \
+	$(call PATHFIX,obj/hooks/ws2_32/redir.o) \
+	$(call PATHFIX,obj/hooks/wininet/netredir.o) \
+	$(call PATHFIX,obj/hooks/hooks.o) \
+	$(call PATHFIX,obj/third_party/lend/ld32.o) \
+	$(call PATHFIX,obj/common.o) \
+	$(call PATHFIX,obj/ijlfwd.o) \
+	$(call PATHFIX,obj/main.o) \
+	$(call PATHFIX,obj/ntdll.o) \
+	$(call PATHFIX,obj/patch.o)
 
-OUT := out/ijl15.dll
+OUT := $(call PATHFIX,out/ijl15.dll)
 
 all: $(OUT)
 
 .PHONY: clean
 
-obj/%.o: src/%.c
-	@$(MKDIR) -p $(dir $@)
-	$(WCC) $(CFLAGS) $< -fo=$@
-
+ifeq ($(OS),Windows_NT)
+$(OBJDIR)%.o: $(SRCDIR)%.c
+	@setlocal enableextensions
+	@if not exist "$(dir $@)" mkdir "$(dir $@)"
+	@endlocal
+	$(WCC) $(CFLAGS) "$<" "-fo=$@"
 $(OUT): $(OBJS)
-	@$(MKDIR) -p $(dir $@)
-	$(WLINK) $(LDFLAGS) NAME $@ @export.def FILE {$(OBJS)}
+	@setlocal enableextensions
+	@if not exist "$(dir $@)" mkdir "$(dir $@)"
+	@endlocal
+	$(WLINK) $(LDFLAGS) NAME "$@" @export.def FILE {$(OBJS)}
+else
+$(OBJDIR)%.o: $(SRCDIR)%.c
+	@mkdir -p "$(dir $@)"
+	$(WCC) $(CFLAGS) "$<" "-fo=$@"
+$(OUT): $(OBJS)
+	@mkdir -p "$(dir $@)"
+	$(WLINK) $(LDFLAGS) NAME "$@" @export.def FILE {$(OBJS)}
+endif
 
 clean:
 	$(RM) $(OBJS) $(OUT)
-
-shared: $(OUT)
-	$(RM) "${HOME}/Shared/ijl15.dll"
-	$(CP) "$(OUT)" "${HOME}/Shared/ijl15.dll"
-	$(RM) "${HOME}/Pangya/Clients/PangYa Japan/ijl15.dll"
-	$(CP) "$(OUT)" "${HOME}/Pangya/Clients/PangYa Japan/ijl15.dll"
-	$(RM) "${HOME}/Pangya/Clients/PangYa US 852.00/ijl15.dll"
-	$(CP) "$(OUT)" "${HOME}/Pangya/Clients/PangYa US 852.00/ijl15.dll"

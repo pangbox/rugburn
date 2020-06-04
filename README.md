@@ -35,8 +35,31 @@ Features:
 It was chosen because it offered an easy path to cross-compilation while also
 allowing for tiny binaries that did not depend on libc.
 
-You can modify the Make variables `WATCOM`, `WCC`, and `WLINK` to match your
-environment, then run `make`. An `ijl15.dll` should appear in the `out` folder.
+You need to install OpenWatcom first. You can find binaries at:
+https://github.com/open-watcom/open-watcom-v2/releases
+
+Then, simply install GNU Make on your platform:
+
+```sh
+# Windows + Powershell
+choco install make
+
+# Debian/Ubuntu
+apt install make
+```
+
+And all you have to do is run `make`.
+```sh
+make
+```
+
+And you should find an `ijl15.dll` in your `out/` directory.
+
+By default, the makefile will assume OpenWatcom is installed into `C:\WATCOM` on Windows and `/opt/watcom` on other platforms. You can override this by passing in the `WATCOM` variable:
+
+```
+make WATCOM=$HOME/Programs/watcom
+```
 
 ## Installation
 
