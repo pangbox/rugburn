@@ -40,7 +40,6 @@ struct _REGEX {
 	BYTE charClass[MAXRECHARCLASS];
 	RECAPGROUP cap[MAXRECAPTURE];
 	int numCap;
-	BOOL incap;
 };
 
 static BOOL ReMatchPattern(REGEX *regex, RETOKEN *pattern, LPCSTR text);
@@ -132,7 +131,10 @@ REGEX *ReParse(LPCSTR pattern) {
 
 	ZeroMemory(compiled, sizeof(REGEX));
 
-	while (pattern[i] != 0 && (j+1 < MAXRETOKENS)) {
+	while (pattern[i] != 0) {
+		if (j+1 >= MAXRETOKENS) {
+			FatalError("Parsing regular expression: reached max number of tokens.");
+		}
 		ch = pattern[i];
 		switch (ch) {
 			case '(': { compiled->tok[j].type = RE_TOK_LPAREN; } break;
@@ -164,16 +166,16 @@ REGEX *ReParse(LPCSTR pattern) {
 				while ((pattern[++i] != ']') && (pattern[i]   != 0)) {
 					if (pattern[i] == '\\') {
 						if (charClassIndex >= MAXRECHARCLASS - 1) {
-							return 0;
+			        FatalError("Parsing regular expression: reached max character class storage.");
 						}
 						compiled->charClass[charClassIndex++] = pattern[i++];
 					} else if (charClassIndex >= MAXRECHARCLASS) {
-							return 0;
+						FatalError("Parsing regular expression: reached max character class storage.");
 					}
 					compiled->charClass[charClassIndex++] = pattern[i];
 				}
 				if (charClassIndex >= MAXRECHARCLASS) {
-						return 0;
+					FatalError("Parsing regular expression: reached max character class storage.");
 				}
 				compiled->charClass[charClassIndex++] = 0;
 				compiled->tok[j].charClass = &compiled->charClass[charClassBegin];
@@ -303,7 +305,7 @@ static BOOL ReMatchPattern(REGEX *regex, RETOKEN *pattern, LPCSTR text) {
 	do {
 		if (pattern[0].type == RE_TOK_LPAREN) {
 			if (regex->numCap == MAXRECAPTURE) {
-				return FALSE;
+        FatalError("Matching regular expression: reached max capture groups.");
 			}
 			regex->cap[regex->numCap++].str = text;
 			pattern++;

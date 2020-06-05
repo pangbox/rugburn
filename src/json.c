@@ -166,7 +166,7 @@ void JsonConsumeKeywordToken(LPSTR *json, LPJSONTOKEN token) {
         return;
     }
     if (memcmp(*json, "false", 5) == 0) {
-        *json += 4;
+        *json += 5;
         token->token_type = JSON_TOK_FALSE;
         return;
     }
