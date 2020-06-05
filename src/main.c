@@ -12,6 +12,7 @@
  */
 
 #include "common.h"
+#include "config.h"
 #include "ijlfwd.h"
 #include "hooks/hooks.h"
 
@@ -23,6 +24,7 @@ VOID InitEnvironment() {
     PANGYAVER pangyaVersion;
     PSTR szPangyaArg;
 
+    LoadJsonRugburnConfig();
     pangyaVersion = DetectPangyaVersion();
     szPangyaArg = GetPangyaArg(pangyaVersion);
 

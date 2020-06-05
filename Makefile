@@ -40,10 +40,13 @@ OBJS := \
 	$(call PATHFIX,obj/hooks/hooks.o) \
 	$(call PATHFIX,obj/third_party/lend/ld32.o) \
 	$(call PATHFIX,obj/common.o) \
+	$(call PATHFIX,obj/config.o) \
 	$(call PATHFIX,obj/ijlfwd.o) \
+	$(call PATHFIX,obj/json.o) \
 	$(call PATHFIX,obj/main.o) \
 	$(call PATHFIX,obj/ntdll.o) \
-	$(call PATHFIX,obj/patch.o)
+	$(call PATHFIX,obj/patch.o) \
+	$(call PATHFIX,obj/regex.o)
 
 OUT := $(call PATHFIX,out/ijl15.dll)
 
