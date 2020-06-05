@@ -45,8 +45,8 @@ struct _REGEX {
 
 static BOOL ReMatchPattern(REGEX *regex, RETOKEN *pattern, LPCSTR text);
 static BOOL ReMatchChClass(CHAR ch, LPCSTR str);
-static BOOL ReMatchAsterisk(REGEX *regex, RETOKEN p, RETOKEN *pattern, LPCSTR text);
-static BOOL ReMatchPlus(REGEX *regex, RETOKEN p, RETOKEN *pattern, LPCSTR text);
+static BOOL ReMatchZeroOrMore(REGEX *regex, RETOKEN p, RETOKEN *pattern, LPCSTR text);
+static BOOL ReMatchOneOrMore(REGEX *regex, RETOKEN p, RETOKEN *pattern, LPCSTR text);
 static BOOL ReMatchOne(RETOKEN p, CHAR ch);
 static BOOL ReMatchDigit(CHAR ch);
 static BOOL ReMatchAlpha(CHAR ch);
@@ -223,13 +223,20 @@ static BOOL ReIsMetaCh(CHAR ch) {
 
 static BOOL ReMatchMetaChar(CHAR ch, LPCSTR str) {
 	switch (str[0]) {
-		case 'd': return ReMatchDigit(ch);
-		case 'D': return !ReMatchDigit(ch);
-		case 'w': return ReMatchAlphaNum(ch);
-		case 'W': return !ReMatchAlphaNum(ch);
-		case 's': return ReMatchWhitespace(ch);
-		case 'S': return !ReMatchWhitespace(ch);
-		default: return ch == str[0];
+		case 'd':
+			return ReMatchDigit(ch);
+		case 'D':
+			return !ReMatchDigit(ch);
+		case 'w':
+			return ReMatchAlphaNum(ch);
+		case 'W':
+			return !ReMatchAlphaNum(ch);
+		case 's':
+			return ReMatchWhitespace(ch);
+		case 'S':
+			return !ReMatchWhitespace(ch);
+		default:
+			return ch == str[0];
 	}
 }
 
@@ -257,20 +264,30 @@ static BOOL ReMatchChClass(CHAR ch, LPCSTR str) {
 
 static BOOL ReMatchOne(RETOKEN p, CHAR ch) {
 	switch (p.type) {
-		case RE_TOK_PERIOD: return TRUE;
-		case RE_TOK_CHARCLASS: return ReMatchChClass(ch, (LPCSTR)p.charClass);
-		case RE_TOK_INVCHARCLASS: return !ReMatchChClass(ch, (LPCSTR)p.charClass);
-		case RE_TOK_DIGIT: return ReMatchDigit(ch);
-		case RE_TOK_NONDIGIT: return !ReMatchDigit(ch);
-		case RE_TOK_ALPHA: return ReMatchAlphaNum(ch);
-		case RE_TOK_NONALPHA: return !ReMatchAlphaNum(ch);
-		case RE_TOK_WHITESPACE: return ReMatchWhitespace(ch);
-		case RE_TOK_NONWHITESPACE: return !ReMatchWhitespace(ch);
-		default: return (p.ch == ch);
+		case RE_TOK_PERIOD:
+			return TRUE;
+		case RE_TOK_CHARCLASS:
+			return ReMatchChClass(ch, (LPCSTR)p.charClass);
+		case RE_TOK_INVCHARCLASS:
+			return !ReMatchChClass(ch, (LPCSTR)p.charClass);
+		case RE_TOK_DIGIT:
+			return ReMatchDigit(ch);
+		case RE_TOK_NONDIGIT:
+			return !ReMatchDigit(ch);
+		case RE_TOK_ALPHA:
+			return ReMatchAlphaNum(ch);
+		case RE_TOK_NONALPHA:
+			return !ReMatchAlphaNum(ch);
+		case RE_TOK_WHITESPACE:
+			return ReMatchWhitespace(ch);
+		case RE_TOK_NONWHITESPACE:
+			return !ReMatchWhitespace(ch);
+		default:
+			return p.ch == ch;
 	}
 }
 
-static BOOL ReMatchAsterisk(REGEX *regex, RETOKEN p, RETOKEN *pattern, LPCSTR text) {
+static BOOL ReMatchZeroOrMore(REGEX *regex, RETOKEN p, RETOKEN *pattern, LPCSTR text) {
 	LPCSTR start = text;
 	while (text[0] != 0 && ReMatchOne(p, *text)) {
 		text++;
@@ -283,7 +300,7 @@ static BOOL ReMatchAsterisk(REGEX *regex, RETOKEN p, RETOKEN *pattern, LPCSTR te
 	return FALSE;
 }
 
-static BOOL ReMatchPlus(REGEX *regex, RETOKEN p, RETOKEN *pattern, LPCSTR text) {
+static BOOL ReMatchOneOrMore(REGEX *regex, RETOKEN p, RETOKEN *pattern, LPCSTR text) {
 	LPCSTR start = text;
 	while (text[0] != 0 && ReMatchOne(p, *text)) {
 		text++;
@@ -296,7 +313,7 @@ static BOOL ReMatchPlus(REGEX *regex, RETOKEN p, RETOKEN *pattern, LPCSTR text) 
 	return 0;
 }
 
-static BOOL ReMatchQuestionMark(REGEX *regex, RETOKEN p, RETOKEN *pattern, LPCSTR text) {
+static BOOL ReMatchOptional(REGEX *regex, RETOKEN p, RETOKEN *pattern, LPCSTR text) {
 	if (p.type == RE_TOK_NONE) {
 		return TRUE;
 	}
@@ -313,10 +330,13 @@ static BOOL ReMatchQuestionMark(REGEX *regex, RETOKEN p, RETOKEN *pattern, LPCST
 
 static BOOL ReMatchPattern(REGEX *regex, RETOKEN *pattern, LPCSTR text) {
 	do {
+		// End capture group.
 		if (regex->numCap > 0 && regex->cap[regex->numCap - 1].str && pattern[0].type == RE_TOK_RPAREN) {
 			regex->cap[regex->numCap - 1].len = text - regex->cap[regex->numCap - 1].str;
 			pattern++;
 		}
+	
+		// Start capture group.
 		if (pattern[0].type == RE_TOK_LPAREN) {
 			if (regex->numCap == MAXRECAPTURE) {
         FatalError("Matching regular expression: reached max capture groups.");
@@ -324,12 +344,13 @@ static BOOL ReMatchPattern(REGEX *regex, RETOKEN *pattern, LPCSTR text) {
 			regex->cap[regex->numCap++].str = text;
 			pattern++;
 		}
+
 		if (pattern[1].type == RE_TOK_QUESTIONMARK) {
-			return ReMatchQuestionMark(regex, pattern[0], &pattern[2], text);
+			return ReMatchOptional(regex, pattern[0], &pattern[2], text);
 		} else if (pattern[1].type == RE_TOK_ASTERISK) {
-			return ReMatchAsterisk(regex, pattern[0], &pattern[2], text);
+			return ReMatchZeroOrMore(regex, pattern[0], &pattern[2], text);
 		} else if (pattern[1].type == RE_TOK_PLUS) {
-			return ReMatchPlus(regex, pattern[0], &pattern[2], text);
+			return ReMatchOneOrMore(regex, pattern[0], &pattern[2], text);
 		} else if (pattern[1].type == RE_TOK_NONE) {
 			return text[0] == 0;
 		}
