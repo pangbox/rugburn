@@ -44,7 +44,7 @@ struct _REGEX {
 };
 
 static BOOL ReMatchPattern(REGEX *regex, RETOKEN *pattern, LPCSTR text);
-static BOOL ReMatchChClass(CHAR ch, LPCSTR str);
+static BOOL ReMatchCharClass(CHAR ch, LPCSTR str);
 static BOOL ReMatchZeroOrMore(REGEX *regex, RETOKEN p, RETOKEN *pattern, LPCSTR text);
 static BOOL ReMatchOneOrMore(REGEX *regex, RETOKEN p, RETOKEN *pattern, LPCSTR text);
 static BOOL ReMatchOne(RETOKEN p, CHAR ch);
@@ -70,6 +70,7 @@ void ReGetCaptureData(REGEX *pattern, int i, LPSTR buffer) {
 BOOL ReMatch(REGEX *pattern, LPCSTR text) {
 	pattern->numCap = 0;
 	memset(pattern->cap, 0, sizeof(RECAPGROUP) * MAXRECAPTURE);
+
 	return ReMatchPattern(pattern, &pattern->tok[0], text);
 }
 
@@ -163,10 +164,9 @@ REGEX *ReParse(LPCSTR pattern) {
 			} break;
 			case '[': {
 				int charClassBegin = charClassIndex;
-				i++;
 				compiled->tok[j].type = RE_TOK_CHARCLASS;
 
-				if (pattern[i] == '^') {
+				if (pattern[++i] == '^') {
 					compiled->tok[j].type = RE_TOK_INVCHARCLASS;
 					i++;
 				}
@@ -240,7 +240,7 @@ static BOOL ReMatchMetaChar(CHAR ch, LPCSTR str) {
 	}
 }
 
-static BOOL ReMatchChClass(CHAR ch, LPCSTR str) {
+static BOOL ReMatchCharClass(CHAR ch, LPCSTR str) {
 	do {
 		if (ReMatchRange(ch, str)) {
 			return TRUE;
@@ -267,9 +267,9 @@ static BOOL ReMatchOne(RETOKEN p, CHAR ch) {
 		case RE_TOK_PERIOD:
 			return TRUE;
 		case RE_TOK_CHARCLASS:
-			return ReMatchChClass(ch, (LPCSTR)p.charClass);
+			return ReMatchCharClass(ch, (LPCSTR)p.charClass);
 		case RE_TOK_INVCHARCLASS:
-			return !ReMatchChClass(ch, (LPCSTR)p.charClass);
+			return !ReMatchCharClass(ch, (LPCSTR)p.charClass);
 		case RE_TOK_DIGIT:
 			return ReMatchDigit(ch);
 		case RE_TOK_NONDIGIT:
@@ -307,10 +307,10 @@ static BOOL ReMatchOneOrMore(REGEX *regex, RETOKEN p, RETOKEN *pattern, LPCSTR t
 	}
 	while (text > start) {
 		if (ReMatchPattern(regex, pattern, text--)) {
-			return 1;
+			return TRUE;
 		}
 	}  
-	return 0;
+	return FALSE;
 }
 
 static BOOL ReMatchOptional(REGEX *regex, RETOKEN p, RETOKEN *pattern, LPCSTR text) {
