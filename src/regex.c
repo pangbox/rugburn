@@ -14,6 +14,7 @@ typedef enum _RETOKENTYPE {
 	RE_TOK_QUESTIONMARK,
 	RE_TOK_CHAR,
 	RE_TOK_CHARCLASS,
+	RE_TOK_INVCHARCLASS,
 	RE_TOK_DIGIT,
 	RE_TOK_NONDIGIT,
 	RE_TOK_ALPHA,
@@ -162,8 +163,15 @@ REGEX *ReParse(LPCSTR pattern) {
 			} break;
 			case '[': {
 				int charClassBegin = charClassIndex;
+				i++;
 				compiled->tok[j].type = RE_TOK_CHARCLASS;
-				while ((pattern[++i] != ']') && (pattern[i]   != 0)) {
+
+				if (pattern[i] == '^') {
+					compiled->tok[j].type = RE_TOK_INVCHARCLASS;
+					i++;
+				}
+
+				while (pattern[i] != ']' && pattern[i] != 0) {
 					if (pattern[i] == '\\') {
 						if (charClassIndex >= MAXRECHARCLASS - 1) {
 			        FatalError("Parsing regular expression: reached max character class storage.");
@@ -173,6 +181,7 @@ REGEX *ReParse(LPCSTR pattern) {
 						FatalError("Parsing regular expression: reached max character class storage.");
 					}
 					compiled->charClass[charClassIndex++] = pattern[i];
+					i++;
 				}
 				if (charClassIndex >= MAXRECHARCLASS) {
 					FatalError("Parsing regular expression: reached max character class storage.");
@@ -250,6 +259,7 @@ static BOOL ReMatchOne(RETOKEN p, CHAR ch) {
 	switch (p.type) {
 		case RE_TOK_PERIOD: return TRUE;
 		case RE_TOK_CHARCLASS: return ReMatchChClass(ch, (LPCSTR)p.charClass);
+		case RE_TOK_INVCHARCLASS: return !ReMatchChClass(ch, (LPCSTR)p.charClass);
 		case RE_TOK_DIGIT: return ReMatchDigit(ch);
 		case RE_TOK_NONDIGIT: return !ReMatchDigit(ch);
 		case RE_TOK_ALPHA: return ReMatchAlphaNum(ch);
@@ -303,15 +313,15 @@ static BOOL ReMatchQuestionMark(REGEX *regex, RETOKEN p, RETOKEN *pattern, LPCST
 
 static BOOL ReMatchPattern(REGEX *regex, RETOKEN *pattern, LPCSTR text) {
 	do {
+		if (regex->numCap > 0 && regex->cap[regex->numCap - 1].str && pattern[0].type == RE_TOK_RPAREN) {
+			regex->cap[regex->numCap - 1].len = text - regex->cap[regex->numCap - 1].str;
+			pattern++;
+		}
 		if (pattern[0].type == RE_TOK_LPAREN) {
 			if (regex->numCap == MAXRECAPTURE) {
         FatalError("Matching regular expression: reached max capture groups.");
 			}
 			regex->cap[regex->numCap++].str = text;
-			pattern++;
-		}
-		if (regex->numCap > 0 && regex->cap[regex->numCap - 1].str && pattern[0].type == RE_TOK_RPAREN) {
-			regex->cap[regex->numCap - 1].len = text - regex->cap[regex->numCap - 1].str;
 			pattern++;
 		}
 		if (pattern[1].type == RE_TOK_QUESTIONMARK) {
