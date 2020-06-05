@@ -174,7 +174,7 @@ REGEX *ReParse(LPCSTR pattern) {
 				while (pattern[i] != ']' && pattern[i] != 0) {
 					if (pattern[i] == '\\') {
 						if (charClassIndex >= MAXRECHARCLASS - 1) {
-			        FatalError("Parsing regular expression: reached max character class storage.");
+							FatalError("Parsing regular expression: reached max character class storage.");
 						}
 						compiled->charClass[charClassIndex++] = pattern[i++];
 					} else if (charClassIndex >= MAXRECHARCLASS) {
@@ -339,7 +339,7 @@ static BOOL ReMatchPattern(REGEX *regex, RETOKEN *pattern, LPCSTR text) {
 		// Start capture group.
 		if (pattern[0].type == RE_TOK_LPAREN) {
 			if (regex->numCap == MAXRECAPTURE) {
-        FatalError("Matching regular expression: reached max capture groups.");
+				FatalError("Matching regular expression: reached max capture groups.");
 			}
 			regex->cap[regex->numCap++].str = text;
 			pattern++;
