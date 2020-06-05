@@ -128,7 +128,7 @@ LPSTR ReReplace(REGEX *find, LPCSTR replace, LPCSTR text) {
 
 REGEX *ReParse(LPCSTR pattern) {
 	REGEX *compiled = (REGEX *)LocalAlloc(0, sizeof(REGEX));
-	int charClassIndex = 1,  i = 0, j = 0;
+	int charClassIndex = 1, charClassBegin = 0, i = 0, j = 0;
 	CHAR ch;
 
 	ZeroMemory(compiled, sizeof(REGEX));
@@ -139,31 +139,56 @@ REGEX *ReParse(LPCSTR pattern) {
 		}
 		ch = pattern[i];
 		switch (ch) {
-			case '(': { compiled->tok[j].type = RE_TOK_LPAREN; } break;
-			case ')': { compiled->tok[j].type = RE_TOK_RPAREN; } break;
-			case '.': { compiled->tok[j].type = RE_TOK_PERIOD; } break;
-			case '*': { compiled->tok[j].type = RE_TOK_ASTERISK; } break;
-			case '+': { compiled->tok[j].type = RE_TOK_PLUS; } break;
-			case '?': { compiled->tok[j].type = RE_TOK_QUESTIONMARK; } break;
+			case '(':
+				compiled->tok[j].type = RE_TOK_LPAREN;
+				break;
+			case ')':
+				compiled->tok[j].type = RE_TOK_RPAREN;
+				break;
+			case '.':
+				compiled->tok[j].type = RE_TOK_PERIOD;
+				break;
+			case '*':
+				compiled->tok[j].type = RE_TOK_ASTERISK;
+				break;
+			case '+':
+				compiled->tok[j].type = RE_TOK_PLUS;
+				break;
+			case '?':
+				compiled->tok[j].type = RE_TOK_QUESTIONMARK;
+				break;
 			case '\\': {
 				if (pattern[i+1] != 0) {
 					i++;
 					switch (pattern[i]) {
-						case 'd': { compiled->tok[j].type = RE_TOK_DIGIT; } break;
-						case 'D': { compiled->tok[j].type = RE_TOK_NONDIGIT; } break;
-						case 'w': { compiled->tok[j].type = RE_TOK_ALPHA; } break;
-						case 'W': { compiled->tok[j].type = RE_TOK_NONALPHA; } break;
-						case 's': { compiled->tok[j].type = RE_TOK_WHITESPACE; } break;
-						case 'S': { compiled->tok[j].type = RE_TOK_NONWHITESPACE; } break;
-						default: {
+						case 'd':
+							compiled->tok[j].type = RE_TOK_DIGIT;
+							break;
+						case 'D':
+							compiled->tok[j].type = RE_TOK_NONDIGIT;
+							break;
+						case 'w':
+							compiled->tok[j].type = RE_TOK_ALPHA;
+							break;
+						case 'W':
+							compiled->tok[j].type = RE_TOK_NONALPHA;
+							break;
+						case 's':
+							compiled->tok[j].type = RE_TOK_WHITESPACE;
+							break;
+						case 'S':
+							compiled->tok[j].type = RE_TOK_NONWHITESPACE;
+							break;
+						default:
 							compiled->tok[j].type = RE_TOK_CHAR;
 							compiled->tok[j].ch = pattern[i];
-						} break;
+							break;
 					}
 				}
 			} break;
-			case '[': {
-				int charClassBegin = charClassIndex;
+
+			case '[':
+				charClassBegin = charClassIndex;
 				compiled->tok[j].type = RE_TOK_CHARCLASS;
 
 				if (pattern[++i] == '^') {
@@ -188,12 +213,12 @@ REGEX *ReParse(LPCSTR pattern) {
 				}
 				compiled->charClass[charClassIndex++] = 0;
 				compiled->tok[j].charClass = &compiled->charClass[charClassBegin];
-			}
-			break;
-			default: {
+				break;
+
+			default:
 				compiled->tok[j].type = RE_TOK_CHAR;
 				compiled->tok[j].ch = ch;
-			} break;
+				break;
 		}
 		i++;
 		j++;
