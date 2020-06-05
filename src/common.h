@@ -22,9 +22,13 @@ typedef enum _PANGYAVER {
 
 extern PCHAR pszSelfName;
 
-PVOID memcpy(PVOID dest, VOID const *src, size_t size);
+int strcmp(LPCSTR dest, LPCSTR src);
+int memcmp(LPCVOID dest, LPCVOID src, size_t size);
+PVOID memcpy(PVOID dest, LPCVOID src, size_t size);
 PVOID memset(PVOID p, INT c, UINT size);
 BOOL FileExists(LPCSTR szPath);
+LPSTR ReadEntireFile(LPCSTR szPath);
+VOID WriteEntireFile(LPCSTR szPath, LPCSTR data, DWORD dwBytesToWrite);
 VOID FatalError(PCHAR fmt, ...);
 VOID Warning(PCHAR fmt, ...);
 VOID Log(PCHAR fmt, ...);
