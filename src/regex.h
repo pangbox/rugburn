@@ -1,7 +1,7 @@
 #ifndef RE_H
 #define RE_H
 
-#include <windows.h>
+#include "common.h"
 
 typedef struct _REGEX REGEX;
 

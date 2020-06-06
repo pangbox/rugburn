@@ -43,17 +43,7 @@ struct _REGEX {
 	int numCap;
 };
 
-static BOOL ReMatchPattern(REGEX *regex, RETOKEN *pattern, LPCSTR text);
-static BOOL ReMatchCharClass(CHAR ch, LPCSTR str);
-static BOOL ReMatchZeroOrMore(REGEX *regex, RETOKEN p, RETOKEN *pattern, LPCSTR text);
-static BOOL ReMatchOneOrMore(REGEX *regex, RETOKEN p, RETOKEN *pattern, LPCSTR text);
-static BOOL ReMatchOne(RETOKEN p, CHAR ch);
-static BOOL ReMatchDigit(CHAR ch);
-static BOOL ReMatchAlpha(CHAR ch);
-static BOOL ReMatchWhitespace(CHAR ch);
-static BOOL ReMatchMetaChar(CHAR ch, LPCSTR str);
-static BOOL ReMatchRange(CHAR ch, LPCSTR str);
-static BOOL ReIsMetaCh(CHAR ch);
+static BOOL ReMatchPattern(REGEX *pattern, RETOKEN *tokenptr, LPCSTR text);
 
 int ReGetNumCaptures(REGEX *pattern) {
 	return pattern->numCap;
@@ -74,12 +64,12 @@ BOOL ReMatch(REGEX *pattern, LPCSTR text) {
 	return ReMatchPattern(pattern, &pattern->tok[0], text);
 }
 
-LPSTR ReReplace(REGEX *find, LPCSTR replace, LPCSTR text) {
+LPSTR ReReplace(REGEX *pattern, LPCSTR replace, LPCSTR text) {
 	LPCSTR ptr;
 	LPSTR result, ptrout;
 	int outLen = 0;
 
-	if (!ReMatch(find, text)) {
+	if (!ReMatch(pattern, text)) {
 		return NULL;
 	}
 
@@ -90,7 +80,7 @@ LPSTR ReReplace(REGEX *find, LPCSTR replace, LPCSTR text) {
 		switch (*ptr++) {
 		case '$':
 			if (*ptr >= '0' && *ptr <= '9') {
-				outLen += find->cap[*ptr-'0'].len;
+				outLen += pattern->cap[*ptr-'0'].len;
 			} else if (*ptr == '$') {
 				outLen++;
 			}
@@ -111,8 +101,8 @@ LPSTR ReReplace(REGEX *find, LPCSTR replace, LPCSTR text) {
 		case '$':
 			ptr++;
 			if (*ptr >= '0' && *ptr <= '9') {
-				memcpy(ptrout, find->cap[*ptr-'0'].str, find->cap[*ptr-'0'].len);
-				ptrout += find->cap[*ptr-'0'].len;
+				memcpy(ptrout, pattern->cap[*ptr-'0'].str, pattern->cap[*ptr-'0'].len);
+				ptrout += pattern->cap[*ptr-'0'].len;
 			} else if (*ptr == '$') {
 				*ptrout++ = '$';
 			}
@@ -139,86 +129,85 @@ REGEX *ReParse(LPCSTR pattern) {
 		}
 		ch = pattern[i];
 		switch (ch) {
-			case '(':
-				compiled->tok[j].type = RE_TOK_LPAREN;
-				break;
-			case ')':
-				compiled->tok[j].type = RE_TOK_RPAREN;
-				break;
-			case '.':
-				compiled->tok[j].type = RE_TOK_PERIOD;
-				break;
-			case '*':
-				compiled->tok[j].type = RE_TOK_ASTERISK;
-				break;
-			case '+':
-				compiled->tok[j].type = RE_TOK_PLUS;
-				break;
-			case '?':
-				compiled->tok[j].type = RE_TOK_QUESTIONMARK;
-				break;
-			case '\\': {
-				if (pattern[i+1] != 0) {
-					i++;
-					switch (pattern[i]) {
-						case 'd':
-							compiled->tok[j].type = RE_TOK_DIGIT;
-							break;
-						case 'D':
-							compiled->tok[j].type = RE_TOK_NONDIGIT;
-							break;
-						case 'w':
-							compiled->tok[j].type = RE_TOK_ALPHA;
-							break;
-						case 'W':
-							compiled->tok[j].type = RE_TOK_NONALPHA;
-							break;
-						case 's':
-							compiled->tok[j].type = RE_TOK_WHITESPACE;
-							break;
-						case 'S':
-							compiled->tok[j].type = RE_TOK_NONWHITESPACE;
-							break;
-						default:
-							compiled->tok[j].type = RE_TOK_CHAR;
-							compiled->tok[j].ch = pattern[i];
-							break;
-					}
+		case '(':
+			compiled->tok[j].type = RE_TOK_LPAREN;
+			break;
+		case ')':
+			compiled->tok[j].type = RE_TOK_RPAREN;
+			break;
+		case '.':
+			compiled->tok[j].type = RE_TOK_PERIOD;
+			break;
+		case '*':
+			compiled->tok[j].type = RE_TOK_ASTERISK;
+			break;
+		case '+':
+			compiled->tok[j].type = RE_TOK_PLUS;
+			break;
+		case '?':
+			compiled->tok[j].type = RE_TOK_QUESTIONMARK;
+			break;
+		case '\\':
+			if (pattern[i+1] != 0) {
+				i++;
+				switch (pattern[i]) {
+				case 'd':
+					compiled->tok[j].type = RE_TOK_DIGIT;
+					break;
+				case 'D':
+					compiled->tok[j].type = RE_TOK_NONDIGIT;
+					break;
+				case 'w':
+					compiled->tok[j].type = RE_TOK_ALPHA;
+					break;
+				case 'W':
+					compiled->tok[j].type = RE_TOK_NONALPHA;
+					break;
+				case 's':
+					compiled->tok[j].type = RE_TOK_WHITESPACE;
+					break;
+				case 'S':
+					compiled->tok[j].type = RE_TOK_NONWHITESPACE;
+					break;
+				default:
+					compiled->tok[j].type = RE_TOK_CHAR;
+					compiled->tok[j].ch = pattern[i];
+					break;
 				}
-			} break;
+			}
+			break;
+		case '[':
+			charClassBegin = charClassIndex;
+			compiled->tok[j].type = RE_TOK_CHARCLASS;
 
-			case '[':
-				charClassBegin = charClassIndex;
-				compiled->tok[j].type = RE_TOK_CHARCLASS;
+			if (pattern[++i] == '^') {
+				compiled->tok[j].type = RE_TOK_INVCHARCLASS;
+				i++;
+			}
 
-				if (pattern[++i] == '^') {
-					compiled->tok[j].type = RE_TOK_INVCHARCLASS;
-					i++;
-				}
-
-				while (pattern[i] != ']' && pattern[i] != 0) {
-					if (pattern[i] == '\\') {
-						if (charClassIndex >= MAXRECHARCLASS - 1) {
-							FatalError("Parsing regular expression: reached max character class storage.");
-						}
-						compiled->charClass[charClassIndex++] = pattern[i++];
-					} else if (charClassIndex >= MAXRECHARCLASS) {
+			while (pattern[i] != ']' && pattern[i] != 0) {
+				if (pattern[i] == '\\') {
+					if (charClassIndex >= MAXRECHARCLASS - 1) {
 						FatalError("Parsing regular expression: reached max character class storage.");
 					}
-					compiled->charClass[charClassIndex++] = pattern[i];
-					i++;
-				}
-				if (charClassIndex >= MAXRECHARCLASS) {
+					compiled->charClass[charClassIndex++] = pattern[i++];
+				} else if (charClassIndex >= MAXRECHARCLASS) {
 					FatalError("Parsing regular expression: reached max character class storage.");
 				}
-				compiled->charClass[charClassIndex++] = 0;
-				compiled->tok[j].charClass = &compiled->charClass[charClassBegin];
-				break;
+				compiled->charClass[charClassIndex++] = pattern[i];
+				i++;
+			}
+			if (charClassIndex >= MAXRECHARCLASS) {
+				FatalError("Parsing regular expression: reached max character class storage.");
+			}
+			compiled->charClass[charClassIndex++] = 0;
+			compiled->tok[j].charClass = &compiled->charClass[charClassBegin];
+			break;
 
-			default:
-				compiled->tok[j].type = RE_TOK_CHAR;
-				compiled->tok[j].ch = ch;
-				break;
+		default:
+			compiled->tok[j].type = RE_TOK_CHAR;
+			compiled->tok[j].ch = ch;
+			break;
 		}
 		i++;
 		j++;
@@ -230,38 +219,43 @@ REGEX *ReParse(LPCSTR pattern) {
 static BOOL ReMatchDigit(CHAR ch) {
 	return ch >= '0' && ch <= '9';
 }
+
 static BOOL ReMatchAlpha(CHAR ch) {
 	return (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z');
 }
-static BOOL ReMatchWhitespace(CHAR ch) {
-	return ch == ' ' || ch == '\t' || ch == '\n' || ch == '\r' || ch == '\f' || ch == '\v';
-}
+
 static BOOL ReMatchAlphaNum(CHAR ch) {
 	return ch == '_' || ReMatchAlpha(ch) || ReMatchDigit(ch);
 }
+
+static BOOL ReMatchWhitespace(CHAR ch) {
+	return ch == ' ' || ch == '\t' || ch == '\n' || ch == '\r' || ch == '\f' || ch == '\v';
+}
+
 static BOOL ReMatchRange(CHAR ch, LPCSTR str) {
 	return ch != '-' && str[0] != 0 && str[0] != '-' && str[1] == '-' && str[1] != 0 && str[2] != 0 && (ch >= str[0] && ch <= str[2]);
 }
+
 static BOOL ReIsMetaCh(CHAR ch) {
 	return ch == 's' || ch == 'S' || ch == 'd' || ch == 'D' || ch == 'w' || ch == 'W';
 }
 
 static BOOL ReMatchMetaChar(CHAR ch, LPCSTR str) {
 	switch (str[0]) {
-		case 'd':
-			return ReMatchDigit(ch);
-		case 'D':
-			return !ReMatchDigit(ch);
-		case 'w':
-			return ReMatchAlphaNum(ch);
-		case 'W':
-			return !ReMatchAlphaNum(ch);
-		case 's':
-			return ReMatchWhitespace(ch);
-		case 'S':
-			return !ReMatchWhitespace(ch);
-		default:
-			return ch == str[0];
+	case 'd':
+		return ReMatchDigit(ch);
+	case 'D':
+		return !ReMatchDigit(ch);
+	case 'w':
+		return ReMatchAlphaNum(ch);
+	case 'W':
+		return !ReMatchAlphaNum(ch);
+	case 's':
+		return ReMatchWhitespace(ch);
+	case 'S':
+		return !ReMatchWhitespace(ch);
+	default:
+		return ch == str[0];
 	}
 }
 
@@ -289,96 +283,96 @@ static BOOL ReMatchCharClass(CHAR ch, LPCSTR str) {
 
 static BOOL ReMatchOne(RETOKEN p, CHAR ch) {
 	switch (p.type) {
-		case RE_TOK_PERIOD:
-			return TRUE;
-		case RE_TOK_CHARCLASS:
-			return ReMatchCharClass(ch, (LPCSTR)p.charClass);
-		case RE_TOK_INVCHARCLASS:
-			return !ReMatchCharClass(ch, (LPCSTR)p.charClass);
-		case RE_TOK_DIGIT:
-			return ReMatchDigit(ch);
-		case RE_TOK_NONDIGIT:
-			return !ReMatchDigit(ch);
-		case RE_TOK_ALPHA:
-			return ReMatchAlphaNum(ch);
-		case RE_TOK_NONALPHA:
-			return !ReMatchAlphaNum(ch);
-		case RE_TOK_WHITESPACE:
-			return ReMatchWhitespace(ch);
-		case RE_TOK_NONWHITESPACE:
-			return !ReMatchWhitespace(ch);
-		default:
-			return p.ch == ch;
+	case RE_TOK_PERIOD:
+		return TRUE;
+	case RE_TOK_CHARCLASS:
+		return ReMatchCharClass(ch, (LPCSTR)p.charClass);
+	case RE_TOK_INVCHARCLASS:
+		return !ReMatchCharClass(ch, (LPCSTR)p.charClass);
+	case RE_TOK_DIGIT:
+		return ReMatchDigit(ch);
+	case RE_TOK_NONDIGIT:
+		return !ReMatchDigit(ch);
+	case RE_TOK_ALPHA:
+		return ReMatchAlphaNum(ch);
+	case RE_TOK_NONALPHA:
+		return !ReMatchAlphaNum(ch);
+	case RE_TOK_WHITESPACE:
+		return ReMatchWhitespace(ch);
+	case RE_TOK_NONWHITESPACE:
+		return !ReMatchWhitespace(ch);
+	default:
+		return p.ch == ch;
 	}
 }
 
-static BOOL ReMatchZeroOrMore(REGEX *regex, RETOKEN p, RETOKEN *pattern, LPCSTR text) {
+static BOOL ReMatchZeroOrMore(REGEX *pattern, RETOKEN p, RETOKEN *tokenptr, LPCSTR text) {
 	LPCSTR start = text;
 	while (text[0] != 0 && ReMatchOne(p, *text)) {
 		text++;
 	}
 	while (text >= start) {
-		if (ReMatchPattern(regex, pattern, text--)) {
+		if (ReMatchPattern(pattern, tokenptr, text--)) {
 			return TRUE;
 		}
 	}
 	return FALSE;
 }
 
-static BOOL ReMatchOneOrMore(REGEX *regex, RETOKEN p, RETOKEN *pattern, LPCSTR text) {
+static BOOL ReMatchOneOrMore(REGEX *pattern, RETOKEN p, RETOKEN *tokenptr, LPCSTR text) {
 	LPCSTR start = text;
 	while (text[0] != 0 && ReMatchOne(p, *text)) {
 		text++;
 	}
 	while (text > start) {
-		if (ReMatchPattern(regex, pattern, text--)) {
+		if (ReMatchPattern(pattern, tokenptr, text--)) {
 			return TRUE;
 		}
 	}  
 	return FALSE;
 }
 
-static BOOL ReMatchOptional(REGEX *regex, RETOKEN p, RETOKEN *pattern, LPCSTR text) {
+static BOOL ReMatchOptional(REGEX *pattern, RETOKEN p, RETOKEN *tokenptr, LPCSTR text) {
 	if (p.type == RE_TOK_NONE) {
 		return TRUE;
 	}
-	if (ReMatchPattern(regex, pattern, text)) {
+	if (ReMatchPattern(pattern, tokenptr, text)) {
 		return TRUE;
 	}
 	if (*text && ReMatchOne(p, *text++)) {
-		if (ReMatchPattern(regex, pattern, text)) {
+		if (ReMatchPattern(pattern, tokenptr, text)) {
 			return TRUE;
 		}
 	}
 	return FALSE;
 }
 
-static BOOL ReMatchPattern(REGEX *regex, RETOKEN *pattern, LPCSTR text) {
+static BOOL ReMatchPattern(REGEX *pattern, RETOKEN *tokenptr, LPCSTR text) {
 	do {
 		// End capture group.
-		if (regex->numCap > 0 && regex->cap[regex->numCap - 1].str && pattern[0].type == RE_TOK_RPAREN) {
-			regex->cap[regex->numCap - 1].len = text - regex->cap[regex->numCap - 1].str;
-			pattern++;
+		if (pattern->numCap > 0 && pattern->cap[pattern->numCap - 1].str && tokenptr[0].type == RE_TOK_RPAREN) {
+			pattern->cap[pattern->numCap - 1].len = text - pattern->cap[pattern->numCap - 1].str;
+			tokenptr++;
 		}
 	
 		// Start capture group.
-		if (pattern[0].type == RE_TOK_LPAREN) {
-			if (regex->numCap == MAXRECAPTURE) {
+		if (tokenptr[0].type == RE_TOK_LPAREN) {
+			if (pattern->numCap == MAXRECAPTURE) {
 				FatalError("Matching regular expression: reached max capture groups.");
 			}
-			regex->cap[regex->numCap++].str = text;
-			pattern++;
+			pattern->cap[pattern->numCap++].str = text;
+			tokenptr++;
 		}
 
-		if (pattern[1].type == RE_TOK_QUESTIONMARK) {
-			return ReMatchOptional(regex, pattern[0], &pattern[2], text);
-		} else if (pattern[1].type == RE_TOK_ASTERISK) {
-			return ReMatchZeroOrMore(regex, pattern[0], &pattern[2], text);
-		} else if (pattern[1].type == RE_TOK_PLUS) {
-			return ReMatchOneOrMore(regex, pattern[0], &pattern[2], text);
-		} else if (pattern[1].type == RE_TOK_NONE) {
+		if (tokenptr[1].type == RE_TOK_QUESTIONMARK) {
+			return ReMatchOptional(pattern, tokenptr[0], &tokenptr[2], text);
+		} else if (tokenptr[1].type == RE_TOK_ASTERISK) {
+			return ReMatchZeroOrMore(pattern, tokenptr[0], &tokenptr[2], text);
+		} else if (tokenptr[1].type == RE_TOK_PLUS) {
+			return ReMatchOneOrMore(pattern, tokenptr[0], &tokenptr[2], text);
+		} else if (tokenptr[0].type == RE_TOK_NONE) {
 			return text[0] == 0;
 		}
-	} while (text[0] != 0 && ReMatchOne(*pattern++, *text++));
+	} while (text[0] != 0 && ReMatchOne(*tokenptr++, *text++));
 	return FALSE;
 }
