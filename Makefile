@@ -73,7 +73,7 @@ $(TESTOUT): $(TESTOBJS)
 	@setlocal enableextensions
 	@if not exist "$(dir $@)" mkdir "$(dir $@)"
 	@endlocal
-	$(WLINK) $(LDFLAGS) NAME "$@" {$(TESTOBJS)}
+	$(WLINK) $(LDFLAGS) NAME "$@" @test.def FILE {$(TESTOBJS)}
 test: $(TESTOUT)
 	$(TESTOUT)
 else
