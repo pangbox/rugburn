@@ -1,0 +1,11 @@
+FORMAT windows
+RUNTIME windows = 4.0
+ALIAS __DLLstart_ = '_WinMain@16'
+LIBRARY {kernel32.lib user32.lib shlwapi.lib}
+
+OPTION START = '_WinMain@16'
+OPTION STACK = 8k
+OPTION ALIGN = 512
+OPTION NODEFAULTLIBS
+OPTION ELIMINATE
+OPTION QUIET

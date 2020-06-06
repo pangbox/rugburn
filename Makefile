@@ -47,10 +47,14 @@ OBJS := \
 	$(call PATHFIX,obj/ntdll.o) \
 	$(call PATHFIX,obj/patch.o) \
 	$(call PATHFIX,obj/regex.o)
+TESTOBJS := \
+  $(OBJS) \
+	$(call PATHFIX,obj/test-main.o)
 
 OUT := $(call PATHFIX,out/ijl15.dll)
+TESTOUT := $(call PATHFIX,out/test.exe)
 
-all: $(OUT)
+all: $(OUT) $(TESTOUT)
 
 .PHONY: clean
 
@@ -65,6 +69,13 @@ $(OUT): $(OBJS)
 	@if not exist "$(dir $@)" mkdir "$(dir $@)"
 	@endlocal
 	$(WLINK) $(LDFLAGS) NAME "$@" @export.def FILE {$(OBJS)}
+$(TESTOUT): $(TESTOBJS)
+	@setlocal enableextensions
+	@if not exist "$(dir $@)" mkdir "$(dir $@)"
+	@endlocal
+	$(WLINK) $(LDFLAGS) NAME "$@" {$(TESTOBJS)}
+test: $(TESTOUT)
+	$(TESTOUT)
 else
 $(OBJDIR)%.o: $(SRCDIR)%.c
 	@mkdir -p "$(dir $@)"
@@ -72,6 +83,11 @@ $(OBJDIR)%.o: $(SRCDIR)%.c
 $(OUT): $(OBJS)
 	@mkdir -p "$(dir $@)"
 	$(WLINK) $(LDFLAGS) NAME "$@" @export.def FILE {$(OBJS)}
+$(TESTOUT): $(TESTOBJS)
+	@mkdir -p "$(dir $@)"
+	$(WLINK) $(LDFLAGS) NAME "$@" @test.def FILE {${TESTOBJS}}
+test: $(TESTOUT)
+	wine $(TESTOUT)
 endif
 
 clean:
