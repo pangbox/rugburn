@@ -1,111 +1,42 @@
-∩╗┐<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Code">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx;h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
-    </Filter>
-    <Filter Include="Code\src">
-      <UniqueIdentifier>{22a78c6d-835e-4b89-bf95-9f057ee151a3}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Code\src\hooks">
-      <UniqueIdentifier>{fd3db697-0888-49f9-a41f-5a57699e10d4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Code\src\hooks\kernel32">
-      <UniqueIdentifier>{2e55f1e6-d70c-402e-bc53-80573dce8313}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Code\src\hooks\wininet">
-      <UniqueIdentifier>{1d4fa97f-5d57-4e9e-843b-fc9f5f46a5c7}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Code\src\hooks\ws2_32">
-      <UniqueIdentifier>{f4a42c91-57ae-4ade-9fe8-c11ef98306fd}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Code\src\hooks\user32">
-      <UniqueIdentifier>{b1d8d6c7-31a3-4435-8bd6-d587766c4aa3}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Code\third_party">
-      <UniqueIdentifier>{b4e7cf1a-7713-473f-b19b-ddafd20ee8b9}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Code\third_party\lend">
-      <UniqueIdentifier>{81ea5953-2cc6-493f-9772-07ab77bd9ac7}</UniqueIdentifier>
-    </Filter>
+    <ClCompile Include="src\common.c" />
+    <ClCompile Include="src\hooks\hooks.c" />
+    <ClCompile Include="src\hooks\kernel32\inject.c" />
+    <ClCompile Include="src\hooks\user32\window.c" />
+    <ClCompile Include="src\hooks\wininet\netredir.c" />
+    <ClCompile Include="src\hooks\ws2_32\redir.c" />
+    <ClCompile Include="src\ijlfwd.c" />
+    <ClCompile Include="src\main.c" />
+    <ClCompile Include="src\ntdll.c" />
+    <ClCompile Include="src\patch.c" />
+    <ClCompile Include="src\third_party\lend\ld32.c" />
+    <ClCompile Include="src\json.c" />
+    <ClCompile Include="src\regex.c" />
+    <ClCompile Include="src\config.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\hooks\hooks.c">
-      <Filter>Code\src\hooks</Filter>
-    </ClCompile>
-    <ClCompile Include="src\hooks\kernel32\inject.c">
-      <Filter>Code\src\hooks\kernel32</Filter>
-    </ClCompile>
-    <ClCompile Include="src\hooks\wininet\netredir.c">
-      <Filter>Code\src\hooks\wininet</Filter>
-    </ClCompile>
-    <ClCompile Include="src\hooks\ws2_32\redir.c">
-      <Filter>Code\src\hooks\ws2_32</Filter>
-    </ClCompile>
-    <ClCompile Include="src\hooks\user32\window.c">
-      <Filter>Code\src\hooks\user32</Filter>
-    </ClCompile>
-    <ClCompile Include="src\ijlfwd.c">
-      <Filter>Code\src</Filter>
-    </ClCompile>
-    <ClCompile Include="src\third_party\lend\ld32.c">
-      <Filter>Code\third_party\lend</Filter>
-    </ClCompile>
-    <ClCompile Include="src\common.c">
-      <Filter>Code\src</Filter>
-    </ClCompile>
-    <ClCompile Include="src\main.c">
-      <Filter>Code\src</Filter>
-    </ClCompile>
-    <ClCompile Include="src\ntdll.c">
-      <Filter>Code\src</Filter>
-    </ClCompile>
-    <ClCompile Include="src\patch.c">
-      <Filter>Code\src</Filter>
-    </ClCompile>
+    <ClInclude Include="src\common-fnptr.h" />
+    <ClInclude Include="src\common.h" />
+    <ClInclude Include="src\hooks\hooks.h" />
+    <ClInclude Include="src\hooks\kernel32\inject.h" />
+    <ClInclude Include="src\hooks\user32\window.h" />
+    <ClInclude Include="src\hooks\wininet\netredir.h" />
+    <ClInclude Include="src\hooks\ws2_32\redir.h" />
+    <ClInclude Include="src\ijlfwd.h" />
+    <ClInclude Include="src\inject.h" />
+    <ClInclude Include="src\ntdll.h" />
+    <ClInclude Include="src\patch.h" />
+    <ClInclude Include="src\third_party\lend\ld32.h" />
+    <ClInclude Include="src\json.h" />
+    <ClInclude Include="src\regex.h" />
+    <ClInclude Include="src\config.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\ijlfwd.h">
-      <Filter>Code\src</Filter>
-    </ClInclude>
-    <ClInclude Include="src\hooks\kernel32\inject.h">
-      <Filter>Code\src\hooks\kernel32</Filter>
-    </ClInclude>
-    <ClInclude Include="src\third_party\lend\ld32.h">
-      <Filter>Code\third_party\lend</Filter>
-    </ClInclude>
-    <ClInclude Include="src\common.h">
-      <Filter>Code\src</Filter>
-    </ClInclude>
-    <ClInclude Include="src\common-fnptr.h">
-      <Filter>Code\src</Filter>
-    </ClInclude>
-    <ClInclude Include="src\hooks\hooks.h">
-      <Filter>Code\src\hooks</Filter>
-    </ClInclude>
-    <ClInclude Include="src\hooks\wininet\netredir.h">
-      <Filter>Code\src\hooks\wininet</Filter>
-    </ClInclude>
-    <ClInclude Include="src\hooks\user32\window.h">
-      <Filter>Code\src\hooks\user32</Filter>
-    </ClInclude>
-    <ClInclude Include="src\hooks\ws2_32\redir.h">
-      <Filter>Code\src\hooks\ws2_32</Filter>
-    </ClInclude>
-    <ClInclude Include="src\ntdll.h">
-      <Filter>Code\src</Filter>
-    </ClInclude>
-    <ClInclude Include="src\patch.h">
-      <Filter>Code\src</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="src\third_party\lend\COPYING" />
+    <None Include="exportvs.def" />
     <None Include="LICENSE.md" />
     <None Include="README.md" />
-    <None Include="exportvs.def">
-      <Filter>Code</Filter>
-    </None>
+    <None Include="src\third_party\lend\COPYING" />
   </ItemGroup>
 </Project>
