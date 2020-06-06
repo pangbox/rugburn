@@ -9,13 +9,13 @@ PSTR pszLogPrefix = NULL;
 int strcmp(LPCSTR dest, LPCSTR src) {
     int cmp;
     do {
-        cmp = *dest++ - *src++;
+        cmp = *dest - *src;
         if (cmp > 0) {
             return 1;
         } else if (cmp < 0) {
             return -1;
         }
-    } while (*dest && *src);
+    } while (*dest++ && *src++);
     return 0;
 }
 
