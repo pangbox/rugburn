@@ -5,12 +5,12 @@ LPCSTR RugburnConfigFilename = "rugburn.json";
 RUGBURNCONFIG Config;
 const char ExampleRugburnConfig[] = "{\r\n" \
 "  \"UrlRewrites\": {\r\n" \
-"    \"http://[a-zA-Z0-9:.]+/(.*)\": \"http://localhost:8080/$0\"\r\n" \
+"    \"http://[a-zA-Z0-9:.]+/(.*)\": \"http://127.0.0.1:8080/$0\"\r\n" \
 "  },\r\n" \
 "  \"PortRewrites\": [\r\n" \
 "    {\r\n" \
 "      \"FromPort\": 10103,\r\n" \
-"      \"ToPort\": 10101,\r\n" \
+"      \"ToPort\": 10103,\r\n" \
 "      \"ToAddr\": \"localhost\"\r\n" \
 "    }\r\n" \
 "  ]\r\n" \
