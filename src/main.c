@@ -62,13 +62,20 @@ VOID PatchGG_US852(LPVOID param) {
             return;
         }
         if (*(DWORD*)0x0A5F097 == 4281238543) {
-            Patch((LPVOID)0x0A5F097, (void*)(PBYTE)"\xE9\x2F\xFF\xFF\xFF\x90", 6);
+            Patch((LPVOID)0x0A5F097, "\xE9\x2F\xFF\xFF\xFF\x90", 6);
             Patch((LPVOID)0x0A49580, "\xC3\x90\x90\x90\x90\x90\x90", 7);
             Patch((LPVOID)0x00A49670, "\xC3\x90\x90\x90\x90\x90\x90", 7);
             Patch((LPVOID)0x00A49690, "\xC3\x90\x90\x90\x90\x90\x90", 7);
             Patch((LPVOID)0x00A496B0, "\x90\x90\x90\x90\x90\x90\x90", 7);
             Patch((LPVOID)0x00A496E0, "\xC3", 1);
             Patch((LPVOID)0x00A49840, "\xC3", 1);
+            // pages that I change manually, More Adress By LuisMK
+            //Original page =>   http://pangya.gamerage.com/EntryPoint/etp.aspx
+            // Rewritten Page => http://127.0.0.1:8080/EntryPoint/etp.php
+            Patch((LPVOID)0x00D1CC1B, "\x31\x32\x37\x2E\x30\x2E\x30\x2E\x31\x3A\x38\x30\x38\x30\x2F\x45\x6E\x74\x72\x79\x50\x6F\x69\x6E\x74\x2F\x65\x74\x70\x2E\x70\x68\x70\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00", 46);
+            //Original page =>   http://pangya.gamerage.com/Gacha/Gacha.aspx
+           // Rewritten Page =>  http://127.0.0.1:8080/Gacha/Gacha.php
+            Patch((LPVOID)0x00CE9B4F, "\x31\x32\x37\x2E\x30\x2E\x30\x2E\x31\x3A\x38\x30\x38\x30\x2F\x47\x61\x63\x68\x61\x2F\x47\x61\x63\x68\x61\x2E\x70\x68\x70\x00\x00\x00\x00\x00\x00", 36);
             Log("Patched GG check routines (US 824)\r\n");
             return;
         }
