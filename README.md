@@ -27,7 +27,7 @@ Features:
   * **This program is not suitable for cheating. It does not support the only
     active region of PangYa and does not offer GameGuard emulation that would
     be needed to stay connected to an official server.** This program is
-    designed for unofficial servers and educational use!
+    designed for personal and educational use.
 
 ## Compiling
 `rugburn` is compiled with OpenWatcom, a simple compiler with few dependencies.
