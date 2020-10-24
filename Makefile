@@ -1,4 +1,4 @@
-ifeq ($(OS),Windows_NT)
+ifeq ($(SHELL),$(COMSPEC))
 	WATCOM := C:/WATCOM
 	WCC := $(WATCOM)/binnt64/wcc386
 	WLINK := $(WATCOM)/binnt64/wlink
@@ -58,7 +58,7 @@ all: $(OUT) $(TESTOUT)
 
 .PHONY: clean
 
-ifeq ($(OS),Windows_NT)
+ifeq ($(SHELL),$(COMSPEC))
 $(OBJDIR)%.o: $(SRCDIR)%.c
 	@setlocal enableextensions
 	@if not exist "$(dir $@)" mkdir "$(dir $@)"
