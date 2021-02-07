@@ -100,7 +100,7 @@ BOOL RewriteAddr(LPSOCKADDR_IN addr) {
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_protocol = IPPROTO_TCP;
 
-    for (i = 0; i < Config.NumUrlRewriteRules; i++) {
+    for (i = 0; i < Config.NumPortRewriteRules; i++) {
         if (addr->sin_port == pHtons(Config.PortRewriteRules[i].fromport)) {
             result = pGetAddrInfo(Config.PortRewriteRules[i].toaddr, NULL, &hints, &resolved);
             if (result != 0) {
