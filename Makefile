@@ -7,7 +7,7 @@ ifeq ($(SHELL),$(COMSPEC))
 	OBJDIR := obj\\
 	PATHFIX = $(subst /,\,$1)
 else
-	WATCOM := /opt/watcom
+	WATCOM := /usr/bin/watcom
 	WCC := $(WATCOM)/binl64/wcc386
 	WLINK := $(WATCOM)/binl64/wlink
 	RM := rm

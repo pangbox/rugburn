@@ -54,7 +54,7 @@ make
 
 And you should find an `ijl15.dll` in your `out/` directory.
 
-By default, the makefile will assume OpenWatcom is installed into `C:\WATCOM` on Windows and `/opt/watcom` on other platforms. You can override this by passing in the `WATCOM` variable:
+By default, the makefile will assume OpenWatcom is installed into `C:\WATCOM` on Windows and `/usr/bin/watcom` on other platforms. You can override this by passing in the `WATCOM` variable:
 
 ```
 make WATCOM=$HOME/Programs/watcom
