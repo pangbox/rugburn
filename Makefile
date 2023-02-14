@@ -1,5 +1,5 @@
 ifeq ($(SHELL),$(COMSPEC))
-	WATCOM := C:/WATCOM
+	WATCOM ?= C:/WATCOM
 	WCC := $(WATCOM)/binnt64/wcc386
 	WLINK := $(WATCOM)/binnt64/wlink
 	RM := del
@@ -7,7 +7,7 @@ ifeq ($(SHELL),$(COMSPEC))
 	OBJDIR := obj\\
 	PATHFIX = $(subst /,\,$1)
 else
-	WATCOM := /usr/bin/watcom
+	WATCOM ?= /usr/bin/watcom
 	WCC := $(WATCOM)/binl64/wcc386
 	WLINK := $(WATCOM)/binl64/wlink
 	RM := rm
