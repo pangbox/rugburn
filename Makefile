@@ -44,7 +44,6 @@ OBJS := \
 	$(call PATHFIX,obj/ijlfwd.o) \
 	$(call PATHFIX,obj/json.o) \
 	$(call PATHFIX,obj/main.o) \
-	$(call PATHFIX,obj/ntdll.o) \
 	$(call PATHFIX,obj/patch.o) \
 	$(call PATHFIX,obj/regex.o)
 TESTOBJS := \

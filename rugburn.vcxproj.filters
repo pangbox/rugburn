@@ -9,7 +9,6 @@
     <ClCompile Include="src\hooks\ws2_32\redir.c" />
     <ClCompile Include="src\ijlfwd.c" />
     <ClCompile Include="src\main.c" />
-    <ClCompile Include="src\ntdll.c" />
     <ClCompile Include="src\patch.c" />
     <ClCompile Include="src\third_party\lend\ld32.c" />
     <ClCompile Include="src\json.c" />
@@ -26,7 +25,6 @@
     <ClInclude Include="src\hooks\ws2_32\redir.h" />
     <ClInclude Include="src\ijlfwd.h" />
     <ClInclude Include="src\inject.h" />
-    <ClInclude Include="src\ntdll.h" />
     <ClInclude Include="src\patch.h" />
     <ClInclude Include="src\third_party\lend\ld32.h" />
     <ClInclude Include="src\json.h" />
