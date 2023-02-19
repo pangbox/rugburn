@@ -93,7 +93,7 @@ LPSTR ReReplace(REGEX *pattern, LPCSTR replace, LPCSTR text) {
 	outLen++;
 
 	// Substitution
-	result = LocalAlloc(0, outLen);
+	result = AllocMem(outLen);
 	ptr = replace;
 	ptrout = result;
 	while (*ptr != 0) {
@@ -117,7 +117,7 @@ LPSTR ReReplace(REGEX *pattern, LPCSTR replace, LPCSTR text) {
 }
 
 REGEX *ReParse(LPCSTR pattern) {
-	REGEX *compiled = (REGEX *)LocalAlloc(0, sizeof(REGEX));
+	REGEX *compiled = (REGEX *)AllocMem(sizeof(REGEX));
 	int charClassIndex = 1, charClassBegin = 0, i = 0, j = 0;
 	CHAR ch;
 

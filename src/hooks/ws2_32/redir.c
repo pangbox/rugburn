@@ -2,17 +2,12 @@
 #include "../../patch.h"
 #include "../../config.h"
 
-HMODULE hWinsock = NULL;
-PFNCONNECTPROC pConnect = NULL;
-PFNHTONSPROC pHtons = NULL;
-PFNGETADDRINFO pGetAddrInfo = NULL;
-PFNFREEADDRINFO pFreeAddrInfo = NULL;
-struct in_addr connectAddr = {127, 0, 0, 1};
+static PFNCONNECTPROC pConnect = NULL;
 
 /**
  * ConnectHook redirects Winsock TCP sockets to localhost.
  */
-int STDCALL ConnectHook(SOCKET s, const struct sockaddr *name, int namelen) {
+static int STDCALL ConnectHook(SOCKET s, const struct sockaddr *name, int namelen) {
     struct sockaddr_in name_in = *(struct sockaddr_in*)name;
     struct sockaddr_in override_in;
     char *oldaddr = (char*)&name_in.sin_addr;
@@ -32,9 +27,5 @@ int STDCALL ConnectHook(SOCKET s, const struct sockaddr *name, int namelen) {
 }
 
 VOID InitRedirHook() {
-    hWinsock = LoadLib("ws2_32");
     pConnect = HookProc(hWinsock, "connect", ConnectHook);
-    pHtons = GetProc(hWinsock, "htons");
-    pGetAddrInfo = GetProc(hWinsock, "getaddrinfo");
-    pFreeAddrInfo = GetProc(hWinsock, "freeaddrinfo");
 }

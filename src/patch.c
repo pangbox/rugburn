@@ -1,39 +1,26 @@
 #include "patch.h"
 #include "third_party/lend/ld32.h"
 
+static PFNWRITEPROCESSMEMORYPROC pWriteProcessMemory = NULL;
+static PFNFLUSHINSTRUCTIONCACHEPROC pFlushInstructionCache = NULL;
+static PFNVIRTUALPROTECTPROC pVirtualProtect = NULL;
+static PFNGETCURRENTPROCESSPROC pGetCurrentProcess = NULL;
+
+VOID InitPatch() {
+    pWriteProcessMemory = GetProc(hKernel32Module, "WriteProcessMemory");
+    pFlushInstructionCache = GetProc(hKernel32Module, "FlushInstructionCache");
+    pVirtualProtect = GetProc(hKernel32Module, "VirtualProtect");
+    pGetCurrentProcess = GetProc(hKernel32Module, "GetCurrentProcess");
+}
+
 /**
- * Writes data into the remote process.
+ * Patch is a small routine for patching arbitrary memory.
  */
-VOID RemotePatch(HANDLE hProcess, DWORD dwAddr, PBYTE pbData, PBYTE pbBackup, DWORD cbData) {
-    DWORD dwOldProtect;
-
-    // Unprotect function.
-    if (VirtualProtectEx(hProcess, (LPVOID)dwAddr, cbData, PAGE_EXECUTE_READWRITE, &dwOldProtect) == 0) {
-        FatalError("Failed to remote patch: VirtualProtect failed. (%08x)", GetLastError());
-    }
-
-    // Optional: Backup remote memory.
-    if (pbBackup) {
-        if (!ReadProcessMemory(hProcess, (LPVOID)dwAddr, pbBackup, cbData, NULL)) {
-            FatalError("Failed to remote patch: ReadProcessMemory failed. (%08x)", GetLastError());
-        }
-    }
-
-    // Patch remote memory.
-    if (!WriteProcessMemory(hProcess, (LPVOID)dwAddr, pbData, cbData, NULL)) {
-        FatalError("Failed to remote patch: WriteProcessMemory failed. (%08x)", GetLastError());
-    }
-
-    // Re-protect function.
-    if (VirtualProtectEx(hProcess, (LPVOID)dwAddr, cbData, dwOldProtect, &dwOldProtect) == 0) {
-        FatalError("Failed to remote patch: VirtualProtect failed. (%08x)", GetLastError());
-    }
-
-    // Flush the icache. Otherwise, it is theoretically possible that our
-    // patch will not work consistently.
-    if (FlushInstructionCache(hProcess, (LPVOID)dwAddr, cbData) == 0) {
-        FatalError("Failed to remote patch: FlushInstructionCache failed. (%08x)", GetLastError());
-    }
+VOID Patch(LPVOID dst, LPVOID src, DWORD size) {
+    DWORD OldProtection;
+    pVirtualProtect(dst, size, PAGE_EXECUTE_READWRITE, &OldProtection);
+    memcpy(dst, src, size);
+    pVirtualProtect(dst, size, OldProtection, &OldProtection);
 }
 
 /**
@@ -48,26 +35,26 @@ VOID InstallHook(PVOID pfnProc, PVOID pfnTargetProc) {
     CHAR pbHook[6] = {0xE9, 0x00, 0x00, 0x00, 0x00, 0xC3};
 
     // Unprotect function.
-    if (VirtualProtect(pfnProc, 6, PAGE_EXECUTE_READWRITE, &dwOldProtect) == 0) {
-        FatalError("Failed to install hook: VirtualProtect failed. (%08x)", GetLastError());
+    if (pVirtualProtect(pfnProc, 6, PAGE_EXECUTE_READWRITE, &dwOldProtect) == 0) {
+        FatalError("Failed to install hook: VirtualProtect failed. (%08x)", LastErr());
     }
 
     // Create and install hook.
     dwRelAddr = ((DWORD)pfnTargetProc - (DWORD)pfnProc - 5);
     memcpy(&pbHook[1], &dwRelAddr, 4);
-    if (!WriteProcessMemory(GetCurrentProcess(), pfnProc, pbHook, 6, NULL)) {
-        FatalError("Failed to install hook: WriteProcessMemory failed. (%08x)", GetLastError());
+    if (!pWriteProcessMemory(pGetCurrentProcess(), pfnProc, pbHook, 6, NULL)) {
+        FatalError("Failed to install hook: WriteProcessMemory failed. (%08x)", LastErr());
     }
 
     // Re-protect function.
-    if (VirtualProtect(pfnProc, 6, dwOldProtect, &dwOldProtect) == 0) {
-        FatalError("Failed to install hook: VirtualProtect failed. (%08x)", GetLastError());
+    if (pVirtualProtect(pfnProc, 6, dwOldProtect, &dwOldProtect) == 0) {
+        FatalError("Failed to install hook: VirtualProtect failed. (%08x)", LastErr());
     }
 
     // Flush the icache. Otherwise, it is theoretically possible that our
     // patch will not work consistently.
-    if (FlushInstructionCache(GetCurrentProcess(), pfnProc, 6) == 0) {
-        FatalError("Failed to install hook: FlushInstructionCache failed. (%08x)", GetLastError());
+    if (pFlushInstructionCache(pGetCurrentProcess(), pfnProc, 6) == 0) {
+        FatalError("Failed to install hook: FlushInstructionCache failed. (%08x)", LastErr());
     }
 }
 
@@ -105,7 +92,7 @@ PCHAR BuildTrampoline(DWORD fn, DWORD prefixLen) {
     // Extra byte is for a return so that the instruction after the jump will
     // be valid. I'm not sure if this is strictly necessary.
     trampolineLen = prefixLen + 6;
-    codeblock = LocalAlloc(0, trampolineLen);
+    codeblock = AllocMem(trampolineLen);
 
     // Copy the prefix into our newly minted codeblock.
     memcpy(codeblock, (void *)fn, prefixLen);
@@ -123,7 +110,7 @@ PCHAR BuildTrampoline(DWORD fn, DWORD prefixLen) {
     codeblock[prefixLen + 5] = 0xC3;
 
     // Mark the codeblock as executable.
-    VirtualProtect(codeblock, trampolineLen, PAGE_EXECUTE_READWRITE, &oldProtect);
+    pVirtualProtect(codeblock, trampolineLen, PAGE_EXECUTE_READWRITE, &oldProtect);
 
     return codeblock;
 }

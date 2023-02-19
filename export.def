@@ -1,7 +1,6 @@
 FORMAT windows dll
 RUNTIME windows = 4.0
 ALIAS __DLLstart_ = '_DllMain@12'
-LIBRARY {kernel32.lib user32.lib shlwapi.lib}
 
 OPTION START = '_DllMain@12'
 OPTION STACK = 8k
@@ -16,3 +15,4 @@ EXPORT ijlFree.3          = '_ijlFree@4'
 EXPORT ijlRead.4          = '_ijlRead@8'
 EXPORT ijlWrite.5         = '_ijlWrite@8'
 EXPORT ijlErrorStr.6      = '_ijlErrorStr@4'
+EXPORT SlipstrmDllMain.7  = '_SlipstrmDllMain@12'

@@ -11,16 +11,20 @@
  * present.
  */
 
-#include "common.h"
-#include "config.h"
-#include "ijlfwd.h"
-#include "hooks/hooks.h"
+#include "../../bootstrap.h"
+#include "../../common.h"
+#include "../../config.h"
+#include "../../ijlfwd.h"
+#include "../../patch.h"
+#include "../../hooks/hooks.h"
 
 /**
  * InitEnvironment configures the PANGYA_ARG environment to avoid needing to
  * run the updater first.
  */
-VOID InitEnvironment() {
+static VOID InitEnvironment() {
+    PFNSETENVIRONMENTVARIABLEAPROC pSetEnvironmentVariableA;
+
     PANGYAVER pangyaVersion;
     PSTR szPangyaArg;
 
@@ -28,27 +32,17 @@ VOID InitEnvironment() {
     pangyaVersion = DetectPangyaVersion();
     szPangyaArg = GetPangyaArg(pangyaVersion);
 
-    if (SetEnvironmentVariableA("PANGYA_ARG", szPangyaArg) == 0) {
-        FatalError("Couldn't set PANGYA_ARG (%08x)", GetLastError());
+    pSetEnvironmentVariableA = GetProc(hKernel32Module, "SetEnvironmentVariableA");
+    if (pSetEnvironmentVariableA("PANGYA_ARG", szPangyaArg) == 0) {
+        FatalError("Couldn't set PANGYA_ARG (%08x)", LastErr());
     }
-
-    LocalFree(szPangyaArg);
-}
-
-/**
- * Patch is a small routine for patching arbitrary memory.
- */
-VOID Patch(LPVOID dst, LPVOID src, DWORD size) {
-    DWORD OldProtection;
-    VirtualProtect(dst, size, PAGE_EXECUTE_READWRITE, &OldProtection);
-    memcpy(dst, src, size);
-    VirtualProtect(dst, size, OldProtection, &OldProtection);
+    FreeMem(szPangyaArg);
 }
 
 /**
  * Implements the GameGuard patches for Pangya US 852.00.
  */
-VOID PatchGG_US852(LPVOID param) {
+static VOID STDCALL PatchGG_US852(PVOID unused) {
     while(1) {
         // TODO(john): Remove hardcoded addresses.
         if (*(DWORD*)0x00A495E0 == 0x8F143D83) {
@@ -71,14 +65,14 @@ VOID PatchGG_US852(LPVOID param) {
             Log("Patched GG check routines (US 824)\r\n");
             return;
         }
-		Sleep(5);
+		Delay(5);
     }
 }
 
 /**
  * Implements the GameGuard patches for Pangya JP 972.00.
  */
-VOID PatchGG_JP972(LPVOID param) {
+static VOID STDCALL PatchGG_JP972(PVOID unused) {
     while(1) {
         // TODO(john): Remove hardcoded addresses.
         if (*(DWORD*)0x00A5CD10 == 0x1BA43D83) {
@@ -111,14 +105,16 @@ VOID PatchGG_JP972(LPVOID param) {
             Log("Patched GG check routines (JP 983)\r\n");
             return;
         }
-		Sleep(5);
+		Delay(5);
     }
 }
 
 /**
  * Initializes the GameGuard patches based on game version.
  */
-VOID InitGGPatch() {
+static VOID InitGGPatch() {
+    PFNCREATETHREADPROC pCreateThread;
+
     PANGYAVER pangyaVersion;
     LPTHREAD_START_ROUTINE patchThread = NULL;
 
@@ -132,26 +128,61 @@ VOID InitGGPatch() {
         patchThread = (LPTHREAD_START_ROUTINE)PatchGG_JP972;
         break;
     case PANGYA_TH:
-        MessageBoxA(NULL, "No GameGuard patch is available for PangyaTH.", "rugburn", MB_OK);
+        Warning("No GameGuard patch is available for PangyaTH.");
         break;
     }
 
     if (!patchThread) {
-        MessageBoxA(NULL, "It looks like no patch exists for this version of PangYa™.\nThe game will likely exit a couple minutes after detecting GameGuard is not present.", "rugburn", MB_OK);
+        Warning("It looks like no patch exists for this version of PangYa™.\nThe game will likely exit a couple minutes after detecting GameGuard is not present.");
         return;
     }
 
-    CreateThread(0, 0, patchThread, 0, 0, 0);
+    pCreateThread = GetProc(hKernel32Module, "CreateThread");
+    pCreateThread(0, 0, patchThread, 0, 0, 0);
 }
 
+// Standalone forwarding DLL entrypoint
 extern BOOL STDCALL DllMain(HANDLE hInstance, DWORD dwReason, LPVOID reserved) {
     if (dwReason != DLL_PROCESS_ATTACH) {
         return TRUE;
     }
 
-    LogInit();
+    BootstrapPEB();
+    InitCommon();
+    InitPatch();
+
+    InitLog();
     InitGGPatch();
     InitIJL15();
+    InitEnvironment();
+    InitHooks();
+
+    return TRUE;
+}
+
+// Entrypoint for Slipstrm
+extern BOOL STDCALL SlipstrmDllMain(HANDLE hInstance, DWORD dwReason, LPVOID reserved) {
+    PFNDLLMAINPROC pSlipstreamOep;
+    BOOL bOepResult;
+
+    pSlipstreamOep = (PFNDLLMAINPROC)((*(DWORD*)((DWORD)hInstance + 0x40))+(DWORD)hInstance);
+
+    // Call OEP; return failure if it fails.
+    bOepResult = pSlipstreamOep(hInstance, dwReason, reserved);
+    if (!bOepResult) {
+        return FALSE;
+    }
+
+    if (dwReason != DLL_PROCESS_ATTACH) {
+        return TRUE;
+    }
+
+    BootstrapSlipstream((DWORD)hInstance);
+    InitCommon();
+    InitPatch();
+
+    InitLog();
+    InitGGPatch();
     InitEnvironment();
     InitHooks();
 

@@ -1,5 +1,6 @@
-#include "common.h"
-#include "regex.h"
+#include "../../bootstrap.h"
+#include "../../common.h"
+#include "../../regex.h"
 
 typedef struct _TESTCASE {
 	LPCSTR pattern, replace, text, result;
@@ -15,8 +16,12 @@ const TESTCASE tests[] = {
 	{"(.*)\\.js", "$0.ts", "index.js", "index.ts"},
 };
 
-INT WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nCmdShow) {
+extern void __cdecl start(void) {
 	int i, result = 0;
+
+    BootstrapPEB();
+    InitCommon();
+
 	for (i = 0; i < sizeof(tests)/sizeof(TESTCASE); ++i) {
 		REGEX *re = ReParse(tests[i].pattern);
 		LPCSTR result = ReReplace(re, tests[i].replace, tests[i].text);
@@ -29,10 +34,11 @@ INT WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nC
 			Warning("Expected %s, got %s", tests[i].result, result);
 			result++;
 		}
-		LocalFree((HLOCAL)result);
+		FreeMem((HLOCAL)result);
 	}
 	if (result > 0) {
 		Log("Failed %d tests.", result);
 	}
-	return result;
+
+	Exit(result);
 }

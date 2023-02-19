@@ -1,15 +1,14 @@
 #include "inject.h"
 #include "../../patch.h"
-#include "../../ntdll.h"
 
-HANDLE hGameguardFakeHandle;
-HANDLE hOtherFakeHandle;
+static HANDLE hGameguardFakeHandle;
+static HANDLE hOtherFakeHandle;
 
-HMODULE hKernel32Module = NULL;
-PFNCREATEPROCESSAPROC pCreateProcessA = NULL;
-PFNGETEXITCODEPROCESSPROC pGetExitCodeProcess = NULL;
+static PFNCREATEMUTEXAPROC pCreateMutexA;
+static PFNCREATEPROCESSAPROC pCreateProcessA = NULL;
+static PFNGETEXITCODEPROCESSPROC pGetExitCodeProcess = NULL;
 
-BOOL StrContains(LPCSTR lpHaystack, LPCSTR lpNeedle) {
+static BOOL StrContains(LPCSTR lpHaystack, LPCSTR lpNeedle) {
     LPCSTR lpCheckHaystack, lpCheckNeedle;
 
     while (*lpHaystack != 0) {
@@ -36,7 +35,7 @@ BOOL StrContains(LPCSTR lpHaystack, LPCSTR lpNeedle) {
     return FALSE;
 }
 
-BOOL STDCALL CreateProcessAHook(LPCSTR lpApplicationName, LPSTR lpCommandLine, LPSECURITY_ATTRIBUTES lpProcessAttributes, LPSECURITY_ATTRIBUTES lpThreadAttributes, BOOL bInheritHandles, DWORD dwCreationFlags, LPVOID lpEnvironment, LPCSTR lpCurrentDirectory, LPSTARTUPINFOA lpStartupInfo, LPPROCESS_INFORMATION lpProcessInformation) {
+static BOOL STDCALL CreateProcessAHook(LPCSTR lpApplicationName, LPSTR lpCommandLine, LPSECURITY_ATTRIBUTES lpProcessAttributes, LPSECURITY_ATTRIBUTES lpThreadAttributes, BOOL bInheritHandles, DWORD dwCreationFlags, LPVOID lpEnvironment, LPCSTR lpCurrentDirectory, LPSTARTUPINFOA lpStartupInfo, LPPROCESS_INFORMATION lpProcessInformation) {
     Log("CreateProcessA(%s, %s, %08x, %08x, %d, %08x, %p, %s, %p, %p);\r\n", lpApplicationName, lpCommandLine, lpProcessAttributes, lpThreadAttributes, bInheritHandles, dwCreationFlags, lpEnvironment, lpCurrentDirectory, lpStartupInfo, lpProcessInformation);
     if (lpApplicationName != NULL && StrContains(lpApplicationName, "GameGuard.des")) {
         lpProcessInformation->hProcess = hGameguardFakeHandle;
@@ -46,7 +45,7 @@ BOOL STDCALL CreateProcessAHook(LPCSTR lpApplicationName, LPSTR lpCommandLine, L
     return TRUE;
 }
 
-BOOL STDCALL GetExitCodeProcessHook(HANDLE hProcess, LPDWORD lpExitCode) {
+static BOOL STDCALL GetExitCodeProcessHook(HANDLE hProcess, LPDWORD lpExitCode) {
     Log("GetExitCodeProcess(%08x, %08x);\r\n", hProcess, lpExitCode);
     if (hProcess == hGameguardFakeHandle) {
         *lpExitCode = 0x755;
@@ -59,10 +58,9 @@ BOOL STDCALL GetExitCodeProcessHook(HANDLE hProcess, LPDWORD lpExitCode) {
 }
 
 VOID InitInjectHook() {
-    hGameguardFakeHandle = CreateMutexA(NULL, FALSE, NULL);
-    hOtherFakeHandle = CreateMutexA(NULL, FALSE, NULL);
-
-    hKernel32Module = LoadLib("kernel32");
-    pCreateProcessA = HookFunc(CreateProcessA, CreateProcessAHook);
-    pGetExitCodeProcess = HookFunc(GetExitCodeProcess, GetExitCodeProcessHook);
+    pCreateMutexA = GetProc(hKernel32Module, "CreateMutexA");
+    hGameguardFakeHandle = pCreateMutexA(NULL, FALSE, NULL);
+    hOtherFakeHandle = pCreateMutexA(NULL, FALSE, NULL);
+    pCreateProcessA = HookProc(hKernel32Module, "CreateProcessA", CreateProcessAHook);
+    pGetExitCodeProcess = HookProc(hKernel32Module, "GetExitCodeProcess", GetExitCodeProcessHook);
 }

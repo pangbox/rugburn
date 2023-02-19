@@ -16,7 +16,7 @@ HINTERNET STDCALL InternetOpenUrlAHook(HINTERNET hInternet, LPCSTR lpszUrl, LPCS
     if (newURL != NULL) {
         Log("InternetOpenUrlA(%s -> %s)\r\n", lpszUrl, newURL);
         hResult = pInternetOpenUrlA(hInternet, newURL, lpszHeaders, dwHeadersLength, dwFlags, dwContext);
-        LocalFree((HLOCAL)newURL);
+        FreeMem((HLOCAL)newURL);
     } else {
         Log("InternetOpenUrlA(%s) // (no rewrite rules matched)\r\n", lpszUrl, newURL);
         hResult = pInternetOpenUrlA(hInternet, newURL, lpszHeaders, dwHeadersLength, dwFlags, dwContext);

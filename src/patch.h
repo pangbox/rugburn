@@ -3,7 +3,8 @@
 
 #include "common.h"
 
-VOID RemotePatch(HANDLE hProcess, DWORD dwAddr, PBYTE pbData, PBYTE pbBackup, DWORD cbData);
+VOID InitPatch();
+VOID Patch(LPVOID dst, LPVOID src, DWORD size);
 VOID InstallHook(PVOID pfnProc, PVOID pfnTargetProc);
 DWORD CountOpcodeBytes(FARPROC fn, DWORD minBytes);
 PCHAR BuildTrampoline(DWORD fn, DWORD prefixLen);

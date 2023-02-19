@@ -64,7 +64,7 @@ void LoadJsonRugburnConfig() {
     if (!FileExists(RugburnConfigFilename)) {
         Warning("No rugburn.json config file found. An example configuration will be saved.");
         WriteEntireFile(RugburnConfigFilename, ExampleRugburnConfig, sizeof(ExampleRugburnConfig) - 1);
-        json = StrDupA(ExampleRugburnConfig);
+        json = DupStr(ExampleRugburnConfig);
     } else {
         json = ReadEntireFile(RugburnConfigFilename);
     }
@@ -84,10 +84,6 @@ LPCSTR RewriteURL(LPCSTR url) {
     }
     return NULL;
 }
-
-extern PFNGETADDRINFO pGetAddrInfo;
-extern PFNFREEADDRINFO pFreeAddrInfo;
-extern PFNHTONSPROC pHtons;
 
 BOOL RewriteAddr(LPSOCKADDR_IN addr) {
     ADDRINFOA hints;

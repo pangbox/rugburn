@@ -176,8 +176,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\bootstrap.c" />
     <ClCompile Include="src\common.c" />
     <ClCompile Include="src\config.c" />
+    <ClCompile Include="src\dll\rugburn\main.c" />
     <ClCompile Include="src\hooks\hooks.c" />
     <ClCompile Include="src\hooks\kernel32\inject.c" />
     <ClCompile Include="src\hooks\user32\window.c" />
@@ -185,12 +187,12 @@
     <ClCompile Include="src\hooks\ws2_32\redir.c" />
     <ClCompile Include="src\ijlfwd.c" />
     <ClCompile Include="src\json.c" />
-    <ClCompile Include="src\main.c" />
     <ClCompile Include="src\patch.c" />
     <ClCompile Include="src\regex.c" />
     <ClCompile Include="src\third_party\lend\ld32.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\bootstrap.h" />
     <ClInclude Include="src\common-fnptr.h" />
     <ClInclude Include="src\common.h" />
     <ClInclude Include="src\config.h" />
