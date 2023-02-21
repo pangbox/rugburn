@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <title>Rugburn</title>
+    </head>
+    <body>
+        <h1>Rugburn - Patch for PangYa&trade;</h1>
+        <p>
+            Rugburn is a patch for PangYa&trade; which does the following:
+            <ul>
+                <li><b>Disable GameGuard</b>: Rugburn completely disables GameGuard and prevents it from starting up.</li>
+                <li><b>Redirect Network Requests</b>: Rugburn can redirect network requests to addresses and URLs, with configurable mappings, making it easier to set up clients for private servers.</li>
+                <li><b>Bypass Updater</b>: Rugburn will allow you to run the game file (ProjectG.exe) directly, so you don't need to worry about the updater anymore.</li>
+            </ul>
+            In short, Rugburn is an all-in-one patch that makes it possible to easily set up stock, original PangYa clients to run with custom servers.
+            Rugburn is free, open source software. You may share it as you wish under the license terms.
+        </p>
+        <h2>How It Works</h2>
+        <p>
+            Rugburn is a patch for ijl15.dll, an innocuous JPEG decoding library included with PangYa.
+            When the PangYa client loads a Rugburn-patched ijl15.dll, Rugburn will patch various Windows API functions to carefully disable GameGuard and redirect network requests.
+            In addition, Rugburn will apply a patch to disable the GameGuard health checking routines, so that the game will continue running without GameGuard.
+        </p>
+        <p>
+            <b>Please note:</b> Although Rugburn disables GameGuard, it is <em>not</em> cheating software and cannot be used to facilitate cheating. It fully disables GameGuard and thus can not be used on any official servers.
+        </p>
+        <h2>Patch</h2>
+        <noscript>
+            <h1>JavaScript is disabled. Please allow this page to use JavaScript.</h1>
+        </noscript>
+        <p>
+            This tool will help you patch your PangYa&trade; installation with Rugburn.
+            Please note that this tool works entirely offline in your browser and does not require the internet after it is loaded.
+            No data is uploaded to the Internet when using this tool.
+        </p>
+        <input id="file-input" type="file" />
+        <p>
+            If you are a more advanced user, you can also download the source code and build Rugburn manually.
+        </p>
+        <script src="wasm_exec.js"></script>
+        <script src="main.js"></script>
+    </body>
+</html>
