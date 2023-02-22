@@ -1,27 +1,18 @@
 GO := go
 
-ifeq ($(SHELL),$(COMSPEC))
-	WATCOM ?= C:/WATCOM
-	WCC := $(WATCOM)/binnt64/wcc386
-	WLINK := $(WATCOM)/binnt64/wlink
-	RM := del
-	SRCDIR := src\\
-	OBJDIR := obj\\
-	PATHFIX = $(subst /,\,$1)
-else
-	WATCOM ?= /usr/bin/watcom
-	WCC := $(WATCOM)/binl64/wcc386
-	WLINK := $(WATCOM)/binl64/wlink
-	RM := rm
-	SRCDIR := src/
-	OBJDIR := obj/
-	PATHFIX = $1
-endif
+WATCOM ?= /usr/bin/watcom
+WCC := $(WATCOM)/binl64/wcc386
+WLINK := $(WATCOM)/binl64/wlink
+RM := rm
+SRCDIR := src/
+OBJDIR := obj/
+WEBASSETDIR := web/asset/
+WEBDISTDIR := web/dist/
 
 CFLAGS := \
-	-i$(call PATHFIX,$(WATCOM)/h) \
-	-i$(call PATHFIX,$(WATCOM)/h/nt) \
-	-i$(call PATHFIX,$(WATCOM)/h/nt/ddk) \
+	-i$(WATCOM)/h \
+	-i$(WATCOM)/h/nt \
+	-i$(WATCOM)/h/nt/ddk \
 	-zl \
 	-s \
 	-bd \
@@ -31,62 +22,46 @@ CFLAGS := \
 	-zq
 
 LDFLAGS := \
-	LIBPATH $(call PATHFIX,$(WATCOM)/lib386) \
-	LIBPATH $(call PATHFIX,$(WATCOM)/lib386/nt)
+	LIBPATH $(WATCOM)/lib386 \
+	LIBPATH $(WATCOM)/lib386/nt
 
 OBJS := \
-	$(call PATHFIX,obj/dll/rugburn/main.o) \
-	$(call PATHFIX,obj/hooks/kernel32/inject.o) \
-	$(call PATHFIX,obj/hooks/user32/window.o) \
-	$(call PATHFIX,obj/hooks/ws2_32/redir.o) \
-	$(call PATHFIX,obj/hooks/wininet/netredir.o) \
-	$(call PATHFIX,obj/hooks/hooks.o) \
-	$(call PATHFIX,obj/third_party/lend/ld32.o) \
-	$(call PATHFIX,obj/bootstrap.o) \
-	$(call PATHFIX,obj/common.o) \
-	$(call PATHFIX,obj/config.o) \
-	$(call PATHFIX,obj/ijlfwd.o) \
-	$(call PATHFIX,obj/json.o) \
-	$(call PATHFIX,obj/patch.o) \
-	$(call PATHFIX,obj/regex.o)
+	obj/dll/rugburn/main.o \
+	obj/hooks/kernel32/inject.o \
+	obj/hooks/user32/window.o \
+	obj/hooks/ws2_32/redir.o \
+	obj/hooks/wininet/netredir.o \
+	obj/hooks/hooks.o \
+	obj/third_party/lend/ld32.o \
+	obj/bootstrap.o \
+	obj/common.o \
+	obj/config.o \
+	obj/ijlfwd.o \
+	obj/json.o \
+	obj/patch.o \
+	obj/regex.o
+
 TESTOBJS := \
 	$(OBJS) \
-	$(call PATHFIX,obj/exe/test/main.o)
+	obj/exe/test/main.o
 
-OUT := $(call PATHFIX,out/rugburn.dll)
-OUTSS := $(call PATHFIX,out/ijl15.dll)
-TESTOUT := $(call PATHFIX,out/test.exe)
+WEBASSET := \
+	web/dist/index.html \
+	web/dist/main.js \
+	web/dist/wasm_exec.js
 
-all: $(OUT) $(TESTOUT)
+
+OUT := out/rugburn.dll
+OUTSS := out/ijl15.dll
+TESTOUT := out/test.exe
+WEBOUT := web/dist/patcher.wasm
+
+all: $(OUT) $(TESTOUT) $(WEBOUT)
 slipstream: $(OUTSS)
 
 .PHONY: clean slipstream
 
-ijl15.dll:
-	@echo "Error: To use slipstream, place an original ijl15.dll in the source root."
-	@exit 1
-$(OUTSS): $(OUT) ijl15.dll
-	$(GO) run ./slipstrm/cmd/slipstrm ijl15.dll $(OUT) $(OUTSS)
-
-ifeq ($(SHELL),$(COMSPEC))
-$(OBJDIR)%.o: $(SRCDIR)%.c
-	@setlocal enableextensions
-	@if not exist "$(dir $@)" mkdir "$(dir $@)"
-	@endlocal
-	$(WCC) $(CFLAGS) "$<" "-fo=$@"
-$(OUT): $(OBJS)
-	@setlocal enableextensions
-	@if not exist "$(dir $@)" mkdir "$(dir $@)"
-	@endlocal
-	$(WLINK) $(LDFLAGS) NAME "$@" @export.def FILE {$(OBJS)}
-$(TESTOUT): $(TESTOBJS)
-	@setlocal enableextensions
-	@if not exist "$(dir $@)" mkdir "$(dir $@)"
-	@endlocal
-	$(WLINK) $(LDFLAGS) NAME "$@" @test.def FILE {$(TESTOBJS)}
-test: $(TESTOUT)
-	$(TESTOUT)
-else
+# Rugburn
 $(OBJDIR)%.o: $(SRCDIR)%.c
 	@mkdir -p "$(dir $@)"
 	$(WCC) $(CFLAGS) "$<" "-fo=$@"
@@ -96,9 +71,24 @@ $(OUT): $(OBJS)
 $(TESTOUT): $(TESTOBJS)
 	@mkdir -p "$(dir $@)"
 	$(WLINK) $(LDFLAGS) NAME "$@" @test.def FILE {${TESTOBJS}}
-test: $(TESTOUT)
-	wine $(TESTOUT)
-endif
+
+# Slipstream
+ijl15.dll:
+	@echo "Error: To use slipstream, place an original ijl15.dll in the source root."
+	@exit 1
+$(OUTSS): $(OUT) ijl15.dll
+	$(GO) run ./slipstrm/cmd/slipstrm ijl15.dll $(OUT) $(OUTSS)
+
+# Website/web patcher
+$(WEBDISTDIR)%.html: $(WEBASSETDIR)%.html
+	cp "$<" "$@"
+$(WEBDISTDIR)%.js: $(WEBASSETDIR)%.js
+	cp "$<" "$@"
+$(WEBOUT): $(OUT) $(WEBASSET) web/patcher/patcher.go
+	GOOS=js GOARCH=wasm $(GO) build -o "$@" "./web/patcher"
+watch:
+	while rm $(WEBOUT) && make $(WEBOUT) && go run ./web/testsrv.go -watch ./; do :; done
+
 
 clean:
 	$(RM) -f $(OBJS) $(OUT) $(OUTSS) $(TESTOUT)

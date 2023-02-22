@@ -21,8 +21,8 @@ Features:
 
   * Sets `PANGYA_ARG` when possible to avoid the updater check.
 
-  * Implements the IJL15 API and forwards it to `ijl15_real.dll`,
-    no need for tricky patching.
+  * Can be used as a relay for `ijl15.dll` or as a very simple patch for it.
+    No need to modify or remove protection on `ProjectG.exe`.
 
   * **This program is not suitable for cheating. It does not support the only
     active region of PangYa and does not offer GameGuard emulation that would
@@ -34,41 +34,38 @@ Features:
 It was chosen because it offered an easy path to cross-compilation while also
 allowing for tiny binaries that did not depend on libc.
 
-You need to install OpenWatcom first. You can find binaries at:
-https://github.com/open-watcom/open-watcom-v2/releases
-
-Then, simply install GNU Make on your platform:
-
-```sh
-# Windows + Powershell
-choco install make
-
-# Debian/Ubuntu
-apt install make
-```
+Prerequisites:
+  * OpenWatcom V2: https://github.com/open-watcom/open-watcom-v2/releases
+  * GNU Make
+  * Go (optional: needed for Slipstream)
 
 And all you have to do is run `make`.
 ```sh
 make
 ```
 
-And you should find an `ijl15.dll` in your `out/` directory.
+And you should find an `rugburn.dll` in your `out/` directory.
 
-By default, the makefile will assume OpenWatcom is installed into `C:\WATCOM` on Windows and `/usr/bin/watcom` on other platforms. You can override this by passing in the `WATCOM` variable:
+By default, the makefile will assume OpenWatcom is installed into `/usr/bin/watcom`. You can override this by passing in the `WATCOM` variable:
 
 ```
 make WATCOM=$HOME/Programs/watcom
 ```
+## Install
 
-## Installation
  1. Move the original `ijl15.dll` binary in the PangYa folder to `ijl15_real.dll`.
     The exact name is important.
 
- 2. Copy the rugburn `ijl15.dll` into the PangYa folder.
+ 2. Copy the rugburn `rugburn.dll` into the PangYa folder and rename it to `ijl15.dll`.
 
 Do not use update.exe anymore. Just run ProjectG directly. (The update servers
 are still active in US, so if you run the updater you may accidentally patch
 over your files.)
+
+## Using Slipstream
+You can use the web patcher if just want to patch your `ijl15.dll` with the latest version of Rugburn. It does not require an active internet connection.
+
+To use Slipstream manually, you can use the `make slipstream` command. Note that it requires the Go toolchain as well as a copy of unmodified `ijl15.dll` to be present in the root of the repository. You should find a patched `ijl15.dll` in your `out/` directory.
 
 ## Usage
 Once installed, you can run ProjectG directly. Enjoy!
