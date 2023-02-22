@@ -47,6 +47,7 @@ TESTOBJS := \
 
 WEBASSET := \
 	web/dist/index.html \
+	web/dist/style.css \
 	web/dist/main.js \
 	web/dist/wasm_exec.js
 
@@ -80,14 +81,12 @@ $(OUTSS): $(OUT) ijl15.dll
 	$(GO) run ./slipstrm/cmd/slipstrm ijl15.dll $(OUT) $(OUTSS)
 
 # Website/web patcher
-$(WEBDISTDIR)%.html: $(WEBASSETDIR)%.html
-	cp "$<" "$@"
-$(WEBDISTDIR)%.js: $(WEBASSETDIR)%.js
+$(WEBDISTDIR)%: $(WEBASSETDIR)%
 	cp "$<" "$@"
 $(WEBOUT): $(OUT) $(WEBASSET) web/patcher/patcher.go
 	GOOS=js GOARCH=wasm $(GO) build -o "$@" "./web/patcher"
 watch:
-	while rm $(WEBOUT) && make $(WEBOUT) && go run ./web/testsrv.go -watch ./; do :; done
+	while rm -f $(WEBOUT) && make $(WEBOUT) && go run ./web/testsrv.go -watch ./; do :; done
 
 
 clean:
