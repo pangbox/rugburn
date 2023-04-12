@@ -8,40 +8,77 @@
         <link rel="stylesheet" href="/style.css" />
     </head>
     <body>
-        <h1>Rugburn - Patch for PangYa&trade;</h1>
-        <p>
-            Rugburn is a patch for PangYa&trade; which does the following:
-            <ul>
-                <li><b>Disable GameGuard</b>: Rugburn completely disables GameGuard and prevents it from starting up.</li>
-                <li><b>Redirect Network Requests</b>: Rugburn can redirect network requests to addresses and URLs, with configurable mappings, making it easier to set up clients for private servers.</li>
-                <li><b>Bypass Updater</b>: Rugburn will allow you to run the game file (ProjectG.exe) directly, so you don't need to worry about the updater anymore.</li>
+        <div class="main">
+            <ul class="nav">
+                <li><a href="#home">Home</a></li>
+                <li><a href="#how">How It Works</a></li>
+                <li><a href="#patcher">Patcher</a></li>
             </ul>
-            In short, Rugburn is an all-in-one patch that makes it possible to easily set up stock, original PangYa clients to run with custom servers.
-            Rugburn is free, open source software. You may share it as you wish under the license terms.
-        </p>
-        <h2>How It Works</h2>
-        <p>
-            Rugburn is a patch for ijl15.dll, an innocuous JPEG decoding library included with PangYa.
-            When the PangYa client loads a Rugburn-patched ijl15.dll, Rugburn will patch various Windows API functions to carefully disable GameGuard and redirect network requests.
-            In addition, Rugburn will apply a patch to disable the GameGuard health checking routines, so that the game will continue running without GameGuard.
-        </p>
-        <p>
-            <b>Please note:</b> Although Rugburn disables GameGuard, it is <em>not</em> cheating software and cannot be used to facilitate cheating. It fully disables GameGuard and thus can not be used on any official servers.
-        </p>
-        <h2>Patch</h2>
-        <noscript>
-            <h1>JavaScript is disabled. Please allow this page to use JavaScript.</h1>
-        </noscript>
-        <p>
-            This tool will help you patch your PangYa&trade; installation with Rugburn.
-            Please note that this tool works entirely offline in your browser and does not require the internet after it is loaded.
-            No data is uploaded to the Internet when using this tool.
-        </p>
-        <input id="file-input" type="file" />
-        <p>
-            If you are a more advanced user, you can also download the source code and build Rugburn manually.
-        </p>
-        <script src="wasm_exec.js"></script>
-        <script src="main.js"></script>
+            <div class="content">
+                <div class="page" id="how">
+                    <h2>How It Works</h2>
+                    <p>
+                        Rugburn is injected into the ijl15.dll file that ships with PangYa.
+                    </p>
+                    <p>
+                        Instead of patching PangYa itself, it mostly relies on in-memory patching of Windows functions to augment PangYa's behavior, allowing it to work across different PangYa versions and regions.
+                    </p>
+                    <p>
+                        Please note that Rugburn <em>does</em> still need to have patches to fully disable GameGuard for each region and version.
+                        In addition, Rugburn does not emulate GameGuard and can not be used for cheating on official servers.
+                    </p>
+                </div>
+                <div class="page" id="patcher">
+                <h2>Patch / Update</h2>
+                    <noscript>
+                        <h1>JavaScript is disabled. Please allow this page to use JavaScript.</h1>
+                    </noscript>
+                    <p>
+                        Please either:
+                    </p>
+                    <ul>
+                        <li>Click <b>Browse</b> and select ijl15.dll from your PangYa install directory.</li>
+                        <li><b>OR,</b> drag and drop ijl15.dll from your PangYa install directory to the zone below.</li>
+                    </ul>
+                    <p>
+                        If you select an already-patched ijl15.dll, it will be updated with the latest Rugburn patch.
+                    </p>
+                    <input class="drop-zone" id="file-input" type="file">
+                    <p>
+                        Your browser will download a new ijl15.dll. Copy it over the old ijl15.dll in your PangYa install directory.
+                    </p>
+                    <div id="log-output">
+                    </div>
+                    <p>
+                        <b>Note:</b> This patcher tool does not upload anything to the internet. It uses only your browser.
+                    </p>
+                    <p>
+                        <b>Protip:</b> Back up your old ijl15.dll file. That way, it's easy to undo this later.
+                    </p>
+                    <script src="wasm_exec.js"></script>
+                    <script src="main.js"></script>
+                </div>
+                <div class="page" id="home">
+                    <h1>Rugburn - Patch for PangYa&trade;</h1>
+                    <p>
+                        Install Rugburn into your PangYa installation. It can:
+                    </p>
+                    <ul>
+                        <li>Disable GameGuard</li>
+                        <li>Rewrite Network Requests</li>
+                        <li>Bypass the Updater, so you can run ProjectG directly.</li>
+                    </ul>
+                    <p>
+                        Rugburn allows otherwise-unmodified official PangYa clients to connect to unofficial servers.
+                    </p>
+                    <p>
+                        It is also <a href="https://github.com/pangbox/rugburn" target="_blank" rel="noreferrer">open source</a>.
+                    </p>
+                    <p>
+                        To get started, patch your PangYa installation quickly and easily using the <a href="#patcher">patcher tool</a>.
+                    </p>
+                </div>
+            </div>
+        </div>
     </body>
 </html>

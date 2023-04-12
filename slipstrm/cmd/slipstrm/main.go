@@ -34,6 +34,18 @@ func main() {
 		log.Fatalf("Failed to read %q: %v", ijl15Filename, err)
 	}
 
+	goatBin, err = patcher.UnpackOriginal(goatBin)
+	if err != nil {
+		log.Fatalf("Failed to parse %q: %v", ijl15Filename, err)
+	}
+
+	if !patcher.CheckOriginal(goatBin) {
+		log.Printf("================================================================================")
+		log.Printf("WARNING: input ijl15.dll does not appear to be an original copy!")
+		log.Printf("Rugburn slipstream does not support patching arbitrary binaries.")
+		log.Printf("================================================================================")
+	}
+
 	// Load payload.
 	payloadBin, err := os.ReadFile(rugburnFilename)
 	if err != nil {

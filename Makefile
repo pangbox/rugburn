@@ -56,6 +56,7 @@ OUT := out/rugburn.dll
 OUTSS := out/ijl15.dll
 TESTOUT := out/test.exe
 WEBOUT := web/dist/patcher.wasm
+FLYPROJECT := rugburn-gg
 
 all: $(OUT) $(TESTOUT) $(WEBOUT)
 slipstream: $(OUTSS)
@@ -87,7 +88,9 @@ $(WEBOUT): $(OUT) $(WEBASSET) web/patcher/patcher.go
 	GOOS=js GOARCH=wasm $(GO) build -o "$@" "./web/patcher"
 watch:
 	while rm -f $(WEBOUT) && make $(WEBOUT) && go run ./web/testsrv.go -watch ./; do :; done
-
+deploy:
+	nix run nixpkgs#skopeo -- --insecure-policy --debug copy docker-archive:"$(shell nix build .#dockerImage --print-out-paths)" docker://registry.fly.io/$(FLYPROJECT):latest --dest-creds x:"$(shell flyctl auth token)" --format v2s2
+	nix run nixpkgs#flyctl -- deploy -i registry.fly.io/$(FLYPROJECT):latest --remote-only
 
 clean:
 	$(RM) -f $(OBJS) $(OUT) $(OUTSS) $(TESTOUT)

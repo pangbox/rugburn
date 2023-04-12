@@ -1,7 +1,66 @@
 "use strict";
 (function() {
-    var patch = () => { alert("Patcher is not loaded yet."); };
-    window["patcherLoaded"] = function (fn) { patch = fn; };
+    var patcherResolve, patcherReject;
+    var patcherLoaded = new Promise((resolve, reject) => {
+        patcherResolve = resolve;
+        patcherReject = reject;
+    })
+
+    var goPatcher = {
+        patch: function () { alert("Error loading patcher."); },
+        unpackOrig: function () { alert("Error loading patcher."); },
+        checkOrig: function () { alert("Error loading patcher."); },
+    }
+
+    function deferred(fnName) {
+        return function() {
+            var args = arguments;
+            loadPatcher();
+            return patcherLoaded.then(function() {
+                return goPatcher[fnName].apply(this, args);
+            }).catch(function(error) {
+                alert("Patcher did not load successfully: " + String(error));
+            });
+        }
+    }
+
+    var patcher = {
+        patch: deferred("patch"),
+        unpackOrig: deferred("unpackOrig"),
+        checkOrig: deferred("checkOrig"),
+    };
+
+    window["patcherLoaded"] = function (patch, unpackOrig, checkOrig) {
+        goPatcher.patch = patch;
+        goPatcher.unpackOrig = unpackOrig;
+        goPatcher.checkOrig = checkOrig;
+        patcherResolve();
+    };
+
+    function logToScreen(text) {
+        console.log("PATCHER LOG:", text);
+        var div = document.createElement("div");
+        div.textContent = text;
+        document.getElementById("log-output").appendChild(div);
+    }
+
+    function loadPatcher() {
+        if (window["startedLoadingPatcher"]) {
+            return;
+        }
+
+        logToScreen("Loading patcher...");
+
+        window["startedLoadingPatcher"] = true;
+
+        WebAssembly.instantiateStreaming(fetch("patcher.wasm"), go.importObject)
+            .then(result => {
+                go.run(result.instance);
+            }).catch(err => {
+                alert("An error occurred while loading the WASM bundle: "+err);
+                patcherReject(err);
+            });
+    }
 
     function downloadURL(data, fileName) {
         var a;
@@ -28,7 +87,7 @@
         if (error) {
             alert("An error occurred: " + error);
         } else {
-            console.log(line);
+            logToScreen(line);
         }
     }
 
@@ -36,12 +95,23 @@
         var reader = new FileReader();
         reader.onload = function() {
             var input = new Uint8Array(this.result);
-            patch(input, log).then(output => {
-                downloadBlob(output, "ijl15.dll", "application/octet-stream")
-                alert("Success");
+            patcher.unpackOrig(input).then(orig => {
+                patcher.checkOrig(orig).then(isOrig => {
+                    console.log(isOrig);
+                    if (isOrig || confirm("This does not appear to contain an original ijl15.dll. The rugburn patcher may not work correctly with this file. Proceed?")) {
+                        patcher.patch(orig, log).then(output => {
+                            downloadBlob(output, "ijl15.dll", "application/octet-stream")
+                            alert("Success");
+                        }).catch(error => {
+                            alert("Patching failed: " + error);
+                        });
+                    } else {
+                        logToScreen("Aborted.");
+                    }
+                })
             }).catch(error => {
-                alert("Patching failed: " + error);
-            });
+                alert("Parsing failed: " + error);
+            })
         }
         reader.readAsArrayBuffer(this.files[0]);
     }, false);
@@ -60,10 +130,31 @@
         };
     }
 
-    WebAssembly.instantiateStreaming(fetch("patcher.wasm"), go.importObject)
-        .then(result => {
-            go.run(result.instance);
-        }).catch(err => {
-            alert("An error occurred while loading the WASM bundle: "+err);
+    function updateNav(hash) {
+        let setSelected = false;
+        document.querySelectorAll(".nav a").forEach(link => {
+            const linkHash = new URL(link).hash;
+            if (linkHash == hash) {
+                setSelected = true;
+                link.classList.add("selected");
+            } else {
+                link.classList.remove("selected");
+            }
         });
+        if (!setSelected) {
+            document.querySelectorAll(".nav a").forEach(link => {
+                const linkHash = new URL(link).hash;
+                if (linkHash == "#home") {
+                    link.classList.add("selected");
+                }
+            });
+        }
+    }
+
+    logToScreen("Patcher log output will appear here.");
+
+    window.addEventListener("hashchange", event => {
+        updateNav(new URL(event.newURL).hash);
+    });
+    updateNav(location.hash);
 })();

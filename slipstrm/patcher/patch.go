@@ -2,14 +2,60 @@ package patcher
 
 import (
 	"bytes"
+	"compress/zlib"
+	"crypto/sha256"
 	"encoding/binary"
 	"errors"
 	"fmt"
+	"io"
 	"log"
 
 	"github.com/pangbox/rugburn/slipstrm/pe"
 	"golang.org/x/exp/slices"
 )
+
+var (
+	ijl15Sha256Sum = [32]uint8{
+		0x33, 0x4a, 0xa1, 0x2f, 0x7d, 0xee, 0x45, 0x3d,
+		0x1c, 0x6c, 0xb1, 0xb6, 0x61, 0xa3, 0xbb, 0x34,
+		0x94, 0xd3, 0xe4, 0xcc, 0x9c, 0x2f, 0xf3, 0xf9,
+		0x00, 0x20, 0x64, 0xc7, 0x84, 0x04, 0xe4, 0x3a,
+	}
+)
+
+func UnpackOriginal(ijl15 []byte) ([]byte, error) {
+	ijl15Reader := bytes.NewReader(ijl15)
+	ijl15Module, err := pe.LoadPE32Image(ijl15Reader)
+	if err != nil {
+		return nil, fmt.Errorf("parsing original ijl15 dll: %w", err)
+	}
+
+	var origSectionName [pe.SectionNameLength]byte
+	copy(origSectionName[:], ".orig")
+	for _, section := range ijl15Module.Sections {
+		if section.Name == origSectionName {
+			zr, err := zlib.NewReader(bytes.NewReader(ijl15[section.PointerToRawData : section.PointerToRawData+section.SizeOfRawData]))
+			if err != nil {
+				return nil, fmt.Errorf("unpacking original ijl15 dll from patched dll: %w", err)
+			}
+			uncompressed, err := io.ReadAll(zr)
+			if err != nil {
+				return nil, fmt.Errorf("uncompressing original ijl15 dll from patched dll: %w", err)
+			}
+			err = zr.Close()
+			if err != nil {
+				return nil, fmt.Errorf("uncompressing original ijl15 dll from patched dll: %w", err)
+			}
+			return uncompressed, nil
+		}
+	}
+
+	return ijl15, nil
+}
+
+func CheckOriginal(ijl15 []byte) bool {
+	return sha256.Sum256(ijl15) == ijl15Sha256Sum
+}
 
 func Patch(log *log.Logger, ijl15, rugburn []byte) ([]byte, error) {
 	// Load goat
@@ -149,10 +195,41 @@ func Patch(log *log.Logger, ijl15, rugburn []byte) ([]byte, error) {
 
 	tailSection = newModule.Sections[len(newModule.Sections)-1]
 	appendAddr = calcEnd(tailSection.VirtualAddress, tailSection.VirtualSize)
+	appendOffset += relocSection.SizeOfRawData
 
 	// Update reloc data directory.
 	newModule.NTHeader.OptionalHeader.DataDirectory[pe.ImageDirectoryEntryBaseReloc].VirtualAddress = relocSection.VirtualAddress
 	newModule.NTHeader.OptionalHeader.DataDirectory[pe.ImageDirectoryEntryBaseReloc].Size = uint32(relocBuffer.Len())
+
+	// Add a copy of the original ijl15.
+	origBuffer := new(bytes.Buffer)
+	{
+		zw := zlib.NewWriter(origBuffer)
+		zw.Write(ijl15)
+		zw.Close()
+	}
+	origPaddedLen := (origBuffer.Len() + int(fileAlign) - 1) / int(fileAlign) * int(fileAlign)
+	orig := make([]byte, origPaddedLen)
+	copy(orig, origBuffer.Bytes())
+	log.Printf("Adding original ijl15 at 0x%08x", appendAddr)
+	origSection := pe.ImageSectionHeader{
+		VirtualSize:          uint32(origBuffer.Len()),
+		VirtualAddress:       appendAddr,
+		SizeOfRawData:        uint32(origPaddedLen),
+		PointerToRawData:     appendOffset,
+		PointerToRelocations: 0,
+		PointerToLinenumbers: 0,
+		NumberOfRelocations:  0,
+		NumberOfLinenumbers:  0,
+		Characteristics:      pe.ImageSectionCharacteristicsContainsInitializedData | pe.ImageSectionCharacteristicsMemoryRead | pe.ImageSectionCharacteristicsMemoryDiscardable,
+	}
+	copy(origSection.Name[:], ".orig")
+	sectionDatas = append(sectionDatas, orig)
+	newModule.Sections = append(newModule.Sections, origSection)
+
+	tailSection = newModule.Sections[len(newModule.Sections)-1]
+	appendAddr = calcEnd(tailSection.VirtualAddress, tailSection.VirtualSize)
+	appendOffset += origSection.SizeOfRawData
 
 	for i, section := range newModule.Sections {
 		log.Printf("Section %d: addr=%08x size=%08x ; rawaddr=%08x rawsize=%08x: %s", i, section.VirtualAddress, section.VirtualSize, section.PointerToRawData, section.SizeOfRawData, string(section.Name[:]))
@@ -162,15 +239,18 @@ func Patch(log *log.Logger, ijl15, rugburn []byte) ([]byte, error) {
 
 	outBuf := new(bytes.Buffer)
 
+	log.Printf("Saving PE headers.")
 	if err := newModule.SaveHeader(outBuf); err != nil {
 		return nil, fmt.Errorf("saving new headers: %w", err)
 	}
 
+	log.Printf("Writing section data.")
 	for i, data := range sectionDatas {
 		if _, err := outBuf.Write(data); err != nil {
 			return nil, fmt.Errorf("saving new section %s data: %w", newModule.Sections[i].Name, err)
 		}
 	}
 
+	log.Printf("Finished.")
 	return outBuf.Bytes(), nil
 }
