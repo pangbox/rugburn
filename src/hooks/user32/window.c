@@ -9,8 +9,6 @@ static PFNCREATEWINDOWEXAPROC pCreateWindowExA = NULL;
  * creating topmost windows.
  */
 HWND STDCALL CreateWindowExAHook(DWORD dwExStyle, LPCSTR lpClassName, LPCSTR lpWindowName, DWORD dwStyle, int X, int Y, int nWidth, int nHeight, HWND hWndParent, HMENU hMenu, HINSTANCE hInstance, LPVOID lpParam) {
-    Log("CreateWindowExA(%d, %s, %s, %d, %d, %d, %d, %d, %p, %p, %p, %p);\r\n",
-        dwExStyle, lpClassName, lpWindowName, dwStyle, X, Y, nWidth, nHeight, hWndParent, hMenu, hInstance, lpParam);
     dwExStyle &= (~WS_EX_TOPMOST);
     return pCreateWindowExA(dwExStyle, lpClassName, lpWindowName, dwStyle, X, Y, nWidth, nHeight, hWndParent, hMenu, hInstance, lpParam);
 }
