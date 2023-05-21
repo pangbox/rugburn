@@ -28,6 +28,7 @@ LDFLAGS := \
 OBJS := \
 	obj/dll/rugburn/main.o \
 	obj/hooks/kernel32/inject.o \
+	obj/hooks/msvcr100/msvcr100.o \
 	obj/hooks/user32/window.o \
 	obj/hooks/ws2_32/redir.o \
 	obj/hooks/wininet/netredir.o \
