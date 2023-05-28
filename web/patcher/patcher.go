@@ -9,7 +9,7 @@ import (
 	"log"
 	"syscall/js"
 
-	"github.com/pangbox/rugburn/out"
+	"github.com/pangbox/rugburn/slipstrm/embedded"
 	"github.com/pangbox/rugburn/slipstrm/patcher"
 )
 
@@ -54,7 +54,7 @@ func Patch(this js.Value, p []js.Value) interface{} {
 			input := make([]byte, jsinput.Get("length").Int())
 			js.CopyBytesToGo(input, jsinput)
 
-			output, err := patcher.Patch(logger, input, out.RugburnDLL)
+			output, err := patcher.Patch(logger, input, embedded.RugburnDLL)
 
 			jsoutput := js.Global().Get("Uint8Array").New(len(output))
 			js.CopyBytesToJS(jsoutput, output)

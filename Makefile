@@ -54,12 +54,13 @@ WEBASSET := \
 
 
 OUT := out/rugburn.dll
+OUTEM := slipstrm/embedded/rugburn.dll
 OUTSS := out/ijl15.dll
 TESTOUT := out/test.exe
 WEBOUT := web/dist/patcher.wasm
 FLYPROJECT := rugburn-gg
 
-all: $(OUT) $(TESTOUT) $(WEBOUT)
+all: $(OUT) $(OUTEM) $(TESTOUT) $(WEBOUT)
 slipstream: $(OUTSS)
 
 .PHONY: clean slipstream
@@ -71,6 +72,8 @@ $(OBJDIR)%.o: $(SRCDIR)%.c
 $(OUT): $(OBJS)
 	@mkdir -p "$(dir $@)"
 	$(WLINK) $(LDFLAGS) NAME "$@" @export.def FILE {$(OBJS)}
+$(OUTEM): $(OUT)
+	@cp $(OUT) $(OUTEM)
 $(TESTOUT): $(TESTOBJS)
 	@mkdir -p "$(dir $@)"
 	$(WLINK) $(LDFLAGS) NAME "$@" @test.def FILE {${TESTOBJS}}
