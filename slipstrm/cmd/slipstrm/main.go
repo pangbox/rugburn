@@ -13,8 +13,8 @@ import (
 func main() {
 	flag.Parse()
 
-	if flag.NArg() != 3 {
-		fmt.Fprintf(os.Stderr, "Usage: slipstrm <original ijl15.dll> <rugburn dll> <new ijl15.dll>\n")
+	if flag.NArg() != 4 {
+		fmt.Fprintf(os.Stderr, "Usage: slipstrm <original ijl15.dll> <rugburn dll> <new ijl15.dll> <version>\n")
 		os.Exit(1)
 	}
 
@@ -27,6 +27,7 @@ func main() {
 	ijl15Filename := flag.Arg(0)
 	rugburnFilename := flag.Arg(1)
 	outputFilename := flag.Arg(2)
+	version := flag.Arg(3)
 
 	// Load goat.
 	goatBin, err := os.ReadFile(ijl15Filename)
@@ -39,7 +40,7 @@ func main() {
 		log.Fatalf("Failed to parse %q: %v", ijl15Filename, err)
 	}
 
-	if !patcher.CheckOriginal(goatBin) {
+	if !patcher.CheckOriginalData(goatBin) {
 		log.Printf("================================================================================")
 		log.Printf("WARNING: input ijl15.dll does not appear to be an original copy!")
 		log.Printf("Rugburn slipstream does not support patching arbitrary binaries.")
@@ -53,7 +54,7 @@ func main() {
 	}
 
 	// Perform patch.
-	out, err := patcher.Patch(log.Default(), goatBin, payloadBin)
+	out, err := patcher.Patch(log.Default(), goatBin, payloadBin, version)
 	if err != nil {
 		log.Fatalf("Unable to patch: %v", err)
 	}

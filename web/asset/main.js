@@ -10,6 +10,8 @@
         patch: function () { alert("Error loading patcher."); },
         unpackOrig: function () { alert("Error loading patcher."); },
         checkOrig: function () { alert("Error loading patcher."); },
+        getRugburnVersion: function () { alert("Error loading patcher."); },
+        getEmbeddedVersion: function () { alert("Error loading patcher."); },
     }
 
     function deferred(fnName) {
@@ -28,12 +30,16 @@
         patch: deferred("patch"),
         unpackOrig: deferred("unpackOrig"),
         checkOrig: deferred("checkOrig"),
+        getRugburnVersion: deferred("getRugburnVersion"),
+        getEmbeddedVersion: deferred("getEmbeddedVersion"),
     };
 
-    window["patcherLoaded"] = function (patch, unpackOrig, checkOrig) {
+    window["patcherLoaded"] = function (patch, unpackOrig, checkOrig, getRugburnVersion, getEmbeddedVersion) {
         goPatcher.patch = patch;
         goPatcher.unpackOrig = unpackOrig;
         goPatcher.checkOrig = checkOrig;
+        goPatcher.getRugburnVersion = getRugburnVersion;
+        goPatcher.getEmbeddedVersion = getEmbeddedVersion;
         patcherResolve();
     };
 
@@ -96,9 +102,14 @@
         reader.onload = function() {
             var input = new Uint8Array(this.result);
             patcher.unpackOrig(input).then(orig => {
-                patcher.checkOrig(orig).then(isOrig => {
-                    console.log(isOrig);
-                    if (isOrig || confirm("This does not appear to contain an original ijl15.dll. The rugburn patcher may not work correctly with this file. Proceed?")) {
+                Promise.all([
+                    patcher.getEmbeddedVersion(),
+                    patcher.getRugburnVersion(input),
+                    patcher.checkOrig(orig)
+                ]).then(([embedded, inputVer, haveOrig]) => {
+                    const confirmOrig = haveOrig || confirm("This does not appear to contain an original ijl15.dll. The rugburn patcher may not work correctly with this file. Proceed?");
+                    const confirmReplace = inputVer === "original" || confirm("Current rugburn version: " + inputVer + "; replace with " + embedded + "?");
+                    if (confirmOrig && confirmReplace) {
                         patcher.patch(orig, log).then(output => {
                             downloadBlob(output, "ijl15.dll", "application/octet-stream")
                             alert("Success");
@@ -108,7 +119,7 @@
                     } else {
                         logToScreen("Aborted.");
                     }
-                })
+                });
             }).catch(error => {
                 alert("Parsing failed: " + error);
             })

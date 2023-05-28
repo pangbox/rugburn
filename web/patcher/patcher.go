@@ -19,6 +19,8 @@ func main() {
 		js.FuncOf(Patch),
 		js.FuncOf(UnpackOriginal),
 		js.FuncOf(CheckOriginal),
+		js.FuncOf(GetRugburnVersion),
+		js.FuncOf(GetEmbeddedVersion),
 	)
 	<-c
 }
@@ -54,7 +56,7 @@ func Patch(this js.Value, p []js.Value) interface{} {
 			input := make([]byte, jsinput.Get("length").Int())
 			js.CopyBytesToGo(input, jsinput)
 
-			output, err := patcher.Patch(logger, input, embedded.RugburnDLL)
+			output, err := patcher.Patch(logger, input, embedded.RugburnDLL, embedded.Version)
 
 			jsoutput := js.Global().Get("Uint8Array").New(len(output))
 			js.CopyBytesToJS(jsoutput, output)
@@ -123,7 +125,7 @@ func CheckOriginal(this js.Value, p []js.Value) interface{} {
 		go func() {
 			input := make([]byte, jsinput.Get("length").Int())
 			js.CopyBytesToGo(input, jsinput)
-			output := patcher.CheckOriginal(input)
+			output := patcher.CheckOriginalData(input)
 			resolve.Invoke(js.ValueOf(output))
 		}()
 
@@ -132,4 +134,41 @@ func CheckOriginal(this js.Value, p []js.Value) interface{} {
 
 	promiseConstructor := js.Global().Get("Promise")
 	return promiseConstructor.New(handler)
+}
+
+// JS arguments:
+// - input: Uint8Array
+// JS return value:
+// - Promise<string>
+func GetRugburnVersion(this js.Value, p []js.Value) interface{} {
+	jsinput := p[0]
+
+	handler := js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+		resolve := args[0]
+		reject := args[1]
+
+		go func() {
+			input := make([]byte, jsinput.Get("length").Int())
+			js.CopyBytesToGo(input, jsinput)
+			output, err := patcher.GetRugburnVersion(input)
+			if err != nil {
+				errorConstructor := js.Global().Get("Error")
+				errorObject := errorConstructor.New(err.Error())
+				reject.Invoke(errorObject)
+				return
+			}
+			resolve.Invoke(js.ValueOf(output))
+		}()
+
+		return nil
+	})
+
+	promiseConstructor := js.Global().Get("Promise")
+	return promiseConstructor.New(handler)
+}
+
+// JS return value:
+// - string
+func GetEmbeddedVersion(this js.Value, p []js.Value) interface{} {
+	return js.ValueOf(embedded.Version)
 }

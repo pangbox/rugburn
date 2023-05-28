@@ -8,6 +8,7 @@ SRCDIR := src/
 OBJDIR := obj/
 WEBASSETDIR := web/asset/
 WEBDISTDIR := web/dist/
+VERSION ?= $(shell git describe --tags --always --dirty)
 
 CFLAGS := \
 	-i$(WATCOM)/h \
@@ -52,15 +53,15 @@ WEBASSET := \
 	web/dist/main.js \
 	web/dist/wasm_exec.js
 
-
 OUT := out/rugburn.dll
 OUTEM := slipstrm/embedded/rugburn.dll
+VEREM := slipstrm/embedded/version.txt
 OUTSS := out/ijl15.dll
 TESTOUT := out/test.exe
 WEBOUT := web/dist/patcher.wasm
 FLYPROJECT := rugburn-gg
 
-all: $(OUT) $(OUTEM) $(TESTOUT) $(WEBOUT)
+all: $(OUT) $(OUTEM) $(VEREM) $(TESTOUT) $(WEBOUT)
 slipstream: $(OUTSS)
 
 .PHONY: clean slipstream
@@ -74,6 +75,8 @@ $(OUT): $(OBJS)
 	$(WLINK) $(LDFLAGS) NAME "$@" @export.def FILE {$(OBJS)}
 $(OUTEM): $(OUT)
 	@cp $(OUT) $(OUTEM)
+$(VEREM): $(OUTEM)
+	@echo -n "$(VERSION)" > $(VEREM)
 $(TESTOUT): $(TESTOBJS)
 	@mkdir -p "$(dir $@)"
 	$(WLINK) $(LDFLAGS) NAME "$@" @test.def FILE {${TESTOBJS}}
@@ -83,7 +86,7 @@ ijl15.dll:
 	@echo "Error: To use slipstream, place an original ijl15.dll in the source root."
 	@exit 1
 $(OUTSS): $(OUT) ijl15.dll
-	$(GO) run ./slipstrm/cmd/slipstrm ijl15.dll $(OUT) $(OUTSS)
+	$(GO) run ./slipstrm/cmd/slipstrm ijl15.dll $(OUT) $(OUTSS) $(VERSION)
 
 # Website/web patcher
 $(WEBDISTDIR)%: $(WEBASSETDIR)%

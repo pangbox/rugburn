@@ -15,12 +15,18 @@ import (
 )
 
 var (
-	ijl15Sha256Sum = [32]uint8{
+	// OriginalSHA256 is the SHA256 hash of the original ijl15.dll.
+	OriginalSHA256 = [32]uint8{
 		0x33, 0x4a, 0xa1, 0x2f, 0x7d, 0xee, 0x45, 0x3d,
 		0x1c, 0x6c, 0xb1, 0xb6, 0x61, 0xa3, 0xbb, 0x34,
 		0x94, 0xd3, 0xe4, 0xcc, 0x9c, 0x2f, 0xf3, 0xf9,
 		0x00, 0x20, 0x64, 0xc7, 0x84, 0x04, 0xe4, 0x3a,
 	}
+)
+
+const (
+	// OriginalLen is the length (in bytes) of the original ijl15.dll.
+	OriginalLen = 372736
 )
 
 func UnpackOriginal(ijl15 []byte) ([]byte, error) {
@@ -53,11 +59,36 @@ func UnpackOriginal(ijl15 []byte) ([]byte, error) {
 	return ijl15, nil
 }
 
-func CheckOriginal(ijl15 []byte) bool {
-	return sha256.Sum256(ijl15) == ijl15Sha256Sum
+func GetRugburnVersion(ijl15 []byte) (string, error) {
+	ijl15Reader := bytes.NewReader(ijl15)
+	ijl15Module, err := pe.LoadPE32Image(ijl15Reader)
+	if err != nil {
+		return "", fmt.Errorf("parsing original ijl15 dll: %w", err)
+	}
+
+	var rugvSectionName [pe.SectionNameLength]byte
+	copy(rugvSectionName[:], ".rugv")
+	for _, section := range ijl15Module.Sections {
+		if section.Name == rugvSectionName {
+			return string(ijl15[section.PointerToRawData : section.PointerToRawData+section.SizeOfRawData]), nil
+		}
+	}
+
+	if CheckOriginalData(ijl15) {
+		return "unpatched", nil
+	}
+
+	return "unknown", nil
 }
 
-func Patch(log *log.Logger, ijl15, rugburn []byte) ([]byte, error) {
+func CheckOriginalData(ijl15 []byte) bool {
+	if len(ijl15) != OriginalLen {
+		return false
+	}
+	return sha256.Sum256(ijl15) == OriginalSHA256
+}
+
+func Patch(log *log.Logger, ijl15, rugburn []byte, version string) ([]byte, error) {
 	// Load goat
 	ijl15Reader := bytes.NewReader(ijl15)
 	ijl15Module, err := pe.LoadPE32Image(ijl15Reader)
@@ -230,6 +261,30 @@ func Patch(log *log.Logger, ijl15, rugburn []byte) ([]byte, error) {
 	tailSection = newModule.Sections[len(newModule.Sections)-1]
 	appendAddr = calcEnd(tailSection.VirtualAddress, tailSection.VirtualSize)
 	appendOffset += origSection.SizeOfRawData
+
+	// Add the rugburn version as a section.
+	versionPaddedLen := (len(version) + int(fileAlign) - 1) / int(fileAlign) * int(fileAlign)
+	versionPadded := make([]byte, versionPaddedLen)
+	copy(versionPadded, []byte(version))
+	log.Printf("Adding rugburn version at 0x%08x", appendAddr)
+	versionSection := pe.ImageSectionHeader{
+		VirtualSize:          uint32(len(version)),
+		VirtualAddress:       appendAddr,
+		SizeOfRawData:        uint32(len(versionPadded)),
+		PointerToRawData:     appendOffset,
+		PointerToRelocations: 0,
+		PointerToLinenumbers: 0,
+		NumberOfRelocations:  0,
+		NumberOfLinenumbers:  0,
+		Characteristics:      pe.ImageSectionCharacteristicsContainsInitializedData | pe.ImageSectionCharacteristicsMemoryRead | pe.ImageSectionCharacteristicsMemoryDiscardable,
+	}
+	copy(versionSection.Name[:], ".rugv")
+	sectionDatas = append(sectionDatas, versionPadded)
+	newModule.Sections = append(newModule.Sections, versionSection)
+
+	tailSection = newModule.Sections[len(newModule.Sections)-1]
+	appendAddr = calcEnd(tailSection.VirtualAddress, tailSection.VirtualSize)
+	appendOffset += versionSection.SizeOfRawData
 
 	for i, section := range newModule.Sections {
 		log.Printf("Section %d: addr=%08x size=%08x ; rawaddr=%08x rawsize=%08x: %s", i, section.VirtualAddress, section.VirtualSize, section.PointerToRawData, section.SizeOfRawData, string(section.Name[:]))
