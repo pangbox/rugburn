@@ -64,7 +64,7 @@ FLYPROJECT := rugburn-gg
 all: $(OUT) $(OUTEM) $(VEREM) $(TESTOUT) $(WEBOUT)
 slipstream: $(OUTSS)
 
-.PHONY: clean slipstream
+.PHONY: clean slipstream $(VEREM)
 
 # Rugburn
 $(OBJDIR)%.o: $(SRCDIR)%.c
