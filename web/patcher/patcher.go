@@ -168,7 +168,14 @@ func GetRugburnVersion(this js.Value, p []js.Value) interface{} {
 }
 
 // JS return value:
-// - string
+// - Promise<string>
 func GetEmbeddedVersion(this js.Value, p []js.Value) interface{} {
+	handler := js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+		resolve := args[0]
+		resolve.Invoke(js.ValueOf(embedded.Version))
+		return nil
+	})
+	promiseConstructor := js.Global().Get("Promise")
+	return promiseConstructor.New(handler)
 	return js.ValueOf(embedded.Version)
 }
