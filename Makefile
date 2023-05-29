@@ -96,7 +96,7 @@ $(WEBOUT): $(OUT) $(WEBASSET) web/patcher/patcher.go
 watch:
 	while rm -f $(WEBOUT) && make $(WEBOUT) && go run ./web/testsrv.go -watch ./; do :; done
 deploy:
-	nix run nixpkgs#skopeo -- --insecure-policy --debug copy docker-archive:"$(shell nix build .#dockerImage --print-out-paths)" docker://registry.fly.io/$(FLYPROJECT):latest --dest-creds x:"$(shell flyctl auth token)" --format v2s2
+	nix run nixpkgs#skopeo -- --insecure-policy --debug copy docker-archive:"$(shell nix build .#dockerImage --print-out-paths)" docker://registry.fly.io/$(FLYPROJECT):latest --dest-creds x:"$(shell nix run nixpkgs#flyctl auth token)" --format v2s2
 	nix run nixpkgs#flyctl -- deploy -i registry.fly.io/$(FLYPROJECT):latest --remote-only
 
 clean:
