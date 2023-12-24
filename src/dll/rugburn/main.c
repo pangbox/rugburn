@@ -17,6 +17,7 @@
 #include "../../ijlfwd.h"
 #include "../../patch.h"
 #include "../../hooks/hooks.h"
+#include "../../patch_usa_852.h"
 
 /**
  * InitEnvironment configures the PANGYA_ARG environment to avoid needing to
@@ -53,6 +54,34 @@ static VOID STDCALL PatchGG_US852(PVOID unused) {
             Patch((LPVOID)0x00A496E0, "\xC3", 1);
             Patch((LPVOID)0x00A49840, "\xC3", 1);
             Log("Patched GG check routines (US 852)\r\n");
+
+            Patch((LPVOID)0x00A6ECC9, "\x30\xC0", 2);
+			Log("Patched Cookie Point Item (US 852)\r\n");
+
+			Patch((LPVOID)0x005FB990, "\x80\xB9\x40\x02\x00\x00\x00\x0F\x85\x0D\x00\x00\x00\x8B\x89\x8C\x01\x00\x00\x8B\x01\x8B\x50\x4C\xFF\xD2\xC2\x04\x00", 29);
+			Log("Patched Cookie Btn in onCallback that's disabled (US 852)\r\n");
+
+			Patch((LPVOID)0x005FB9AD, "\xB3\x01\x31\xFF\x90\x53\xBA\xB4\x6A\xCE\x00\xE9\xC9\x31\x00\x00", 16);
+			Patch((LPVOID)0x005FEB7E, "\xE9\x2A\xCE\xFF\xFF", 5);
+			Patch((LPVOID)0x005FEB8D, "\x53", 1);
+			Patch((LPVOID)0x005FEB9A, "\x53", 1);
+			Patch((LPVOID)0x005FB9BD, "\x6A\x01\xBA\xB4\x6A\xCE\x00\x8B\xCE\xE8\xF5\x2C\x00\x00\x6A\x01\xBA\xB0\x69\xCE\x00\xE9\x29\x32\x00\x00", 26);
+			Patch((LPVOID)0x005FEBF9, "\xE9\xBF\xCD\xFF\xFF", 5);
+			Log("Patched Btn Cookie, Gacha and Scratch disabled (US 852)\r\n");
+
+			Patch((LPVOID)0x008BC729, "\x01", 1);
+			Patch((LPVOID)0x008C1495, "\xEB\x0C", 2);
+			Patch((LPVOID)0x008C14A3, "\xE8\xF8\xB2\xFF\xFF\x88\x86\xE4\x00\x00\x00\x5E\xC3", 13);
+			Log("Patched Btn Change Nickname disabled (US 852)\r\n");
+
+			unsigned char jmp_to_patch_ranking[5] = { 0xE9u, 0u, 0u, 0u, 0u };
+
+			DWORD relAddr = (DWORD)OnUnderBar_RankingUp - 0x00655630u - 5u;
+
+			memcpy(&jmp_to_patch_ranking[1], &relAddr, 4u);
+
+			Patch((LPVOID)0x00655630, jmp_to_patch_ranking, sizeof(jmp_to_patch_ranking));
+			Log("Patched Ranking System disabled (US 852)\r\n");
             return;
         }
         if (*(DWORD*)0x00A49580 == 0x8F143D83) {
