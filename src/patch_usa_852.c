@@ -126,15 +126,15 @@ void __thiscall OnUnderBar_RankingUp(void* _this) {
 		CALLTHISFUNCTION(pDestructorWSendPacket, (void*)WSendPacketObject);
 	}
 
-	void* FormWndObject = *GETTHISPOINTERMEMBER(void*, 0x160u, _this);
+	void** FormWndObject = GETTHISPOINTERMEMBER(void*, 0x160u, _this);
 
-	if (FormWndObject == NULL) {
+	if (*FormWndObject == NULL) {
 
-		FormWndObject = CreateFormFrLoginRsDlg(*GETTHISPOINTERMEMBER(void*, 0x40u, gFresh), (void*)GETTHISPOINTERMEMBER(void*, 0x18, _this), "login_gs", NULL);
+		*FormWndObject = CreateFormFrLoginRsDlg(*GETTHISPOINTERMEMBER(void*, 0x40u, gFresh), (void*)GETTHISPOINTERMEMBER(void*, 0x18, _this), "login_gs", NULL);
 
 		pSetState(1u);
 
-		CALLTHISVIRTUALCALL(PFNFRFORMOPENPROC, 0x64u, FormWndObject, OnLoginRsDlgResult, 0xFFFFFFE8u, 0, 0, 0x41);
+		CALLTHISVIRTUALCALL(PFNFRFORMOPENPROC, 0x64u, *FormWndObject, OnLoginRsDlgResult, 0xFFFFFFE8u, 0, 0, 0x41);
 	}
 
 	CALLTHISFUNCTION(pClearToolTip, _this, NULL);
