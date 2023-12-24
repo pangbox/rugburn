@@ -190,6 +190,8 @@
     <ClCompile Include="src\patch.c" />
     <ClCompile Include="src\regex.c" />
     <ClCompile Include="src\third_party\lend\ld32.c" />
+    <ClCompile Include="src\hooks\msvcr100\msvcr100.c" />
+    <ClCompile Include="src\patch_usa_852.c" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\bootstrap.h" />
@@ -207,6 +209,8 @@
     <ClInclude Include="src\patch.h" />
     <ClInclude Include="src\regex.h" />
     <ClInclude Include="src\third_party\lend\ld32.h" />
+    <ClCompile Include="src\hooks\msvcr100\msvcr100.h" />
+    <ClCompile Include="src\patch_usa_852.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="exportvs.def" />
