@@ -43,7 +43,7 @@ static VOID InitEnvironment() {
 /**
  * Implements the GameGuard patches for Pangya US 852.00.
  */
-static VOID STDCALL PatchGG_US852(PVOID unused) {
+static DWORD STDCALL PatchGG_US852(PVOID unused) {
     while(1) {
         // TODO(john): Remove hardcoded addresses.
         if (*(DWORD*)0x00A495E0 == 0x8F143D83) {
@@ -82,7 +82,7 @@ static VOID STDCALL PatchGG_US852(PVOID unused) {
 
 			Patch((LPVOID)0x00655630, jmp_to_patch_ranking, sizeof(jmp_to_patch_ranking));
 			Log("Patched Ranking System disabled (US 852)\r\n");
-            return;
+            return TRUE;
         }
         if (*(DWORD*)0x00A49580 == 0x8F143D83) {
             Patch((LPVOID)0x00A49580, "\xC3\x90\x90\x90\x90\x90\x90", 7);
@@ -92,16 +92,17 @@ static VOID STDCALL PatchGG_US852(PVOID unused) {
             Patch((LPVOID)0x00A496E0, "\xC3", 1);
             Patch((LPVOID)0x00A49840, "\xC3", 1);
             Log("Patched GG check routines (US 824)\r\n");
-            return;
+            return TRUE;
         }
 		Delay(5);
     }
+	return FALSE;
 }
 
 /**
  * Implements the GameGuard patches for Pangya JP 972.00.
  */
-static VOID STDCALL PatchGG_JP972(PVOID unused) {
+static DWORD STDCALL PatchGG_JP972(PVOID unused) {
     while(1) {
         // TODO(john): Remove hardcoded addresses.
         if (*(DWORD*)0x00A5CD10 == 0x1BA43D83) {
@@ -112,7 +113,7 @@ static VOID STDCALL PatchGG_JP972(PVOID unused) {
             Patch((LPVOID)0x00A5CE10, "\xC3", 1);
             Patch((LPVOID)0x00A5CE40, "\xC3", 1);
             Log("Patched GG check routines (JP 972)\r\n");
-            return;
+            return TRUE;
         }
         if (*(DWORD*)0x00A5CF80 == 0x1BA43D83) {
             Patch((LPVOID)0x00A5CF80, "\xC3\x90\x90\x90\x90\x90\x90", 7);
@@ -122,7 +123,7 @@ static VOID STDCALL PatchGG_JP972(PVOID unused) {
             Patch((LPVOID)0x00A5CE80, "\xC3", 1);
             Patch((LPVOID)0x00A5CEB0, "\xC3", 1);
             Log("Patched GG check routines (JP 974)\r\n");
-            return;
+            return TRUE;
         }
         if (*(DWORD*)0x00A5CF80 == 0x1C143D83) {
             Patch((LPVOID)0x00A5CF80, "\xC3\x90\x90\x90\x90\x90\x90", 7);
@@ -132,10 +133,22 @@ static VOID STDCALL PatchGG_JP972(PVOID unused) {
             Patch((LPVOID)0x00A5CE80, "\xC3", 1);
             Patch((LPVOID)0x00A5CEB0, "\xC3", 1);
             Log("Patched GG check routines (JP 983)\r\n");
-            return;
+            return TRUE;
         }
 		Delay(5);
     }
+	return FALSE;
+}
+
+static VOID STDCALL PatchDynamicAndGG(LPTHREAD_START_ROUTINE patchThread) {
+
+	if (!patchThread) {
+		Warning("It looks like no patch exists for this version of PangYa™.\nThe game will likely exit a couple minutes after detecting GameGuard is not present.");
+		PatchAddress();
+	}else {
+		if (patchThread(NULL) == TRUE)
+			PatchAddress();
+	}
 }
 
 /**
@@ -161,13 +174,8 @@ static VOID InitGGPatch() {
         break;
     }
 
-    if (!patchThread) {
-        Warning("It looks like no patch exists for this version of PangYa™.\nThe game will likely exit a couple minutes after detecting GameGuard is not present.");
-        return;
-    }
-
     pCreateThread = GetProc(hKernel32Module, "CreateThread");
-    pCreateThread(0, 0, patchThread, 0, 0, 0);
+    pCreateThread(0, 0, (LPTHREAD_START_ROUTINE)PatchDynamicAndGG, patchThread, 0, 0);
 }
 
 // Standalone forwarding DLL entrypoint

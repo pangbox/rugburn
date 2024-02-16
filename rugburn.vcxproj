@@ -141,6 +141,7 @@
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -149,7 +150,7 @@
       <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
       <ModuleDefinitionFile>exportvs.def</ModuleDefinitionFile>
       <EntryPointSymbol>DllMain</EntryPointSymbol>
-      <AdditionalDependencies>kernel32.lib;user32.lib;shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>kernel32.lib;user32.lib;shlwapi.lib;libvcruntime.lib;libcmt.lib;libucrt.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -180,6 +181,7 @@
     <ClCompile Include="src\common.c" />
     <ClCompile Include="src\config.c" />
     <ClCompile Include="src\dll\rugburn\main.c" />
+    <ClCompile Include="src\hex.c" />
     <ClCompile Include="src\hooks\hooks.c" />
     <ClCompile Include="src\hooks\kernel32\inject.c" />
     <ClCompile Include="src\hooks\user32\window.c" />
@@ -192,25 +194,6 @@
     <ClCompile Include="src\third_party\lend\ld32.c" />
     <ClCompile Include="src\hooks\msvcr100\msvcr100.c" />
     <ClCompile Include="src\patch_usa_852.c" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="src\bootstrap.h" />
-    <ClInclude Include="src\common-fnptr.h" />
-    <ClInclude Include="src\common.h" />
-    <ClInclude Include="src\config.h" />
-    <ClInclude Include="src\hooks\hooks.h" />
-    <ClInclude Include="src\hooks\kernel32\inject.h" />
-    <ClInclude Include="src\hooks\user32\window.h" />
-    <ClInclude Include="src\hooks\wininet\netredir.h" />
-    <ClInclude Include="src\hooks\ws2_32\redir.h" />
-    <ClInclude Include="src\ijlfwd.h" />
-    <ClInclude Include="src\inject.h" />
-    <ClInclude Include="src\json.h" />
-    <ClInclude Include="src\patch.h" />
-    <ClInclude Include="src\regex.h" />
-    <ClInclude Include="src\third_party\lend\ld32.h" />
-    <ClCompile Include="src\hooks\msvcr100\msvcr100.h" />
-    <ClCompile Include="src\patch_usa_852.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="exportvs.def" />
