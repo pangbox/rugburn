@@ -5,6 +5,7 @@
 PFNLOADLIBRARYAPROC pLoadLibraryA = NULL;
 PFNGETPROCADDRESSPROC pGetProcAddress = NULL;
 
+#ifndef _MSC_VER
 typedef struct _EXCEPTION_REGISTRATION_RECORD {
     struct _EXCEPTION_REGISTRATION_RECORD *Next;
     EXCEPTION_DISPOSITION *Handler;
@@ -22,6 +23,7 @@ typedef struct _NT_TIB {
     PVOID ArbitraryUserPointer;
     struct _NT_TIB *Self;
 } NT_TIB, *PNT_TIB;
+#endif
 
 typedef struct _LDR_DATA_TABLE_ENTRY {
     LIST_ENTRY InLoadOrderLinks;
@@ -83,6 +85,7 @@ typedef struct _TEB {
         #else // x86
             PTEB tebPtr = (PTEB)__readfsdword(OFFSETOF(NT_TIB, Self));
         #endif
+		return tebPtr;
     }
 #endif
 
@@ -134,7 +137,7 @@ VOID BootstrapPEB() {
     pAddressOfOrdinals = (LPWORD)(pExportDir->AddressOfNameOrdinals + pImageBase);
     pAddressOfNames  = (LPDWORD)(pExportDir->AddressOfNames + pImageBase);
 
-    for (i = 0; i < iNumberOfNames; i++) {
+    for (i = 0; i < (int)iNumberOfNames; i++) {
         PCHAR pName = (PCHAR)(pAddressOfNames[i] + pImageBase);
 
         // Exit early iff we have the ordinals we're looking for.

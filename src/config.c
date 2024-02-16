@@ -1,5 +1,7 @@
 #include "config.h"
 #include "json.h"
+#include "hex.h"
+#include "patch.h"
 
 LPCSTR RugburnConfigFilename = "rugburn.json";
 RUGBURNCONFIG Config;
@@ -49,12 +51,26 @@ void ReadJsonPortRewriteRuleArray(LPSTR *json) {
     Config.NumPortRewriteRules++;
 }
 
+void ReadJsonPatchAddressMap(LPSTR *json, LPCSTR key) {
+	LPCSTR value = JsonReadString(json);
+
+	if (Config.NumPatchAddress == MAXPATCHADDRESS) {
+		FatalError("Reached maximum number of Patch address!");
+	}
+
+	Config.PatchAddress[Config.NumPatchAddress].addr = ReadDword(key);
+	TranslateHexInText(value, Config.PatchAddress[Config.NumPatchAddress].patch, sizeof(Config.PatchAddress[Config.NumPatchAddress].patch), &Config.PatchAddress[Config.NumPatchAddress].patch_len);
+	Config.NumPatchAddress++;
+}
+
 void ReadJsonConfigMap(LPSTR *json, LPCSTR key) {
     if (!strcmp(key, "UrlRewrites")) {
         JsonReadMap(json, ReadJsonUrlRewriteRuleMap);
     } else if (!strcmp(key, "PortRewrites")) {
         JsonReadArray(json, ReadJsonPortRewriteRuleArray);
-    } else {
+    } else if (!strcmp(key, "PatchAddress")) {
+		JsonReadMap(json, ReadJsonPatchAddressMap);
+	} else {
         FatalError("Unexpected JSON config key '%s'", key);
     }
 }
@@ -122,4 +138,18 @@ BOOL RewriteAddr(LPSOCKADDR_IN addr) {
     }
 
     return FALSE;
+}
+
+void PatchAddress() {
+	int i;
+
+	for (i = 0; i < Config.NumPatchAddress; i++) {
+		
+		if (Config.PatchAddress[i].addr != 0 && Config.PatchAddress[i].patch_len > 0 && Config.PatchAddress[i].patch[0] != '\0') {
+
+			Patch((LPVOID)Config.PatchAddress[i].addr, Config.PatchAddress[i].patch, Config.PatchAddress[i].patch_len);
+
+			Log("PatchAddress: 0x%08lX, Len: %d, Value: %s\r\n", Config.PatchAddress[i].addr, Config.PatchAddress[i].patch_len, Config.PatchAddress[i].patch);
+		}
+	}
 }

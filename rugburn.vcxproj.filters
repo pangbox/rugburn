@@ -17,25 +17,7 @@
     <ClCompile Include="src\config.c" />
     <ClCompile Include="src\hooks\msvcr100\msvcr100.c" />
     <ClCompile Include="src\patch_usa_852.c" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="src\bootstrap.h" />
-    <ClInclude Include="src\common-fnptr.h" />
-    <ClInclude Include="src\common.h" />
-    <ClInclude Include="src\hooks\hooks.h" />
-    <ClInclude Include="src\hooks\kernel32\inject.h" />
-    <ClInclude Include="src\hooks\user32\window.h" />
-    <ClInclude Include="src\hooks\wininet\netredir.h" />
-    <ClInclude Include="src\hooks\ws2_32\redir.h" />
-    <ClInclude Include="src\ijlfwd.h" />
-    <ClInclude Include="src\inject.h" />
-    <ClInclude Include="src\patch.h" />
-    <ClInclude Include="src\third_party\lend\ld32.h" />
-    <ClInclude Include="src\json.h" />
-    <ClInclude Include="src\regex.h" />
-    <ClInclude Include="src\config.h" />
-    <ClCompile Include="src\hooks\msvcr100\msvcr100.h" />
-    <ClCompile Include="src\patch_usa_852.h" />
+    <ClCompile Include="src\hex.c" />
   </ItemGroup>
   <ItemGroup>
     <None Include="exportvs.def" />
