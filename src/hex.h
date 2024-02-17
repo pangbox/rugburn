@@ -3,7 +3,7 @@
 
 #include "common.h"
 
-DWORD ReadDword(LPCSTR _text);
-void TranslateHexInText(LPCSTR _text, LPSTR _result, int _size_result, int* _size_out);
+DWORD ParseAddress(LPCSTR lpszText);
+void ParsePatch(LPCSTR lpszText, LPSTR *pDataOut, DWORD *pSizeOut);
 
 #endif

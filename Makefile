@@ -30,6 +30,7 @@ OBJS := \
 	obj/dll/rugburn/main.o \
 	obj/hooks/kernel32/inject.o \
 	obj/hooks/msvcr100/msvcr100.o \
+	obj/hooks/projectg/us852/ranking.o \
 	obj/hooks/user32/window.o \
 	obj/hooks/ws2_32/redir.o \
 	obj/hooks/wininet/netredir.o \
@@ -38,6 +39,7 @@ OBJS := \
 	obj/bootstrap.o \
 	obj/common.o \
 	obj/config.o \
+	obj/hex.o \
 	obj/ijlfwd.o \
 	obj/json.o \
 	obj/patch.o \

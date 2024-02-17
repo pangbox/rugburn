@@ -143,3 +143,77 @@ PVOID HookProc(HMODULE hModule, LPCSTR szName, PVOID pfnTargetProc) {
 
     return pfnTrampolineProc;
 }
+
+/**
+ * Creates a thunk that translates from MSVC thiscall to stdcall calling
+ * convention. The returned function pointer can be used in MSVC ABI vtables.
+ */
+PVOID BuildThiscallToStdcallThunk(PVOID pfnProc) {
+    DWORD thunkLen = 9;
+    DWORD oldProtect;
+    DWORD relAddr;
+    PCHAR codeblock;
+
+    // Calculate the jump address.
+    relAddr = (DWORD)pfnProc - (DWORD)codeblock;
+
+    // Allocate data for thunk.
+    codeblock = AllocMem(thunkLen);
+
+    // Create calling convention thunk.
+    // We want to put the this pointer, from ecx, onto the stack at the
+    // left-most argument. Since we were called via stdcall, return address is
+    // the current value on the stack, followed by left-most argument. So, pop
+    // the return address, push the this pointer, and then push the return
+    // address back onto the stack.
+    codeblock[0] = 0x58; // pop eax
+    codeblock[1] = 0x51; // push ecx
+    codeblock[2] = 0x50; // push eax
+    codeblock[3] = 0xE9; // jmp
+    memcpy(&codeblock[4], &relAddr, 4);
+
+    // ...and a return at the end, for good measure.
+    codeblock[8] = 0xC3;
+
+    // Mark the codeblock as executable.
+    pVirtualProtect(codeblock, thunkLen, PAGE_EXECUTE_READWRITE, &oldProtect);
+
+    return codeblock;
+}
+
+/**
+ * Creates a thunk that translates from stdcall to MSVC thiscall calling
+ * convention. The returned function pointer can be called using stdcall.
+ */
+PVOID BuildStdcallToThiscallThunk(PVOID pfnProc) {
+    DWORD thunkLen = 9;
+    DWORD oldProtect;
+    DWORD relAddr;
+    PCHAR codeblock;
+
+    // Calculate the jump address.
+    relAddr = (DWORD)pfnProc - (DWORD)codeblock;
+
+    // Allocate data for thunk.
+    codeblock = AllocMem(thunkLen);
+
+    // Create calling convention thunk.
+    // We want to put the this pointer, from the stack at the left-most
+    // argument, into ecx. Since we were called via thiscall, return address is
+    // the current value on the stack, followed by the this pointer argument.
+    // So, pop the return address, pop the this pointer to ecx, and then push
+    // the return address back onto the stack.
+    codeblock[0] = 0x58; // pop eax
+    codeblock[1] = 0x59; // pop ecx
+    codeblock[2] = 0x50; // push eax
+    codeblock[3] = 0xE9; // jmp
+    memcpy(&codeblock[4], &relAddr, 4);
+
+    // ...and a return at the end, for good measure.
+    codeblock[8] = 0xC3;
+
+    // Mark the codeblock as executable.
+    pVirtualProtect(codeblock, thunkLen, PAGE_EXECUTE_READWRITE, &oldProtect);
+
+    return codeblock;
+}

@@ -85,7 +85,7 @@ typedef struct _TEB {
         #else // x86
             PTEB tebPtr = (PTEB)__readfsdword(OFFSETOF(NT_TIB, Self));
         #endif
-		return tebPtr;
+        return tebPtr;
     }
 #endif
 

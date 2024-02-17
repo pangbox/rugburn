@@ -22,5 +22,5 @@ cp ".tmp/h/sdkddkve.h" ".tmp/h/sdkddkver.h"
 echo "-I$PWD/.tmp/h" > compile_flags.txt
 echo "-D__va_list=__builtin_va_list" >> compile_flags.txt
 echo "-D_exception_code=__exception_code" >> compile_flags.txt
+echo "-D__stdcall=" >> compile_flags.txt
 echo "-fms-extensions" >> compile_flags.txt
-

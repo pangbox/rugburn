@@ -58,8 +58,8 @@ void ReadJsonPatchAddressMap(LPSTR *json, LPCSTR key) {
 		FatalError("Reached maximum number of Patch address!");
 	}
 
-	Config.PatchAddress[Config.NumPatchAddress].addr = ReadDword(key);
-	TranslateHexInText(value, Config.PatchAddress[Config.NumPatchAddress].patch, sizeof(Config.PatchAddress[Config.NumPatchAddress].patch), &Config.PatchAddress[Config.NumPatchAddress].patch_len);
+	Config.PatchAddress[Config.NumPatchAddress].addr = ParseAddress(key);
+	ParsePatch(value, &Config.PatchAddress[Config.NumPatchAddress].patch, &Config.PatchAddress[Config.NumPatchAddress].patchLen);
 	Config.NumPatchAddress++;
 }
 
@@ -141,15 +141,17 @@ BOOL RewriteAddr(LPSOCKADDR_IN addr) {
 }
 
 void PatchAddress() {
-	int i;
-
-	for (i = 0; i < Config.NumPatchAddress; i++) {
-		
-		if (Config.PatchAddress[i].addr != 0 && Config.PatchAddress[i].patch_len > 0 && Config.PatchAddress[i].patch[0] != '\0') {
-
-			Patch((LPVOID)Config.PatchAddress[i].addr, Config.PatchAddress[i].patch, Config.PatchAddress[i].patch_len);
-
-			Log("PatchAddress: 0x%08lX, Len: %d, Value: %s\r\n", Config.PatchAddress[i].addr, Config.PatchAddress[i].patch_len, Config.PatchAddress[i].patch);
-		}
-	}
+    int i;
+    for (i = 0; i < Config.NumPatchAddress; i++) {
+        if (Config.PatchAddress[i].addr == 0) {
+            Warning("Patch %d at address 0 will be ignored.", i);
+            continue;
+        }
+        if (Config.PatchAddress[i].patchLen == 0) {
+            Warning("Patch %d is empty.", i);
+            continue;
+        }
+        Patch((LPVOID)Config.PatchAddress[i].addr, Config.PatchAddress[i].patch, Config.PatchAddress[i].patchLen);
+        Log("PatchAddress: 0x%08lX, Len: %d, Value: %s\r\n", Config.PatchAddress[i].addr, Config.PatchAddress[i].patchLen, Config.PatchAddress[i].patch);
+    }
 }
