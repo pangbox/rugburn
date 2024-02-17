@@ -10,5 +10,7 @@ DWORD CountOpcodeBytes(FARPROC fn, DWORD minBytes);
 PCHAR BuildTrampoline(DWORD fn, DWORD prefixLen);
 PVOID HookFunc(PVOID pfnProc, PVOID pvTargetProc);
 PVOID HookProc(HMODULE hModule, LPCSTR szName, PVOID pfnTargetProc);
+PVOID BuildThiscallToStdcallThunk(PVOID pfnProc);
+PVOID BuildStdcallToThiscallThunk(PVOID pfnProc);
 
 #endif

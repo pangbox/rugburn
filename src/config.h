@@ -21,8 +21,8 @@ typedef struct _PORTREWRITERULE {
 
 typedef struct _PATCHADDRESS {
 	DWORD addr;
-	CHAR patch[1024];
-	int patch_len;
+	LPSTR patch;
+	DWORD patchLen;
 } PATCHADDRESS, *LPPATCHADDRESS;
 
 typedef struct _RUGBURNCONFIG {

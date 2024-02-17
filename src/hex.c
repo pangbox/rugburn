@@ -1,130 +1,122 @@
 #include "hex.h"
 
-DWORD ReadDword(LPCSTR _text) {
-
-	if (_text == NULL) {
-		FatalError("Hex - Read Dword hex in text, parameters invalid!");
-	}
-
-	if (_text[0] == '\0')
-		return 0;
-
-	LPSTR pos = (LPSTR)_text;
-	DWORD dw = 0;
-	int len = 0;
-
-	if ((pos = strstr(pos, "0x")) == NULL) {
-		FatalError("Hex - Read Dword hex in text, invalid dword hex!");
-	}
-
-	while (isxdigit(pos[len + 2]))
-		len++;
-
-	if (len > 0) {
-
-		CHAR ctmp = pos[len + 2];
-		pos[len + 2] = '\0';
-
-		dw = strtol(pos + 2, NULL, 16);
-	}
-
-	return dw;
+static BOOL ParseHex(CHAR ch, LPDWORD pOutValue) {
+    if (ch >= '0' && ch <= '9') {
+        *pOutValue = ch - '0';
+    } else if (ch >= 'a' && ch <= 'f') {
+        *pOutValue = ch - 'a' + 10;
+    } else if (ch >= 'A' && ch <= 'F') {
+        *pOutValue = ch - 'A' + 10;
+    } else {
+        return FALSE;
+    }
+    return TRUE;
 }
 
-void TranslateHexInText(LPCSTR _text, LPSTR _result, int _size_result, int* _size_out) {
+DWORD ParseAddress(LPCSTR lpszText) {
+    LPCSTR pos = lpszText;
+    DWORD hexDigitVal;
+    DWORD result = 0;
 
-	if (_text == NULL || _result == NULL || _size_result == 0 || _size_out == NULL) {
-		FatalError("Hex - Translate hex in text, parameters invalid!");
-	}
+    if (lpszText == NULL) {
+        FatalError("ParseAddress: Received unexpected NULL string");
+    }
 
-	*_size_out = 0;
+    if (lpszText[0] == '\0') {
+        return 0;
+    }
 
-	if (_text[0] == '\0') {
+    if (pos[0] != '0' || pos[1] != 'x' || pos[2] == 0) {
+        FatalError("ParseAddress: Invalid input, expected 0x-prefixed hex number");
+    }
 
-		_result[*_size_out++] = '\0';
+    pos += 2;
 
-		return;
-	}
+    while (ParseHex(*pos, &hexDigitVal) == TRUE) {
+        result <<= 4;
+        result |= hexDigitVal;
+        pos++;
+    }
 
-	LPSTR pos = (LPSTR)_text;
-	LPSTR rest = NULL;
-	int len = 0, num = 0;
+    if (*pos) {
+        FatalError("ParseAddress: Unexpected text remaining after address: %s", pos);
+    }
 
-	do {
+    return result;
+}
 
-		rest = strstr(pos, "\\x");
+void ParsePatch(LPCSTR lpszText, LPSTR *pDataOut, DWORD *pSizeOut) {
+    DWORD hexDigitVal;
+    DWORD hexOctetVal;
+    LPCSTR inPos;
+    LPSTR outPos;
+    *pSizeOut = 0;
 
-		if (rest != NULL) {
-			
-			len = rest - pos;
+    // Calculate length
+    inPos = lpszText;
+    while (*inPos) {
+        switch (*inPos++) {
+            case '\\':
+                switch (*inPos++) {
+                    case 'x':
+                        if (ParseHex(*inPos++, &hexDigitVal) == FALSE) {
+                            FatalError("ParsePatch: Bad hex escape near %s", inPos);
+                        }
+                        if (ParseHex(*inPos++, &hexDigitVal) == FALSE) {
+                            FatalError("ParsePatch: Bad hex escape near %s", inPos);
+                        }
+                        (*pSizeOut)++;
+                        break;
+                    case '\\':
+                        (*pSizeOut)++;
+                        break;
+                    case '\0':
+                        FatalError("ParsePatch: Unexpected end of string in escape code");
+                        break;
+                    default:
+                        FatalError("ParsePatch: Unknown escape code: %s", inPos);
+                }
+            default:
+                (*pSizeOut)++;
+        }
+        inPos++;
+    }
 
-			if (len > 0) {
-				
-				if ((*_size_out + len) > _size_result) {
-					FatalError("Hex - Translate hex in text, overflow result buffer!");
-				}
+    // Allocate memory
+    *pDataOut = AllocMem(*pSizeOut);
 
-				memcpy(_result + *_size_out, pos, len);
-				*_size_out += len;
-
-				pos = rest;
-			}
-
-			len = 0;
-
-			while (len < 2 && isxdigit(pos[len + 2]))
-				len++;
-
-			if (len > 0) {
-
-				CHAR ctmp = pos[len + 2];
-				pos[len + 2] = '\0';
-
-				num = strtol(pos + 2, NULL, 16);
-
-				if ((*_size_out + 1) > _size_result) {
-					FatalError("Hex - Translate hex in text, overflow result buffer!");
-				}
-
-				pos += len + 2;
-				*pos = ctmp;
-
-				_result[*_size_out] = (CHAR)num;
-
-				*_size_out += 1;
-
-			}else {
-
-				if ((*_size_out + 1) > _size_result) {
-					FatalError("Hex - Translate hex in text, overflow result buffer!");
-				}
-
-				_result[*_size_out] = *pos++;
-
-				*_size_out += 1;
-			}
-		
-		}else {
-
-			len = strlen(pos);
-
-			if ((*_size_out + len) > _size_result) {
-				FatalError("Hex - Translate hex in text, overflow result buffer!");
-			}
-
-			memcpy(_result + *_size_out, pos, len);
-			*_size_out += len;
-
-			pos += len;
-		}
-
-	} while(*pos != '\0');
-
-	if ((*_size_out + 1) > _size_result) {
-		FatalError("Hex - Translate hex in text, overflow result buffer!");
-	}
-
-	_result[*_size_out] = '\0';
-
-	*_size_out += 1;
+    // Parse
+    inPos = lpszText;
+    outPos = *pDataOut;
+    while (*inPos) {
+        switch (*inPos) {
+            case '\\':
+                inPos++;
+                switch (*inPos++) {
+                    case 'x':
+                        if (!ParseHex(*inPos++, &hexDigitVal)) {
+                            FatalError("ParsePatch: Bad hex escape near %s", inPos);
+                        }
+                        hexOctetVal = hexDigitVal << 4;
+                        if (!ParseHex(*inPos++, &hexDigitVal)) {
+                            FatalError("ParsePatch: Bad hex escape near %s", inPos);
+                        }
+                        hexOctetVal |= hexDigitVal;
+                        *outPos++ = (CHAR)(BYTE)hexOctetVal;
+                        break;
+                    case '\\':
+                        (*pSizeOut)++;
+                        *outPos++ = '\\';
+                        break;
+                    case '\0':
+                        FatalError("ParsePatch: Unexpected end of string in escape code");
+                        break;
+                    default:
+                        FatalError("ParsePatch: Unknown escape code: %s", inPos);
+                }
+            default:
+                *(outPos++) = *(inPos++);
+        }
+        inPos++;
+    }
 }
