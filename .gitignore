@@ -1,6 +1,10 @@
+/.direnv/
 /.vscode/
 /.vs/
 /result
 *.user
 gglog.txt
 ijl15.dll
+/.tmp/
+/compile_flags.txt
+

@@ -91,6 +91,8 @@ $(OUTSS): $(OUT) ijl15.dll
 # Website/web patcher
 $(WEBDISTDIR)%: $(WEBASSETDIR)%
 	cp "$<" "$@"
+web/dist/wasm_exec.js:
+	cp "$(shell go env GOROOT)/misc/wasm/wasm_exec.js" "$@"
 $(WEBOUT): $(OUT) $(WEBASSET) web/patcher/patcher.go
 	GOOS=js GOARCH=wasm $(GO) build -o "$@" "./web/patcher"
 watch:
