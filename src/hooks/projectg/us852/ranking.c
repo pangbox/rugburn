@@ -22,7 +22,6 @@ inline stMsgObject MakeMsgObject(LPVOID _pIActor, DWORD _id, DWORD _c0, DWORD _c
 }
 
 #define GETTHISPOINTERMEMBER(_type_, _addr_, _this_) (_type_ *)(((BYTE *)(_this_)) + (_addr_))
-#define GETVTABLEFN(_this_, _addr_) ((LPVOID)(*((LPCSTR *)(_this_)) + (_addr_)))
 
 typedef LPVOID (__cdecl *PFNMAKEINSTANCEFRLOGINRSDLG)(void);
 typedef LPCSTR (STDCALL *PFNBRASILTRANSLATESTRINGPROC)(LPCSTR _str);
@@ -62,6 +61,12 @@ static PFNFRLOGINRSDLGSETSTATEPROC pSetState = NULL;
 static LPVOID pOnUnderBar_RankingUpThunk = NULL;
 static LPVOID pOnLoginRsDlgResultThunk = NULL;
 
+static PFNFRFORMLOGINRSDLGSCALARDELETINGDESTRUCTORPROC pPerformLoginRsDlgScalarDeletingDestructor =
+    NULL;
+static PFNVIRTUALIACTORHANDLEMSGPROC pIActorHandleMsg = NULL;
+static PFNVIRTUALIACTORCLOSEALLDIALOGSPROC pIActorCloseAllDialogs = NULL;
+static PFNFRFORMOPENPROC pFrFormOpen = NULL;
+
 static void STDCALL OnUnderBar_RankingUp(LPVOID _this);
 static BOOL STDCALL OnLoginRsDlgResult(LPVOID _this, DWORD exit_code, LPVOID _pFrForm);
 
@@ -88,6 +93,16 @@ VOID InitUS852RankingHook() {
     pSetState = (PFNFRLOGINRSDLGSETSTATEPROC)BuildStdcallToThiscallThunk((LPVOID)0x00AC4380u);
     pOnUnderBar_RankingUpThunk = BuildThiscallToStdcallThunk((LPVOID)OnUnderBar_RankingUp);
     pOnLoginRsDlgResultThunk = BuildThiscallToStdcallThunk((LPVOID)OnLoginRsDlgResult);
+
+    pPerformLoginRsDlgScalarDeletingDestructor =
+        (PFNFRFORMLOGINRSDLGSCALARDELETINGDESTRUCTORPROC)BuildStdcallToVirtualThiscallThunk(0x04u);
+    pIActorHandleMsg =
+        (PFNVIRTUALIACTORHANDLEMSGPROC)BuildStdcallToVirtualThiscallThunk(0x2Cu);
+    pIActorCloseAllDialogs =
+        (PFNVIRTUALIACTORCLOSEALLDIALOGSPROC)BuildStdcallToVirtualThiscallThunk(0xC3u);
+    pFrFormOpen =
+        (PFNFRFORMOPENPROC)BuildStdcallToVirtualThiscallThunk(0x64u);
+
     InstallHook((LPVOID)0x00655630, (LPVOID)pOnUnderBar_RankingUpThunk);
 }
 
@@ -116,12 +131,7 @@ static LPVOID CreateFormFrLoginRsDlg(LPVOID _pFrWndManager, LPVOID _pFrCmdTarget
     }
 
     if (pFrLoginRsDlgObject != NULL) {
-        // TODO: need virtual thunk
-        PFNFRFORMLOGINRSDLGSCALARDELETINGDESTRUCTORPROC pPerformLoginRsDlgScalarDeletingDestructor =
-            (PFNFRFORMLOGINRSDLGSCALARDELETINGDESTRUCTORPROC)BuildStdcallToThiscallThunk(
-                GETVTABLEFN(pFrLoginRsDlgObject, 0x04u));
         pPerformLoginRsDlgScalarDeletingDestructor(pFrLoginRsDlgObject, 1u);
-        FreeMem(pPerformLoginRsDlgScalarDeletingDestructor);
     }
 
     return NULL;
@@ -153,24 +163,10 @@ static void STDCALL OnUnderBar_RankingUp(LPVOID _this) {
         translatedMsgStr = pBrasilTranslateString(gRankingDisabledServiceMsg);
         msg = MakeMsgObject(_this, 0x23u, (DWORD)translatedMsgStr, 0u, 0u, 0u, 0u);
 
-        // TODO: need virtual thunk
-        {
-            PFNVIRTUALIACTORHANDLEMSGPROC pIActorHandleMsg =
-                (PFNVIRTUALIACTORHANDLEMSGPROC)BuildStdcallToThiscallThunk(GETVTABLEFN(_this, 0x2Cu));
-            pIActorHandleMsg(_this, &msg);
-            FreeMem(pIActorHandleMsg);
-            return;
-        }
+        pIActorHandleMsg(_this, &msg);
     }
 
-    // TODO: need virtual thunk
-    {
-        PFNVIRTUALIACTORCLOSEALLDIALOGSPROC pIActorCloseAllDialogs =
-            (PFNVIRTUALIACTORCLOSEALLDIALOGSPROC)BuildStdcallToThiscallThunk(
-                GETVTABLEFN(_this, 0x3Cu));
-        pIActorCloseAllDialogs(_this);
-        FreeMem(pIActorCloseAllDialogs);
-    }
+    pIActorCloseAllDialogs(_this);
 
     if (pIsConnected(gWNetworkSystemInstance, 0) == FALSE) {
         pInit(gWNetworkSystemInstance, 3);
@@ -191,13 +187,7 @@ static void STDCALL OnUnderBar_RankingUp(LPVOID _this) {
 
         pSetState(1u);
 
-        // TODO: need virtual thunk
-        {
-            PFNFRFORMOPENPROC pFrFormOpen =
-                (PFNFRFORMOPENPROC)BuildStdcallToThiscallThunk(GETVTABLEFN(*FormWndObject, 0x64u));
-            pFrFormOpen(*FormWndObject, pOnLoginRsDlgResultThunk, 0xFFFFFFE8u, 0, 0, 0x41);
-            FreeMem(pFrFormOpen);
-        }
+        pFrFormOpen(*FormWndObject, pOnLoginRsDlgResultThunk, 0xFFFFFFE8u, 0, 0, 0x41);
     }
 
     pClearToolTip(_this, NULL);

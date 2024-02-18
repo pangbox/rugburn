@@ -12,5 +12,6 @@ PVOID HookFunc(PVOID pfnProc, PVOID pvTargetProc);
 PVOID HookProc(HMODULE hModule, LPCSTR szName, PVOID pfnTargetProc);
 PVOID BuildThiscallToStdcallThunk(PVOID pfnProc);
 PVOID BuildStdcallToThiscallThunk(PVOID pfnProc);
+PVOID BuildStdcallToVirtualThiscallThunk(DWORD dwVtblOffset);
 
 #endif

@@ -147,6 +147,7 @@ PVOID HookProc(HMODULE hModule, LPCSTR szName, PVOID pfnTargetProc) {
 /**
  * Creates a thunk that translates from MSVC thiscall to stdcall calling
  * convention. The returned function pointer can be used in MSVC ABI vtables.
+ * The this pointer will be passed in to pfnProc as the first parameter.
  */
 PVOID BuildThiscallToStdcallThunk(PVOID pfnProc) {
     DWORD thunkLen = 9;
@@ -154,11 +155,11 @@ PVOID BuildThiscallToStdcallThunk(PVOID pfnProc) {
     DWORD relAddr;
     PCHAR codeblock;
 
-    // Calculate the jump address.
-    relAddr = (DWORD)pfnProc - (DWORD)codeblock;
-
     // Allocate data for thunk.
     codeblock = AllocMem(thunkLen);
+
+    // Calculate the jump address.
+    relAddr = (DWORD)pfnProc - (DWORD)codeblock;
 
     // Create calling convention thunk.
     // We want to put the this pointer, from ecx, onto the stack at the
@@ -184,6 +185,7 @@ PVOID BuildThiscallToStdcallThunk(PVOID pfnProc) {
 /**
  * Creates a thunk that translates from stdcall to MSVC thiscall calling
  * convention. The returned function pointer can be called using stdcall.
+ * The first parameter will be used as the this pointer.
  */
 PVOID BuildStdcallToThiscallThunk(PVOID pfnProc) {
     DWORD thunkLen = 9;
@@ -191,11 +193,11 @@ PVOID BuildStdcallToThiscallThunk(PVOID pfnProc) {
     DWORD relAddr;
     PCHAR codeblock;
 
-    // Calculate the jump address.
-    relAddr = (DWORD)pfnProc - (DWORD)codeblock;
-
     // Allocate data for thunk.
     codeblock = AllocMem(thunkLen);
+
+    // Calculate the jump address.
+    relAddr = (DWORD)pfnProc - (DWORD)codeblock;
 
     // Create calling convention thunk.
     // We want to put the this pointer, from the stack at the left-most
@@ -211,6 +213,50 @@ PVOID BuildStdcallToThiscallThunk(PVOID pfnProc) {
 
     // ...and a return at the end, for good measure.
     codeblock[8] = 0xC3;
+
+    // Mark the codeblock as executable.
+    pVirtualProtect(codeblock, thunkLen, PAGE_EXECUTE_READWRITE, &oldProtect);
+
+    return codeblock;
+}
+
+/**
+ * Creates a thunk that translates from stdcall to an MSVC thiscall through a
+ * virtual function pointer table entry. The returned function pointer can be
+ * called using stdcall. The first parameter will be used as the this pointer.
+ */
+PVOID BuildStdcallToVirtualThiscallThunk(DWORD dwVtblOffset) {
+    DWORD thunkLen = 12;
+    DWORD oldProtect;
+    PCHAR codeblock;
+
+    // Allocate data for thunk.
+    codeblock = AllocMem(thunkLen);
+
+    // First, set up the stack as above. So, pop off return address into eax,
+    // pop off this pointer into ecx, then push return address back to stack.
+    codeblock[0] = 0x58; // pop eax
+    codeblock[1] = 0x59; // pop ecx
+    codeblock[2] = 0x50; // push eax
+
+    // Now, ecx contains the this pointer. The first DWORD in the object is the
+    // virtual function pointer table. Take the indirection of ecx and store it
+    // in eax. After this, eax contains the first address of the virtual
+    // function table.
+    codeblock[3] = 0x8b; // mov eax, DWORD PTR [ecx]
+    codeblock[4] = 0x01;
+
+    // Perform the actual dispatch by calling one more indirection, the address
+    // pointed to by the entry dwVtblOffset bytes into the virtual function
+    // pointer table. Note that a regular assembler will translate smaller
+    // offsets (<128) to a smaller opcode. For simplicity, we just use a DWORD
+    // sized offset every time.
+    codeblock[5] = 0xff; // call DWORD PTR [eax+dwVtblOffset]
+    codeblock[6] = 0x90;
+    memcpy(&codeblock[7], &dwVtblOffset, 4);
+
+    // ...and as usual, a return at the end, for good measure.
+    codeblock[11] = 0xC3;
 
     // Mark the codeblock as executable.
     pVirtualProtect(codeblock, thunkLen, PAGE_EXECUTE_READWRITE, &oldProtect);
