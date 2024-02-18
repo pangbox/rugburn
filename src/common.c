@@ -65,8 +65,14 @@ VOID InitCommon() {
     pFreeAddrInfo = GetProc(hWinsock, "freeaddrinfo");
 }
 
+#ifdef _MSC_VER
+#pragma function(strcmp)
+#pragma function(memcmp)
+#pragma function(memcpy)
+#pragma function(memset)
+#endif
+
 // C standard library functions
-#ifndef _MSC_VER
 int strcmp(LPCSTR dest, LPCSTR src) {
     int cmp;
     do {
@@ -114,7 +120,6 @@ PVOID memset(PVOID p, INT c, UINT size) {
     }
     return p;
 }
-#endif
 
 // String formatting
 int VSPrintfZ(LPSTR dest, LPCSTR fmt, va_list args) {
