@@ -28,7 +28,7 @@ jobs:
         draft: true
         prerelease: false
     - name: Upload Build
-      id: upload_build 
+      id: upload_build
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
