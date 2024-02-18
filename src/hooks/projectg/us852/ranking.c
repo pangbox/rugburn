@@ -99,7 +99,7 @@ VOID InitUS852RankingHook() {
     pIActorHandleMsg =
         (PFNVIRTUALIACTORHANDLEMSGPROC)BuildStdcallToVirtualThiscallThunk(0x2Cu);
     pIActorCloseAllDialogs =
-        (PFNVIRTUALIACTORCLOSEALLDIALOGSPROC)BuildStdcallToVirtualThiscallThunk(0xC3u);
+        (PFNVIRTUALIACTORCLOSEALLDIALOGSPROC)BuildStdcallToVirtualThiscallThunk(0x3Cu);
     pFrFormOpen =
         (PFNFRFORMOPENPROC)BuildStdcallToVirtualThiscallThunk(0x64u);
 
