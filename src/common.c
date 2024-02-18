@@ -29,6 +29,7 @@ static PFNGETCURRENTPROCESSIDPROC pGetCurrentProcessId = NULL;
 static PFNGETLASTERRORPROC pGetLastError = NULL;
 static PFNFREELIBRARYPROC pFreeLibrary = NULL;
 static PFNSLEEPPROC pSleep = NULL;
+static PFNGETSTDHANDLEPROC pGetStdHandle = NULL;
 
 HMODULE hWinsock = NULL;
 PFNHTONSPROC pHtons = NULL;
@@ -58,6 +59,7 @@ VOID InitCommon() {
     pGetLastError = GetProc(hKernel32Module, "GetLastError");
     pFreeLibrary = GetProc(hKernel32Module, "FreeLibrary");
     pSleep = GetProc(hKernel32Module, "Sleep");
+    pGetStdHandle = GetProc(hKernel32Module, "GetStdHandle");
 
     hWinsock = LoadLib("ws2_32");
     pHtons = GetProc(hWinsock, "htons");
@@ -124,7 +126,7 @@ PVOID memset(PVOID p, INT c, UINT size) {
 // String formatting
 int VSPrintfZ(LPSTR dest, LPCSTR fmt, va_list args) {
     if (!pwvsprintfA) {
-        *(DWORD*)0 = 0;
+        *(DWORD *)0 = 0;
     }
     return pwvsprintfA(dest, fmt, args);
 }
@@ -160,10 +162,12 @@ LPSTR DupStr(LPCSTR src) {
     LPSTR p;
     int len = 0;
 
-    while (src[len]) len++;
+    while (src[len])
+        len++;
     str = AllocMem(len + 1);
     p = str;
-    while (*src) *p++ = *src++;
+    while (*src)
+        *p++ = *src++;
     *p = '\0';
     return str;
 }
@@ -181,9 +185,7 @@ PSTR GetSelfPath() {
     return pszSelfPath;
 }
 
-BOOL FileExists(LPCTSTR szPath) {
-    return pGetFileAttributesA(szPath) != INVALID_FILE_ATTRIBUTES;
-}
+BOOL FileExists(LPCTSTR szPath) { return pGetFileAttributesA(szPath) != INVALID_FILE_ATTRIBUTES; }
 
 LPSTR ReadEntireFile(LPCSTR szPath) {
     HANDLE hFile = NULL;
@@ -224,7 +226,8 @@ VOID WriteEntireFile(LPCSTR szPath, LPCSTR data, DWORD dwBytesToWrite) {
     DWORD dwBytesWritten;
     BOOL bErrorFlag = FALSE;
 
-    hFile = pCreateFileA(szPath, FILE_WRITE_DATA, 0, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+    hFile =
+        pCreateFileA(szPath, FILE_WRITE_DATA, 0, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
     if (hFile == INVALID_HANDLE_VALUE) {
         FatalError("Error creating file %s.", szPath);
         return;
@@ -253,14 +256,14 @@ VOID FatalError(PCHAR fmt, ...) {
 
     // Cause a pagefault if we're unable to do anything.
     if (!buffer || !pMessageBoxA || !pExitProcess) {
-        *(DWORD*)0 = 0;
+        *(DWORD *)0 = 0;
     }
 
     va_start(args, fmt);
     SPrintfZ(buffer, fmt, args);
     va_end(args);
 
-    pMessageBoxA(HWND_DESKTOP, buffer, "rugburn", MB_OK|MB_ICONERROR);
+    pMessageBoxA(HWND_DESKTOP, buffer, "rugburn", MB_OK | MB_ICONERROR);
     FreeMem(buffer);
     pExitProcess(1);
 }
@@ -273,7 +276,7 @@ VOID Warning(PCHAR fmt, ...) {
     SPrintfZ(buffer, fmt, args);
     va_end(args);
 
-    pMessageBoxA(HWND_DESKTOP, buffer, "rugburn", MB_OK|MB_ICONWARNING);
+    pMessageBoxA(HWND_DESKTOP, buffer, "rugburn", MB_OK | MB_ICONWARNING);
     FreeMem(buffer);
 }
 
@@ -287,12 +290,14 @@ VOID Log(PCHAR fmt, ...) {
 
     if (pszLogPrefix != NULL) {
         plstrcpyA(logmsg, pszLogPrefix);
-        while (*logmsg != '\0') logmsg++;
+        while (*logmsg != '\0')
+            logmsg++;
     }
 
     SPrintfZ(pfxbuffer, "T:%d] ", pGetCurrentThreadId());
     plstrcpyA(logmsg, pfxbuffer);
-    while (*logmsg != '\0') logmsg++;
+    while (*logmsg != '\0')
+        logmsg++;
 
     cb = logmsg - buffer;
 
@@ -300,10 +305,12 @@ VOID Log(PCHAR fmt, ...) {
     cb += VSPrintfZ(logmsg, fmt, args);
     va_end(args);
 
-    hAppend = pCreateFileA(LOG_FILENAME, FILE_APPEND_DATA, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+    hAppend = pCreateFileA(LOG_FILENAME, FILE_APPEND_DATA, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL,
+                           OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
     pWriteFile(hAppend, buffer, cb, &cb, NULL);
     pCloseHandle(hAppend);
     FreeMem(buffer);
+    FreeMem(pfxbuffer);
 }
 
 VOID InitLog() {
@@ -328,9 +335,22 @@ VOID InitLog() {
     pszLogPrefix = szPfxBuf;
 }
 
+VOID ConsoleLog(PCHAR fmt, ...) {
+    va_list args;
+    HANDLE hConsole;
+    PCHAR buffer = AllocMem(4096);
+    DWORD cb = 0;
+    va_start(args, fmt);
+    cb += VSPrintfZ(buffer, fmt, args);
+    va_end(args);
+    hConsole = pGetStdHandle((DWORD)-11);
+    pWriteFile(hConsole, buffer, cb, &cb, NULL);
+    FreeMem(buffer);
+}
+
 HMODULE LoadLib(LPCSTR szName) {
     HMODULE hModule;
-    
+
     hModule = pLoadLibraryA(szName);
     if (hModule == NULL) {
         FatalError("Could not load module %s (%08x)", szName, LastErr());
@@ -339,9 +359,7 @@ HMODULE LoadLib(LPCSTR szName) {
     return hModule;
 }
 
-VOID FreeLib(HMODULE hModule) {
-    pFreeLibrary(hModule);
-}
+VOID FreeLib(HMODULE hModule) { pFreeLibrary(hModule); }
 
 PVOID GetProc(HMODULE hModule, LPCSTR szName) {
     PVOID pvProc;
@@ -354,17 +372,11 @@ PVOID GetProc(HMODULE hModule, LPCSTR szName) {
     return pvProc;
 }
 
-DWORD LastErr() {
-    return pGetLastError();
-}
+DWORD LastErr() { return pGetLastError(); }
 
-VOID Delay(DWORD dwMilliseconds) {
-    pSleep(dwMilliseconds);
-}
+VOID Delay(DWORD dwMilliseconds) { pSleep(dwMilliseconds); }
 
-VOID Exit(DWORD dwExitCode) {
-    pExitProcess(dwExitCode);
-}
+VOID Exit(DWORD dwExitCode) { pExitProcess(dwExitCode); }
 
 PANGYAVER DetectPangyaVersion() {
     if (FileExists("PangyaUS.ini")) {

@@ -159,7 +159,7 @@ PVOID BuildThiscallToStdcallThunk(PVOID pfnProc) {
     codeblock = AllocMem(thunkLen);
 
     // Calculate the jump address.
-    relAddr = (DWORD)pfnProc - (DWORD)codeblock;
+    relAddr = (DWORD)pfnProc - (DWORD)&codeblock[8];
 
     // Create calling convention thunk.
     // We want to put the this pointer, from ecx, onto the stack at the
@@ -197,7 +197,7 @@ PVOID BuildStdcallToThiscallThunk(PVOID pfnProc) {
     codeblock = AllocMem(thunkLen);
 
     // Calculate the jump address.
-    relAddr = (DWORD)pfnProc - (DWORD)codeblock;
+    relAddr = (DWORD)pfnProc - (DWORD)&codeblock[8];
 
     // Create calling convention thunk.
     // We want to put the this pointer, from the stack at the left-most

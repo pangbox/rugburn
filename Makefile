@@ -63,6 +63,10 @@ TESTOUT := out/test.exe
 WEBOUT := web/dist/patcher.wasm
 FLYPROJECT := rugburn-gg
 
+ifneq ($(OS),Windows_NT)
+	EXECWIN := wine
+endif
+
 all: $(OUT) $(OUTEM) $(VEREM) $(TESTOUT) $(WEBOUT)
 slipstream: $(OUTSS)
 
@@ -102,6 +106,7 @@ watch:
 deploy:
 	nix run nixpkgs#skopeo -- --insecure-policy --debug copy docker-archive:"$(shell nix build .#dockerImage --print-out-paths)" docker://registry.fly.io/$(FLYPROJECT):latest --dest-creds x:"$(shell nix run nixpkgs#flyctl auth token)" --format v2s2
 	nix run nixpkgs#flyctl -- deploy -i registry.fly.io/$(FLYPROJECT):latest --remote-only
-
+check: out/test.exe
+	$(EXECWIN) out/test.exe | tappy
 clean:
 	$(RM) -f $(OBJS) $(OUT) $(OUTSS) $(TESTOUT)

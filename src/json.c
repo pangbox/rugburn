@@ -10,7 +10,7 @@ BOOL JsonIsSpace(CHAR ch) {
 }
 
 LPCSTR JsonTokenName(JSONTOKENTYPE type) {
-    switch(type) {
+    switch (type) {
     case JSON_TOK_ERROR:
         return "ERROR";
     case JSON_TOK_LBRACE:
@@ -40,7 +40,8 @@ LPCSTR JsonTokenName(JSONTOKENTYPE type) {
 }
 
 void JsonConsumeWhitespace(LPSTR *json) {
-    while (JsonIsSpace(**json)) (*json)++;
+    while (JsonIsSpace(**json))
+        (*json)++;
 }
 
 void JsonConsumeIntegerToken(LPSTR *json, LPJSONTOKEN token) {
@@ -55,7 +56,7 @@ void JsonConsumeIntegerToken(LPSTR *json, LPJSONTOKEN token) {
 
     // Consume digits.
     while (1) {
-        switch(**json) {
+        switch (**json) {
         case '\0':
             FatalError("Parsing JSON: Unexpected end of file.");
             return;
@@ -84,14 +85,28 @@ void JsonConsumeIntegerToken(LPSTR *json, LPJSONTOKEN token) {
 }
 
 void JsonConsumeSymbolToken(LPSTR *json, LPJSONTOKEN token) {
-    switch(*(*json)++) {
-    case '{': token->token_type = JSON_TOK_LBRACE; return;
-    case '}': token->token_type = JSON_TOK_RBRACE; return;
-    case '[': token->token_type = JSON_TOK_LBRACKET; return;
-    case ']': token->token_type = JSON_TOK_RBRACKET; return;
-    case ',': token->token_type = JSON_TOK_COMMA; return;
-    case ':': token->token_type = JSON_TOK_COLON; return;
-    default: FatalError("Programming error in JSON parser: Unexpected symbol token."); break;
+    switch (*(*json)++) {
+    case '{':
+        token->token_type = JSON_TOK_LBRACE;
+        return;
+    case '}':
+        token->token_type = JSON_TOK_RBRACE;
+        return;
+    case '[':
+        token->token_type = JSON_TOK_LBRACKET;
+        return;
+    case ']':
+        token->token_type = JSON_TOK_RBRACKET;
+        return;
+    case ',':
+        token->token_type = JSON_TOK_COMMA;
+        return;
+    case ':':
+        token->token_type = JSON_TOK_COLON;
+        return;
+    default:
+        FatalError("Programming error in JSON parser: Unexpected symbol token.");
+        break;
     }
 }
 
@@ -109,15 +124,15 @@ void JsonConsumeStringToken(LPSTR *json, LPJSONTOKEN token) {
     strptr = *json;
     wptr = *json;
 
-    while(1) {
+    while (1) {
         ch = *(*json)++;
-        switch(ch) {
+        switch (ch) {
         case '\0':
             FatalError("Parsing JSON: Unexpected end of file.");
             return;
         case '\\':
             ch = *(*json)++;
-            switch(ch) {
+            switch (ch) {
             case '\0':
                 FatalError("Parsing JSON: Unexpected end of file.");
                 return;
@@ -152,7 +167,7 @@ void JsonConsumeStringToken(LPSTR *json, LPJSONTOKEN token) {
             token->token_type = JSON_TOK_STRING;
             token->string_val = strptr;
             return;
-        default: 
+        default:
             *wptr++ = ch;
             break;
         }
@@ -218,7 +233,8 @@ void JsonExpectToken(LPSTR *json, JSONTOKENTYPE type) {
     JSONTOKEN token;
     JsonNextToken(json, &token);
     if (token.token_type != type) {
-        FatalError("Parsing JSON: Expected '%s' token, got '%s'", JsonTokenName(type), JsonTokenName(token.token_type));
+        FatalError("Parsing JSON: Expected '%s' token, got '%s'", JsonTokenName(type),
+                   JsonTokenName(token.token_type));
     }
 }
 
@@ -227,7 +243,8 @@ LPCSTR JsonReadString(LPSTR *json) {
 
     JsonNextToken(json, &token);
     if (token.token_type != JSON_TOK_STRING) {
-        FatalError("Parsing JSON: Expected string token, got '%s'", JsonTokenName(token.token_type));
+        FatalError("Parsing JSON: Expected string token, got '%s'",
+                   JsonTokenName(token.token_type));
     }
 
     return token.string_val;
@@ -238,7 +255,8 @@ int JsonReadInteger(LPSTR *json) {
 
     JsonNextToken(json, &token);
     if (token.token_type != JSON_TOK_NUMBER) {
-        FatalError("Parsing JSON: Expected integer token, got '%s'", JsonTokenName(token.token_type));
+        FatalError("Parsing JSON: Expected integer token, got '%s'",
+                   JsonTokenName(token.token_type));
     }
 
     return token.int_val;
@@ -249,7 +267,8 @@ BOOL JsonReadBool(LPSTR *json) {
 
     JsonNextToken(json, &token);
     if (token.token_type != JSON_TOK_TRUE && token.token_type != JSON_TOK_FALSE) {
-        FatalError("Parsing JSON: Expected boolean token, got '%s'", JsonTokenName(token.token_type));
+        FatalError("Parsing JSON: Expected boolean token, got '%s'",
+                   JsonTokenName(token.token_type));
     }
 
     return token.token_type == JSON_TOK_TRUE ? TRUE : FALSE;
@@ -273,7 +292,7 @@ void JsonReadMap(LPSTR *json, LFNREADMAPVALUECB valuefn) {
         key = JsonReadString(json);
         JsonExpectToken(json, JSON_TOK_COLON);
         valuefn(json, key);
-    } while(JsonReadMapSeparator(json));
+    } while (JsonReadMapSeparator(json));
 }
 
 BOOL JsonReadArraySeparator(LPSTR *json) {
@@ -289,5 +308,7 @@ BOOL JsonReadArraySeparator(LPSTR *json) {
 
 void JsonReadArray(LPSTR *json, LFNREADARRAYVALUECB valuefn) {
     JsonExpectToken(json, JSON_TOK_LBRACKET);
-    do { valuefn(json); } while(JsonReadArraySeparator(json));
+    do {
+        valuefn(json);
+    } while (JsonReadArraySeparator(json));
 }

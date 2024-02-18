@@ -14,12 +14,19 @@
           name = "rugburn";
           src = self;
           nativeBuildInputs = with pkgs; [
+            # Build
             makeWrapper
             go_1_22
-            gopls
             open-watcom-v2
-            clang-tools
+
+            # Test
+            python3Packages.tappy
+            wine
           ];
+          checkPhase = ''
+            export WINEPREFIX="$TMPDIR/.wine"
+            make check
+          '';
           buildPhase = ''
             make
           '';
@@ -27,12 +34,25 @@
             install -D -t $out/lib out/rugburn.dll
             cp -r web/dist $out/dist
           '';
-          checkPhase = "";
           vendorHash = (pkgs.lib.fileContents ./go.mod.sri);
           WATCOM = "${pkgs.open-watcom-v2.out}";
         };
         rugburn = pkgs.buildGo122Module common;
-        devShell = pkgs.mkShell common;
+        devShell = pkgs.mkShell (common // {
+          nativeBuildInputs = with pkgs; [
+            # Build
+            makeWrapper
+            go_1_22
+            open-watcom-v2
+
+            # Test
+            python3Packages.tappy
+
+            # Development
+            gopls
+            clang-tools
+          ];
+        });
         setupClangd = pkgs.writeShellScriptBin "setup-clangd.sh" ''
           export WATCOM="${pkgs.open-watcom-v2.out}";
           exec ${./scripts/setup-clangd.sh} "$@"
