@@ -4,10 +4,12 @@
 #define STDCALL __stdcall
 #define EXPORT __export
 
+// clang-format off
 #include <winsock2.h>
 #include <windows.h>
 #include <windns.h>
 #include <wininet.h>
+// clang-format on
 #include <shlwapi.h>
 #include <strsafe.h>
 #include <subauth.h>
@@ -50,6 +52,7 @@ VOID WriteEntireFile(LPCSTR szPath, LPCSTR data, DWORD dwBytesToWrite);
 VOID FatalError(PCHAR fmt, ...);
 VOID Warning(PCHAR fmt, ...);
 VOID Log(PCHAR fmt, ...);
+VOID ConsoleLog(PCHAR fmt, ...);
 VOID InitLog();
 HMODULE LoadLib(LPCSTR szName);
 PVOID GetProc(HMODULE hModule, LPCSTR szName);

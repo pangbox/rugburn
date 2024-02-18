@@ -76,10 +76,10 @@ void ParsePatch(LPCSTR lpszText, LPSTR *pDataOut, DWORD *pSizeOut) {
                     default:
                         FatalError("ParsePatch: Unknown escape code: %s", inPos);
                 }
+                break;
             default:
                 (*pSizeOut)++;
         }
-        inPos++;
     }
 
     // Allocate memory
@@ -114,9 +114,9 @@ void ParsePatch(LPCSTR lpszText, LPSTR *pDataOut, DWORD *pSizeOut) {
                     default:
                         FatalError("ParsePatch: Unknown escape code: %s", inPos);
                 }
+                break;
             default:
                 *(outPos++) = *(inPos++);
         }
-        inPos++;
     }
 }
