@@ -251,8 +251,8 @@ PVOID BuildStdcallToVirtualThiscallThunk(DWORD dwVtblOffset) {
     // pointer table. Note that a regular assembler will translate smaller
     // offsets (<128) to a smaller opcode. For simplicity, we just use a DWORD
     // sized offset every time.
-    codeblock[5] = 0xff; // call DWORD PTR [eax+dwVtblOffset]
-    codeblock[6] = 0x90;
+    codeblock[5] = 0xff; // jmp DWORD PTR [eax+dwVtblOffset]
+    codeblock[6] = 0xa0;
     memcpy(&codeblock[7], &dwVtblOffset, 4);
 
     // ...and as usual, a return at the end, for good measure.
