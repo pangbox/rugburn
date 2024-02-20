@@ -105,7 +105,6 @@ void ParsePatch(LPCSTR lpszText, LPSTR *pDataOut, DWORD *pSizeOut) {
                         *outPos++ = (CHAR)(BYTE)hexOctetVal;
                         break;
                     case '\\':
-                        (*pSizeOut)++;
                         *outPos++ = '\\';
                         break;
                     case '\0':
