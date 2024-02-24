@@ -48,6 +48,8 @@ const PARSEPATCH_TESTCASE patch_tests[] = {
     {"\"lobby_gbin\\\\x00\"", "lobby_gbin\0", 11},
     {"\"lo\\\\x62\\\\x62\\\\x79_\\\\x77\\\\x65\\\\x73\\\\x74\\\\x2egbin\\\\x00\"",
      "lobby_west.gbin\0", 16},
+    // Escaped *three* times: once for C, once for JSON decode, once for binary parse!
+    {"\"test\\\\\\\\test\"", "test\\test", 9},
 };
 
 typedef struct _DISPATCH_TESTCASE DISPATCH_TESTCASE;

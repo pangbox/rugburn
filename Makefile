@@ -58,6 +58,7 @@ WEBASSET := \
 OUT := out/rugburn.dll
 OUTEM := slipstrm/embedded/rugburn.dll
 VEREM := slipstrm/embedded/version.txt
+INSS := thirdparty/ijl/ijl15.dll
 OUTSS := out/ijl15.dll
 TESTOUT := out/test.exe
 WEBOUT := web/dist/patcher.wasm
@@ -88,11 +89,11 @@ $(TESTOUT): $(TESTOBJS)
 	$(WLINK) $(LDFLAGS) NAME "$@" @test.def FILE {${TESTOBJS}}
 
 # Slipstream
-ijl15.dll:
-	@echo "Error: To use slipstream, place an original ijl15.dll in the source root."
+$(INSS):
+	@echo "Error: $(INSS) binary missing - cannot use Slipstream."
 	@exit 1
-$(OUTSS): $(OUT) ijl15.dll
-	$(GO) run ./slipstrm/cmd/slipstrm ijl15.dll $(OUT) $(OUTSS) $(VERSION)
+$(OUTSS): $(OUT) $(INSS)
+	$(GO) run ./slipstrm/cmd/slipstrm $(INSS) $(OUT) $(OUTSS) $(VERSION)
 
 # Website/web patcher
 $(WEBDISTDIR)%: $(WEBASSETDIR)%

@@ -10,10 +10,6 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v2
-    - name: Get original ijl15.dll
-      run: wget "${IJL15_URL}"
-      env:
-        IJL15_URL: ${{ secrets.IJL15_URL }}
     - name: Install Nix
       uses: cachix/install-nix-action@v19
       with:
