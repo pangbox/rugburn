@@ -65,7 +65,7 @@ over your files.)
 ## Using Slipstream
 You can use the web patcher if just want to patch your `ijl15.dll` with the latest version of Rugburn. It does not require an active internet connection.
 
-To use Slipstream manually, you can use the `make slipstream` command. Note that it requires the Go toolchain as well as a copy of unmodified `ijl15.dll` to be present in the root of the repository. You should find a patched `ijl15.dll` in your `out/` directory.
+To use Slipstream manually, you can use the `make slipstream` command. Note that it requires the Go toolchain. You should find a patched `ijl15.dll` in your `out/` directory.
 
 ## Usage
 Once installed, you can run ProjectG directly. Enjoy!
