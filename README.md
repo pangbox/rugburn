@@ -131,7 +131,7 @@ Please note that I may take a while to get to your pull request. This project is
 ## License
 Most of the code of rugburn is licensed under the ISC license. Some portions are licensed differently. See [LICENSE.md](./LICENSE.md) for complete licensing information.
 
-A copy of the Intel JPEG Library is included in the `thirdparty/ijl` directory. It is an unfree redistributable. For more information, see its [LICENSE.md](./thirdparty/ijl/LICENSE.md) file. This file is only used when producing a Slipstream patch.
+A copy of the Intel JPEG Library is included in the `third_party/ijl` directory. It is an unfree redistributable. For more information, see its [LICENSE.md](./third_party/ijl/LICENSE.md) file. This file is only used when producing a Slipstream patch.
 
 ## Special Thanks
 Special thanks to the [PangyaTools](https://github.com/pangyatools) community for motivation and advice.
