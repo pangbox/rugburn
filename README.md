@@ -6,13 +6,16 @@ run unmodified PangYa™ without GameGuard.
 
 This also allows you to run PangYa under Wine :)
 
-To get started, grab a binary from the [Releases](https://github.com/pangbox/rugburn/releases) page and follow the [installation instructions](#installation).
+To patch your installation (new way), use [the web patcher](https://rugburn.gg).
+
+To install without patching (old way), grab a binary from the [Releases](https://github.com/pangbox/rugburn/releases) page and follow the [installation instructions](#install).
+
+See [Configuration](#configuration) for information on how to use it.
 
 Features:
 
-  * Redirects network traffic to localhost. (You can modify this to redirect
-    wherever you want; see [src/hooks/ws2_32/redir.c](./src/hooks/ws2_32/redir.c)
-    and [src/hooks/wininet/netredir.c](./src/hooks/wininet/netredir.c).)
+  * Redirects network traffic to localhost, configurable via a configuration
+    file. Supports basic regular expressions for rewriting URLs.
 
   * Patches GameGuard's check routines to allow it to run indefinitely without
     GameGuard.
@@ -28,6 +31,50 @@ Features:
     active region of PangYa and does not offer GameGuard emulation that would
     be needed to stay connected to an official server.** This program is
     designed for personal and educational use.
+
+## Configuration
+When running PangYa with Rugburn for the first time, a sample configuration
+file is created at `rugburn.json`. It looks like this:
+
+```json
+{
+  "UrlRewrites": {
+    "http://[a-zA-Z0-9:.]+/(.*)": "http://localhost:8080/$0"
+  },
+  "PortRewrites": [
+    {
+      "FromPort": 10803,
+      "ToPort": 10101,
+      "ToAddr": "localhost"
+    },
+    {
+      "FromPort": 10103,
+      "ToPort": 10101,
+      "ToAddr": "localhost"
+    }
+  ]
+}
+```
+
+You can add `PortRewrites` to override and redirect Winsock2 connections,
+whereas you can add `UrlRewrites` to rewrite WinHTTP requests.
+
+### Regular Expressions
+Regular expression support in Rugburn is somewhat limited. The following
+features are supported:
+
+  * Capture groups (special characters `(` and `)`)
+  * Character classes (special characters `[` and `]`)
+  * Preset character classes (special escapes `\d`, `\D`, `\w` `\W`, `\s`, `\S`)
+  * Dot match (special character `.`)
+  * Zero or more match (special character `*`)
+  * One or more match (special character `+`)
+  * Optional match (special character `?`)
+
+The replacement engine supports `$0` through `$9` in the replacement text to
+refer to capture groups in the regular expression. Note that `$0` does not
+refer to the entire match, since all regular expressions must fully match
+anyways. `$$` can be used to escape a `$` in the replacement.
 
 ## Compiling
 `rugburn` is compiled with OpenWatcom, a simple compiler with few dependencies.
@@ -83,6 +130,8 @@ Please note that I may take a while to get to your pull request. This project is
 
 ## License
 Most of the code of rugburn is licensed under the ISC license. Some portions are licensed differently. See [LICENSE.md](./LICENSE.md) for complete licensing information.
+
+A copy of the Intel JPEG Library is included in the `thirdparty/ijl` directory. It is an unfree redistributable. For more information, see its [LICENSE.md](./thirdparty/ijl/LICENSE.md) file. This file is only used when producing a Slipstream patch.
 
 ## Special Thanks
 Special thanks to the [PangyaTools](https://github.com/pangyatools) community for motivation and advice.
