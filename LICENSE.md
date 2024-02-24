@@ -9,6 +9,21 @@ are licensed under GPLv3:
 Please see the respective [COPYING](./src/third_party/lend/COPYING) for the full
 license content of the GPLv3.
 
+# Intel JPEG License
+
+The following files, part of the Intel JPEG SDK version 1.5, are licensed under
+the Intel JPEG Product License Agreement:
+
+* [third_party/ijl/ijl15.dll](./third_party/ijl/ijl15.dll)
+
+Please see the respective [LICENSE.md](third_party/ijl/LICENSE.md) for the full
+redistributable license.
+
+**Note**: Rugburn does not use Intel JPEG Library and as such, normal
+redistributions of Rugburn or the Slipstream patcher module are not covered
+under this license. This redistributable file is included for convenience, so
+that it can be applied as a patch to the library.
+
 # ISC License
 
 All other files are licensed under the ISC license:
