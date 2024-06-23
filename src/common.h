@@ -17,9 +17,15 @@
 #include "common-fnptr.h"
 
 typedef enum _PANGYAVER {
-    PANGYA_US,
+    PANGYA_KR,
     PANGYA_JP,
     PANGYA_TH,
+    PANGYA_ID,
+    PANGYA_BR,
+    PANGYA_TW,
+    PANGYA_US,
+	PANGYA_EU,
+	PANGYA_SEA
 } PANGYAVER;
 
 extern HMODULE hKernel32Module;
@@ -27,6 +33,8 @@ extern HMODULE hWinsock;
 extern PFNHTONSPROC pHtons;
 extern PFNGETADDRINFO pGetAddrInfo;
 extern PFNFREEADDRINFO pFreeAddrInfo;
+extern PFNVIRTUALQUERYPROC pVirtualQuery;
+extern PFNGETLASTERRORPROC pGetLastError;
 
 VOID InitCommon();
 
