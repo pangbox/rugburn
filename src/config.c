@@ -142,6 +142,7 @@ BOOL RewriteAddr(LPSOCKADDR_IN addr) {
 
 void PatchAddress() {
     int i;
+    MEMORY_BASIC_INFORMATION mbi;
     for (i = 0; i < Config.NumPatchAddress; i++) {
         if (Config.PatchAddress[i].addr == 0) {
             Warning("Patch %d at address 0 will be ignored.", i);
@@ -151,6 +152,14 @@ void PatchAddress() {
             Warning("Patch %d is empty.", i);
             continue;
         }
+		if (pVirtualQuery((void*)Config.PatchAddress[i].addr, &mbi, sizeof(mbi)) == 0) {
+			Log("PatchAddress 0x%08lX failed in VirtualQuery, ErrorCode: %08lX\r\n", Config.PatchAddress[i].addr, pGetLastError());
+			continue;
+		}
+		if (mbi.Type != MEM_IMAGE) {
+			Log("PatchAddress 0x%08lX is not image memory.\r\n", Config.PatchAddress[i].addr);
+			continue;
+		}
         Patch((LPVOID)Config.PatchAddress[i].addr, Config.PatchAddress[i].patch, Config.PatchAddress[i].patchLen);
         Log("PatchAddress: 0x%08lX, Len: %d, Value: %s\r\n", Config.PatchAddress[i].addr, Config.PatchAddress[i].patchLen, Config.PatchAddress[i].patch);
     }
