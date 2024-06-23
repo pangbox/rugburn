@@ -26,7 +26,6 @@ static PFNCLOSEHANDLEPROC pCloseHandle = NULL;
 static PFNLSTRCPYAPROC plstrcpyA = NULL;
 static PFNGETCURRENTTHREADIDPROC pGetCurrentThreadId = NULL;
 static PFNGETCURRENTPROCESSIDPROC pGetCurrentProcessId = NULL;
-static PFNGETLASTERRORPROC pGetLastError = NULL;
 static PFNFREELIBRARYPROC pFreeLibrary = NULL;
 static PFNSLEEPPROC pSleep = NULL;
 static PFNGETSTDHANDLEPROC pGetStdHandle = NULL;
@@ -35,6 +34,8 @@ HMODULE hWinsock = NULL;
 PFNHTONSPROC pHtons = NULL;
 PFNGETADDRINFO pGetAddrInfo = NULL;
 PFNFREEADDRINFO pFreeAddrInfo = NULL;
+PFNVIRTUALQUERYPROC pVirtualQuery = NULL;
+PFNGETLASTERRORPROC pGetLastError = NULL;
 
 VOID InitCommon() {
     hUser32Module = LoadLib("user32");
@@ -60,6 +61,7 @@ VOID InitCommon() {
     pFreeLibrary = GetProc(hKernel32Module, "FreeLibrary");
     pSleep = GetProc(hKernel32Module, "Sleep");
     pGetStdHandle = GetProc(hKernel32Module, "GetStdHandle");
+    pVirtualQuery = GetProc(hKernel32Module, "VirtualQuery");
 
     hWinsock = LoadLib("ws2_32");
     pHtons = GetProc(hWinsock, "htons");
@@ -381,26 +383,44 @@ VOID Exit(DWORD dwExitCode) { pExitProcess(dwExitCode); }
 PANGYAVER DetectPangyaVersion() {
     if (FileExists("PangyaUS.ini")) {
         return PANGYA_US;
-    } else if (FileExists("PangyaJP.ini")) {
+    } else if (FileExists("japan.dat")) {
         return PANGYA_JP;
-    } else if (FileExists("PangyaTH.ini")) {
+    } else if (FileExists("thailand.dat")) {
         return PANGYA_TH;
-    }
+    } else if (FileExists("Pangya.ini")) {
+        return PANGYA_KR;
+    } else if (FileExists("brasil.dat")) {
+        return PANGYA_BR;
+    } else if (FileExists("taiwan.dat")) {
+        return PANGYA_TW;
+    } else if (FileExists("indonesia.dat")) {
+        return PANGYA_ID;
+    } else if (FileExists("sin.dat")) {
+        return PANGYA_SEA;
+    } else if (FileExists("German.dat")) {
+        return PANGYA_EU;
+	}
     return PANGYA_US;
 }
 
 PSTR GetPangyaArg(PANGYAVER pangyaVersion) {
     switch (pangyaVersion) {
     case PANGYA_US:
+    case PANGYA_TW:
+    default:
         return DupStr("{2D0FA24B-336B-4e99-9D30-3116331EFDA0}");
 
     case PANGYA_JP:
-        return DupStr("{E69B65A2-7A7E-4977-85E5-B19516D885CB}");
-
     case PANGYA_TH:
         return DupStr("{E69B65A2-7A7E-4977-85E5-B19516D885CB}");
 
-    default:
-        return NULL;
+	case PANGYA_EU:
+		{
+
+			if (FileExists("ProjectG_500eu+.pak"))
+                return DupStr("{E69B65A2-7A7E-4977-85E5-B19516D885CB}");
+			else
+				return DupStr("{98C07F18-BB68-467e-8C2C-29F63771460A}");
+		}
     }
 }
