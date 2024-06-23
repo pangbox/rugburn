@@ -5,11 +5,13 @@
 #include "user32/window.h"
 #include "wininet/netredir.h"
 #include "ws2_32/redir.h"
+#include "comctl32/dynamic_patch.h"
 
 VOID InitHooks() {
     InitInjectHook();
-    InitMsvcr100Hook();
+    InitMsvcrHook();
     InitWindowHook();
     InitNetRedirHook();
     InitRedirHook();
+    InitComCtl32Hook();
 }
