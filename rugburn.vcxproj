@@ -181,6 +181,7 @@
     <ClCompile Include="src\config.c" />
     <ClCompile Include="src\dll\rugburn\main.c" />
     <ClCompile Include="src\hex.c" />
+    <ClCompile Include="src\hooks\comctl32\dynamic_patch.c" />
     <ClCompile Include="src\hooks\hooks.c" />
     <ClCompile Include="src\hooks\kernel32\inject.c" />
     <ClCompile Include="src\hooks\user32\window.c" />
