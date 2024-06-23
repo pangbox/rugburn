@@ -3,6 +3,6 @@
 
 #include "../../common.h"
 
-VOID InitMsvcr100Hook();
+VOID InitMsvcrHook();
 
 #endif
