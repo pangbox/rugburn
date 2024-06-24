@@ -34,6 +34,7 @@ OBJS := \
 	obj/hooks/user32/window.o \
 	obj/hooks/ws2_32/redir.o \
 	obj/hooks/wininet/netredir.o \
+	obj/hooks/comctl32/dynamic_patch.o \
 	obj/hooks/hooks.o \
 	obj/third_party/lend/ld32.o \
 	obj/bootstrap.o \
