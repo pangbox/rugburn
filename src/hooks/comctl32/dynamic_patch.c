@@ -81,6 +81,9 @@ void PatchGG_US() {
     } else if (compare_virtual_memory(0x0066DB32, 0xFF6D89E8)) {
         Patch((LPVOID)0x0066DB32, "\xE9\x00\x00\x00\x00", 5);
         Log("Patched GG check routines (Albatross S2 323a)\r\n");
+    } else if (compare_virtual_memory(0x006AF52B, 0xFF61B0E8)) {
+        Patch((LPVOID)0x006AF52B, "\xE9\x00\x00\x00\x00", 5);
+        Log("Patched GG check routines (Albatross S3 404)\r\n");
     }
 }
 
@@ -146,6 +149,9 @@ void PatchGG_KR() {
     if (compare_virtual_memory(0x00634EAD, 0xFF178EE8)) {
         Patch((LPVOID)0x00634EAD, "\xE9\x00\x00\x00\x00", 5);
         Log("Patched GG check routines (KR S2 3.26a)\r\n");
+    } else if (compare_virtual_memory(0x0075C670, 0xFECB7BE8)) {
+        Patch((LPVOID)0x0075C670, "\xE9\x00\x00\x00\x00", 5);
+        Log("Patched GG check routines (KR S5 603)\r\n");
     }
 }
 
@@ -153,6 +159,9 @@ void PatchGG_TH() {
     if (compare_virtual_memory(0x0076F4F4, 0xFEBED7E8)) {
         Patch((LPVOID)0x0076F4F4, "\xE9\x00\x00\x00\x00", 5);
         Log("Patched GG check routines (TH S4 580)\r\n");
+    } else if (compare_virtual_memory(0x008BD475, 0xFE9A36E8)) {
+        Patch((LPVOID)0x008BD475, "\xE9\x00\x00\x00\x00", 5);
+        Log("Patched GG check routines (TH S7 714c)\r\n");
     } else if (compare_virtual_memory(0x00A6B375, 0xFE9A16E8)) {
         Patch((LPVOID)0x00A6B375, "\xE9\x00\x00\x00\x00", 5);
         Log("Patched GG check routines (TH S9 829c)\r\n");
@@ -163,6 +172,9 @@ void PatchGG_SEA() {
     if (compare_virtual_memory(0x00611CF8, 0xFF86D3E8)) {
         Patch((LPVOID)0x00611CF8, "\xE9\x00\x00\x00\x00", 5);
         Log("Patched GG check routines (SEA S1 2.16a)\r\n");
+    } else if (compare_virtual_memory(0x0066C727, 0xFF6B24E8)) {
+        Patch((LPVOID)0x0066C727, "\xE9\x00\x00\x00\x00", 5);
+        Log("Patched GG check routines (SEA S2 3.20)\r\n");
     }
 }
 
@@ -170,7 +182,10 @@ void PatchGG_EU() {
     if (compare_virtual_memory(0x006160D1, 0xFF161AE8)) {
         Patch((LPVOID)0x006160D1, "\xE9\x00\x00\x00\x00", 5);
         Log("Patched GG check routines (EU S2 3.01a)\r\n");
-    } else if (compare_virtual_memory(0x0075FB71, 0xFECECAE8)) {
+    } else if (compare_virtual_memory(0x006B5369, 0xFF6182E8)) {
+        Patch((LPVOID)0x006B5369, "\xE9\x00\x00\x00\x00", 5);
+        Log("Patched GG check routines (EU S3 400a)\r\n");
+	} else if (compare_virtual_memory(0x0075FB71, 0xFECECAE8)) {
         Patch((LPVOID)0x0075FB71, "\xE9\x00\x00\x00\x00", 5);
         Log("Patched GG check routines (EU S4 500)\r\n");
     }
@@ -218,7 +233,7 @@ void oneExec_PatchDynamicAndGG() {
         PatchGG_SEA();
         break;
     default:
-        Warning("It looks like no patch exists for this version of PangYa™.\nThe game will likely "
+        Warning("It looks like no patch exists for this version of PangYaâ„¢.\nThe game will likely "
                 "exit a couple minutes after detecting GameGuard is not present.");
     }
 
