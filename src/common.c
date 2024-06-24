@@ -417,10 +417,12 @@ PSTR GetPangyaArg(PANGYAVER pangyaVersion) {
 	case PANGYA_EU:
 		{
 
-			if (FileExists("ProjectG_500eu+.pak"))
-                return DupStr("{E69B65A2-7A7E-4977-85E5-B19516D885CB}");
+			if (FileExists("ProjectG_300eu+.pak"))
+                return DupStr("{98C07F18-BB68-467e-8C2C-29F63771460A}");
+            else if (FileExists("ProjetcG_400eu+.pak"))
+                return DupStr("{EE3C542D-525E-4711-BD3B-588BBAB17426}");
 			else
-				return DupStr("{98C07F18-BB68-467e-8C2C-29F63771460A}");
+                return DupStr("{E69B65A2-7A7E-4977-85E5-B19516D885CB}");
 		}
     }
 }
