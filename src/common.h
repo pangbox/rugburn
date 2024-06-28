@@ -35,6 +35,7 @@ extern PFNGETADDRINFO pGetAddrInfo;
 extern PFNFREEADDRINFO pFreeAddrInfo;
 extern PFNVIRTUALQUERYPROC pVirtualQuery;
 extern PFNGETLASTERRORPROC pGetLastError;
+extern PFNGETMODULEHANDLEAPROC pGetModuleHandleA;
 
 VOID InitCommon();
 
