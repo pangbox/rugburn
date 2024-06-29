@@ -112,6 +112,9 @@ void PatchGG_US() {
     } else if (compare_virtual_memory(0x0083D869, 0xFE8772E8)) {
         Patch((LPVOID)0x0083D869, "\xE9\x00\x00\x00\x00", 5);
         Log("Patched GG check routines (US S6 633)\r\n");
+    } else if (compare_virtual_memory(0x00908229, 0xFEA4B2E8)) {
+        Patch((LPVOID)0x00908229, "\xE9\x00\x00\x00\x00", 5);
+        Log("Patched GG check routines (US S7 727)\r\n");
     } else if (compare_virtual_memory(0x00979A19, 0xFEA222E8)) {
         Patch((LPVOID)0x00979A19, "\xE9\x00\x00\x00\x00", 5);
         Log("Patched GG check routines (US S8 806)\r\n");
