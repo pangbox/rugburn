@@ -11,7 +11,7 @@
     <ClCompile Include="src\hooks\ws2_32\redir.c" />
     <ClCompile Include="src\ijlfwd.c" />
     <ClCompile Include="src\patch.c" />
-    <ClCompile Include="src\third_party\lend\ld32.c" />
+    <ClCompile Include="src\ld.c" />
     <ClCompile Include="src\json.c" />
     <ClCompile Include="src\regex.c" />
     <ClCompile Include="src\config.c" />
