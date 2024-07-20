@@ -1,5 +1,5 @@
 #include "patch.h"
-#include "third_party/lend/ld32.h"
+#include "ld.h"
 
 static PFNWRITEPROCESSMEMORYPROC pWriteProcessMemory = NULL;
 static PFNFLUSHINSTRUCTIONCACHEPROC pFlushInstructionCache = NULL;
@@ -67,7 +67,7 @@ DWORD CountOpcodeBytes(FARPROC fn, DWORD minBytes) {
     DWORD count = 0;
 
     while (count < minBytes) {
-        count += length_disasm(&fndata[count]);
+        count += LenDisasm(&fndata[count]);
     }
 
     return count;

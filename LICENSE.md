@@ -1,14 +1,3 @@
-# GPLv3 License
-
-The following files, part of an x86 Length Disassembler written by Byron Platt,
-are licensed under GPLv3:
-
-* [src/third_party/lend/ld32.c](./src/third_party/lend/ld32.c)
-* [src/third_party/lend/ld32.h](./src/third_party/lend/ld32.h)
-
-Please see the respective [COPYING](./src/third_party/lend/COPYING) for the full
-license content of the GPLv3.
-
 # Intel JPEG License
 
 The following files, part of the Intel JPEG SDK version 1.5, are licensed under

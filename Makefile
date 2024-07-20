@@ -36,7 +36,7 @@ OBJS := \
 	obj/hooks/wininet/netredir.o \
 	obj/hooks/comctl32/dynamic_patch.o \
 	obj/hooks/hooks.o \
-	obj/third_party/lend/ld32.o \
+	obj/ld.o \
 	obj/bootstrap.o \
 	obj/common.o \
 	obj/config.o \

@@ -191,7 +191,7 @@
     <ClCompile Include="src\json.c" />
     <ClCompile Include="src\patch.c" />
     <ClCompile Include="src\regex.c" />
-    <ClCompile Include="src\third_party\lend\ld32.c" />
+    <ClCompile Include="src\ld.c" />
     <ClCompile Include="src\hooks\msvcr100\msvcr100.c" />
     <ClCompile Include="src\hooks\projectg\us852\ranking.c" />
   </ItemGroup>
