@@ -11,11 +11,9 @@
  * present.
  */
 
-#include "../../bootstrap.h"
 #include "../../common.h"
 #include "../../config.h"
 #include "../../hooks/hooks.h"
-#include "../../ijlfwd.h"
 #include "../../patch.h"
 
 /**
@@ -39,42 +37,11 @@ static VOID InitEnvironment() {
     FreeMem(szPangyaArg);
 }
 
-// Standalone forwarding DLL entrypoint
 extern BOOL STDCALL DllMain(HANDLE hInstance, DWORD dwReason, LPVOID reserved) {
     if (dwReason != DLL_PROCESS_ATTACH) {
         return TRUE;
     }
 
-    BootstrapPEB();
-    InitCommon();
-    InitPatch();
-
-    InitLog();
-    InitIJL15();
-    InitEnvironment();
-    InitHooks();
-
-    return TRUE;
-}
-
-// Entrypoint for Slipstrm
-extern BOOL STDCALL SlipstrmDllMain(HANDLE hInstance, DWORD dwReason, LPVOID reserved) {
-    PFNDLLMAINPROC pSlipstreamOep;
-    BOOL bOepResult;
-
-    pSlipstreamOep = (PFNDLLMAINPROC)((*(DWORD *)((DWORD)hInstance + 0x40)) + (DWORD)hInstance);
-
-    // Call OEP; return failure if it fails.
-    bOepResult = pSlipstreamOep(hInstance, dwReason, reserved);
-    if (!bOepResult) {
-        return FALSE;
-    }
-
-    if (dwReason != DLL_PROCESS_ATTACH) {
-        return TRUE;
-    }
-
-    BootstrapSlipstream((DWORD)hInstance);
     InitCommon();
     InitPatch();
 
