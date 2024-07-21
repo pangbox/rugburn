@@ -6,77 +6,95 @@
     flake-utils.url = "github:numtide/flake-utils";
   };
 
-  outputs = { self, nixpkgs, flake-utils }:
-    flake-utils.lib.eachDefaultSystem (system:
+  outputs =
+    {
+      self,
+      nixpkgs,
+      flake-utils,
+    }:
+    flake-utils.lib.eachDefaultSystem (
+      system:
       let
         pkgs = nixpkgs.legacyPackages.${system};
-        common = {
+
+        # Common dependencies
+        nativeBuildInputs = [
+          pkgs.makeWrapper
+          pkgs.bear
+          pkgs.pkgsCross.mingw32.stdenv.cc
+        ];
+
+        nativeCheckInputs = [ pkgs.python3Packages.tappy ];
+
+        # Rugburn derivation
+        rugburn = pkgs.stdenv.mkDerivation {
           name = "rugburn";
           src = self;
-          nativeBuildInputs = with pkgs; [
-            # Build
-            makeWrapper
-            go_1_22
-            open-watcom-v2
 
-            # Test
-            python3Packages.tappy
-            wine
-          ];
+          inherit nativeBuildInputs;
+
+          nativeCheckInputs = nativeCheckInputs ++ [ pkgs.wine ];
+
           checkPhase = ''
+            runHook preCheck
+
             export WINEPREFIX="$TMPDIR/.wine"
             make check
+
+            runHook postCheck
           '';
+
           buildPhase = ''
-            make
+            runHook preBuild
+
+            bear -- make -j
+
+            runHook postBuild
           '';
+
           installPhase = ''
-            install -D -t $out/lib out/rugburn.dll
-            cp -r web/dist $out/dist
+            runHook preInstall
+
+            install -D -t $out/lib out/ijl15.dll
+            install -D --mode=0644 -t $out compile_commands.json
+
+            runHook postInstall
           '';
-          vendorHash = (pkgs.lib.fileContents ./go.mod.sri);
-          WATCOM = "${pkgs.open-watcom-v2.out}";
         };
-        rugburn = pkgs.buildGo122Module common;
-        devShell = pkgs.mkShell (common // {
-          nativeBuildInputs = with pkgs; [
-            # Build
-            makeWrapper
-            go_1_22
-            open-watcom-v2
 
-            # Test
-            python3Packages.tappy
+        # Dev shell
+        devShell = pkgs.mkShell { nativeBuildInputs = nativeBuildInputs ++ nativeCheckInputs; };
 
-            # Development
-            gopls
-            clang-tools
-          ];
-        });
+        # Clangd setup
         setupClangd = pkgs.writeShellScriptBin "setup-clangd.sh" ''
-          export WATCOM="${pkgs.open-watcom-v2.out}";
-          exec ${./scripts/setup-clangd.sh} "$@"
+          install -D --mode=0644 -t . ${rugburn}/compile_commands.json
         '';
-        updateVendorHash = pkgs.writeShellScriptBin "update-vendor-hash.sh" ''
-          export PATH="${pkgs.lib.makeBinPath [ pkgs.go_1_22 ]}:$PATH"
-          exec ${./scripts/update-vendor-hash.sh} "$@"
-        '';
+
+        # Website setup
         caddyfile = pkgs.writeText "caddyfile" ''
           :8080
           root * ${rugburn}/dist
           file_server
         '';
+
         web = pkgs.writeShellScriptBin "web.sh" ''
           exec ${pkgs.caddy}/bin/caddy run --adapter caddyfile --config ${caddyfile}
         '';
+
         dockerImage = pkgs.dockerTools.buildImage {
           name = "rugburn-docker";
           config.Cmd = [ "${web}/bin/web.sh" ];
         };
-      in {
+      in
+      {
         inherit devShell;
         packages = {
-          inherit rugburn setupClangd updateVendorHash web dockerImage;
+          inherit
+            rugburn
+            setupClangd
+            web
+            dockerImage
+            ;
           default = rugburn;
         };
       }

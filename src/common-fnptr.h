@@ -9,8 +9,9 @@
 #define COMMON_FNPTR_H
 
 #include <windows.h>
+#include <ws2tcpip.h>
 
-#ifndef DNS_QUERY_REQUEST_VERSION1
+#ifdef __MINGW32__
 
 typedef struct _DNS_QUERY_REQUEST {
   ULONG   Version;
@@ -22,14 +23,6 @@ typedef struct _DNS_QUERY_REQUEST {
   PVOID   pQueryCompletionCallback;
   PVOID   pQueryContext;
 } DNS_QUERY_REQUEST, *PDNS_QUERY_REQUEST;
-
-typedef struct _DNS_QUERY_RESULT {
-  ULONG       Version;
-  DNS_STATUS  QueryStatus;
-  ULONG64     QueryOptions;
-  PDNS_RECORD pQueryRecords;
-  PVOID       Reserved;
-} DNS_QUERY_RESULT, *PDNS_QUERY_RESULT;
 
 typedef struct _DNS_QUERY_CANCEL {
   CHAR Reserved[32];
@@ -53,7 +46,7 @@ typedef int (STDCALL *PFNCONNECTPROC)(SOCKET, const struct sockaddr *, int);
 typedef BOOL (STDCALL *PFNCONNECTEXPROC)(SOCKET, const struct sockaddr *, int, PVOID, DWORD, LPDWORD, LPOVERLAPPED);
 typedef int (STDCALL *PFNWSACONNECTPROC)(SOCKET, const struct sockaddr *, int, LPWSABUF, LPWSABUF, LPQOS, LPQOS);
 typedef WORD (WSAAPI *PFNHTONSPROC)(WORD);
-typedef INT (WSAAPI *PFNGETADDRINFO)(PCSTR, PCSTR, const ADDRINFOA *, PADDRINFOA *);
+typedef INT (WSAAPI *PFNGETADDRINFO)(PCSTR, PCSTR, const PADDRINFOA, PADDRINFOA*);
 typedef VOID (WSAAPI *PFNFREEADDRINFO)(PADDRINFOA);
 
 // dnsapi.dll

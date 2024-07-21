@@ -1,4 +1,3 @@
-#include "../../bootstrap.h"
 #include "../../common.h"
 #include "../../hex.h"
 #include "../../json.h"
@@ -110,7 +109,6 @@ extern void __cdecl start(void) {
     totaltests += COUNT_OF(dispatch_tests);
     totaltests += COUNT_OF(ld_tests);
 
-    BootstrapPEB();
     InitCommon();
 
     ConsoleLog("1..%d\r\n", totaltests);

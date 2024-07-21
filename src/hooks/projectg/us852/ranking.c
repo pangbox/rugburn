@@ -8,7 +8,7 @@ typedef struct _stMsgObject {
     DWORD m_time;
 } stMsgObject;
 
-inline stMsgObject MakeMsgObject(LPVOID _pIActor, DWORD _id, DWORD _c0, DWORD _c1, DWORD _c2, DWORD _c3, DWORD _c4) {
+inline static stMsgObject MakeMsgObject(LPVOID _pIActor, DWORD _id, DWORD _c0, DWORD _c1, DWORD _c2, DWORD _c3, DWORD _c4) {
     stMsgObject obj;
     obj.m_pIActor = _pIActor;
     obj.m_id = _id;

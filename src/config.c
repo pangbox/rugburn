@@ -2,6 +2,7 @@
 #include "json.h"
 #include "hex.h"
 #include "patch.h"
+#include <ws2tcpip.h>
 
 LPCSTR RugburnConfigFilename = "rugburn.json";
 RUGBURNCONFIG Config;

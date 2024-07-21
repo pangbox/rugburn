@@ -1,18 +1,8 @@
-FORMAT windows dll
-RUNTIME windows = 4.0
-ALIAS __DLLstart_ = '_DllMain@12'
-
-OPTION START = '_DllMain@12'
-OPTION STACK = 8k
-OPTION ALIGN = 512
-OPTION NODEFAULTLIBS
-OPTION ELIMINATE
-OPTION QUIET
-
-EXPORT ijlGetLibVersion.1 = '_ijlGetLibVersion@0'
-EXPORT ijlInit.2          = '_ijlInit@4'
-EXPORT ijlFree.3          = '_ijlFree@4'
-EXPORT ijlRead.4          = '_ijlRead@8'
-EXPORT ijlWrite.5         = '_ijlWrite@8'
-EXPORT ijlErrorStr.6      = '_ijlErrorStr@4'
-EXPORT SlipstrmDllMain.7  = '_SlipstrmDllMain@12'
+LIBRARY IJL15
+EXPORTS
+	ijlGetLibVersion	@1
+	ijlInit	@2
+	ijlFree	@3
+	ijlRead	@4
+	ijlWrite	@5
+	ijlErrorStr	@6

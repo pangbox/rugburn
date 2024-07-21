@@ -1,5 +1,4 @@
 #include "common.h"
-#include "bootstrap.h"
 
 #define LOG_FILENAME "gglog.txt"
 
@@ -353,7 +352,7 @@ VOID ConsoleLog(PCHAR fmt, ...) {
 HMODULE LoadLib(LPCSTR szName) {
     HMODULE hModule;
 
-    hModule = pLoadLibraryA(szName);
+    hModule = LoadLibraryA(szName);
     if (hModule == NULL) {
         FatalError("Could not load module %s (%08x)", szName, LastErr());
     }
@@ -366,7 +365,7 @@ VOID FreeLib(HMODULE hModule) { pFreeLibrary(hModule); }
 PVOID GetProc(HMODULE hModule, LPCSTR szName) {
     PVOID pvProc;
 
-    pvProc = (PVOID)pGetProcAddress(hModule, szName);
+    pvProc = (PVOID)GetProcAddress(hModule, szName);
     if (pvProc == NULL) {
         FatalError("Could not load proc %s (%08x)", szName, LastErr());
     }

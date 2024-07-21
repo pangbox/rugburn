@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <title>Rugburn</title>
+        <style>
+            html {
+                display: flex;
+                flex-direction: column;
+                align-items: stretch;
+                justify-content: center;
+                margin: 0;
+                padding: 0;
+                width: 100vw;
+                height: 100vh;
+
+                background-color: #121212;
+                color: #f0f0f0;
+                font-family: sans-serif;
+                font-size: 120%;
+            }
+
+            body {
+                margin: 32px;
+                padding: 0;
+            }
+
+            h1, h2, h3, h4, h5, h6 {
+                border-left: 3px solid #ff1493;
+                background-image: linear-gradient(to left, #222020, #220202);
+                padding-left: 9px;
+                margin-left: -12px;
+            }
+            h1 { letter-spacing: 2px; }
+            h2 { letter-spacing: 1px; }
+
+            a:link {
+                font-weight: bold;
+                color: #ff1493;
+                text-decoration: none;
+                border-bottom: 0px solid #ff1493;
+                transition: border-bottom-width 0.1s;
+            }
+            a:hover { border-bottom-width: 3px; }
+            a:visited { color: #ff1493; }
+            a.selected {
+                color: white;
+                border-bottom: 3px solid white;
+            }
+
+            ul {
+                padding-left: 20px;
+            }
+
+            .nav {
+                list-style-type: none;
+                padding: 0;
+                margin: 0;
+            }
+
+            .nav li {
+                display: inline;
+                border-left: 3px solid #222020;
+                padding-left: 9px;
+            }
+
+            .main {
+                box-sizing: border-box;
+                max-width: 800px;
+                width: 100%;
+                margin: 0 auto;
+            }
+
+            .content {
+                position: relative;
+                height: 500px;
+                padding: 32px;
+                margin-top: 8px;
+                background-color: #222020;
+                border: 3px solid #ff1493;
+                box-shadow: 10px 10px #222020;
+            }
+
+            .page, .page:target ~ #home {
+                visibility: hidden;
+            }
+
+            #home, .page:target {
+                visibility: visible;
+            }
+
+            .page {
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                padding: 32px;
+                overflow-y: auto;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="main">
+            <ul class="nav">
+                <li><a href="#home">Home</a></li>
+                <li><a href="#how">How It Works</a></li>
+                <li><a href="#download">Download</a></li>
+            </ul>
+            <div class="content">
+                <div class="page" id="how">
+                    <h2>How It Works</h2>
+                    <p>
+                        Rugburn replaces the ijl15.dll file that ships with PangYa.
+                    </p>
+                    <p>
+                        Instead of patching PangYa itself, it mostly relies on in-memory patching of Windows functions to augment PangYa's behavior, allowing it to work across different PangYa versions and regions.
+                    </p>
+                    <p>
+                        Please note that Rugburn <em>does</em> still need to have patches to fully disable GameGuard for each region and version.
+                        In addition, Rugburn does not emulate GameGuard and can not be used for cheating on official servers.
+                    </p>
+                </div>
+                <div class="page" id="download">
+                <h2>Download</h2>
+                    <p>
+                        Rugburn is <a href="https://github.com/pangbox/rugburn/releases">available on GitHub</a>. Download the ijl15.dll file from the latest release and copy it over the ijl15.dll file in your PangYa client.
+                    </p>
+                    <p>
+                        <b>Protip:</b> Back up your old ijl15.dll file. That way, it's easy to unpatch later.
+                    </p>
+                    <script src="wasm_exec.js"></script>
+                    <script src="main.js"></script>
+                </div>
+                <div class="page" id="home">
+                    <h1>Rugburn - Patch for PangYa&trade;</h1>
+                    <p>
+                        Install Rugburn into your PangYa installation. It can:
+                    </p>
+                    <ul>
+                        <li>Disable GameGuard</li>
+                        <li>Rewrite Network Requests</li>
+                        <li>Bypass the Updater, so you can run ProjectG directly.</li>
+                    </ul>
+                    <p>
+                        Rugburn allows otherwise-unmodified official PangYa clients to connect to unofficial servers.
+                    </p>
+                    <p>
+                        It is also <a href="https://github.com/pangbox/rugburn" target="_blank" rel="noreferrer">open source</a>.
+                    </p>
+                    <p>
+                        To get started, <a href="#download">download Rugburn now</a>.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
