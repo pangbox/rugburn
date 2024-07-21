@@ -13,6 +13,49 @@ static BOOL ParseHex(CHAR ch, LPDWORD pOutValue) {
     return TRUE;
 }
 
+static CHAR ToHexChar(BYTE bValue) {
+    if (bValue <= 9) {
+        return bValue + '0';
+    } else if (bValue >= 0xa && bValue <= 0xf) {
+        return bValue + 'a' - 10;
+    }
+    return 0;
+}
+
+LPSTR ToHex(PVOID pData, DWORD dwLen) {
+    LPSTR pHexData, pHexPtr;
+    PCHAR pcData = (PCHAR)pData;
+    pHexData = pHexPtr = AllocMem(dwLen * 2 + 1);
+    while (dwLen--) {
+        *pHexPtr++ = ToHexChar((*pcData & 0xF0) >> 4);
+        *pHexPtr++ = ToHexChar((*pcData & 0x0F) >> 0);
+        pcData++;
+    }
+    *pHexPtr++ = 0;
+    return pHexData;
+}
+
+DWORD FromHex(LPCSTR pHex, PVOID pData) {
+    DWORD dwLen = 0;
+    DWORD dwHexDigitVal, dwHexVal;
+    PCHAR pcData = (PCHAR)pData;
+
+    while (*pHex) {
+        if (ParseHex(*pHex++, &dwHexDigitVal) == FALSE) {
+            break;
+        }
+        dwHexVal = dwHexDigitVal << 4;
+        if (ParseHex(*pHex++, &dwHexDigitVal) == FALSE) {
+            break;
+        }
+        dwHexVal |= dwHexDigitVal;
+        *pcData++ = (BYTE)dwHexVal;
+        dwLen++;
+    }
+
+    return dwLen;
+}
+
 DWORD ParseAddress(LPCSTR lpszText) {
     LPCSTR pos = lpszText;
     DWORD hexDigitVal;
