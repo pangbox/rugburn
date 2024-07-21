@@ -1,5 +1,5 @@
 FORMAT windows
-RUNTIME windows = 4.0
+RUNTIME CONSOLE
 ALIAS __DLLstart_ = '_start'
 
 OPTION START = '_start'
