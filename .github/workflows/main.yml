@@ -1,4 +1,4 @@
-name: Watcom CI
+name: MinGW32 CI
 on:
   push:
     branches: [ master ]
