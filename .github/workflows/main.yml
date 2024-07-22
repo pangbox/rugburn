@@ -15,7 +15,7 @@ jobs:
       with:
         nix_path: nixpkgs=channel:nixos-unstable
     - name: Configure
-      run: nix develop --command make -j4 slipstream
+      run: nix develop --command make -j8 all
     - name: Upload
       uses: actions/upload-artifact@v2
       with:

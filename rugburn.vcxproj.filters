@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="src\bootstrap.c" />
     <ClCompile Include="src\common.c" />
     <ClCompile Include="src\dll\rugburn\main.c" />
     <ClCompile Include="src\hooks\hooks.c" />
@@ -9,7 +8,6 @@
     <ClCompile Include="src\hooks\user32\window.c" />
     <ClCompile Include="src\hooks\wininet\netredir.c" />
     <ClCompile Include="src\hooks\ws2_32\redir.c" />
-    <ClCompile Include="src\ijlfwd.c" />
     <ClCompile Include="src\patch.c" />
     <ClCompile Include="src\ld.c" />
     <ClCompile Include="src\json.c" />
@@ -21,9 +19,130 @@
     <ClCompile Include="src\hooks\comctl32\dynamic_patch.c" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="exportvs.def" />
     <None Include="LICENSE.md" />
     <None Include="README.md" />
     <None Include="src\third_party\lend\COPYING" />
+    <None Include="export.def" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="ijl15">
+      <UniqueIdentifier>{749b9e28-ce49-4aa7-999d-be4bb1077fc1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="msvcrt">
+      <UniqueIdentifier>{94f8af0b-1247-4f4a-929d-819e5285c358}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <Object Include="third_party\ijl\aan_fdct.obj">
+      <Filter>ijl15</Filter>
+    </Object>
+    <Object Include="third_party\ijl\aan_fdct1.obj">
+      <Filter>ijl15</Filter>
+    </Object>
+    <Object Include="third_party\ijl\aan_idct.obj">
+      <Filter>ijl15</Filter>
+    </Object>
+    <Object Include="third_party\ijl\aan_idct1.obj">
+      <Filter>ijl15</Filter>
+    </Object>
+    <Object Include="third_party\ijl\cc_ss_decoder.obj">
+      <Filter>ijl15</Filter>
+    </Object>
+    <Object Include="third_party\ijl\cc_ss_decoder1.obj">
+      <Filter>ijl15</Filter>
+    </Object>
+    <Object Include="third_party\ijl\cc_ss_encoder.obj">
+      <Filter>ijl15</Filter>
+    </Object>
+    <Object Include="third_party\ijl\cc_ss_encoder1.obj">
+      <Filter>ijl15</Filter>
+    </Object>
+    <Object Include="third_party\ijl\cpuid.obj">
+      <Filter>ijl15</Filter>
+    </Object>
+    <Object Include="third_party\ijl\cpuid1.obj">
+      <Filter>ijl15</Filter>
+    </Object>
+    <Object Include="third_party\ijl\decode_buffer.obj">
+      <Filter>ijl15</Filter>
+    </Object>
+    <Object Include="third_party\ijl\decoder_parser.obj">
+      <Filter>ijl15</Filter>
+    </Object>
+    <Object Include="third_party\ijl\encode_buffer.obj">
+      <Filter>ijl15</Filter>
+    </Object>
+    <Object Include="third_party\ijl\encode_buffer1.obj">
+      <Filter>ijl15</Filter>
+    </Object>
+    <Object Include="third_party\ijl\encoder_parser.obj">
+      <Filter>ijl15</Filter>
+    </Object>
+    <Object Include="third_party\ijl\fileio.obj">
+      <Filter>ijl15</Filter>
+    </Object>
+    <Object Include="third_party\ijl\frame_decoder.obj">
+      <Filter>ijl15</Filter>
+    </Object>
+    <Object Include="third_party\ijl\frame_encoder.obj">
+      <Filter>ijl15</Filter>
+    </Object>
+    <Object Include="third_party\ijl\globals.obj">
+      <Filter>ijl15</Filter>
+    </Object>
+    <Object Include="third_party\ijl\huff_decode.obj">
+      <Filter>ijl15</Filter>
+    </Object>
+    <Object Include="third_party\ijl\huff_encode.obj">
+      <Filter>ijl15</Filter>
+    </Object>
+    <Object Include="third_party\ijl\huff_encode1.obj">
+      <Filter>ijl15</Filter>
+    </Object>
+    <Object Include="third_party\ijl\init.obj">
+      <Filter>ijl15</Filter>
+    </Object>
+    <Object Include="third_party\ijl\ipp_fdct.obj">
+      <Filter>ijl15</Filter>
+    </Object>
+    <Object Include="third_party\ijl\ipp_fdct1.obj">
+      <Filter>ijl15</Filter>
+    </Object>
+    <Object Include="third_party\ijl\ipp_idct.obj">
+      <Filter>ijl15</Filter>
+    </Object>
+    <Object Include="third_party\ijl\ipp_idct1.obj">
+      <Filter>ijl15</Filter>
+    </Object>
+    <Object Include="third_party\ijl\jpgintfc.obj">
+      <Filter>ijl15</Filter>
+    </Object>
+    <Object Include="third_party\ijl\mdecode.obj">
+      <Filter>ijl15</Filter>
+    </Object>
+    <Object Include="third_party\ijl\precomp.obj">
+      <Filter>ijl15</Filter>
+    </Object>
+    <Object Include="third_party\ijl\scan_decoder.obj">
+      <Filter>ijl15</Filter>
+    </Object>
+    <Object Include="third_party\ijl\scan_encoder.obj">
+      <Filter>ijl15</Filter>
+    </Object>
+    <Object Include="third_party\ijl\tables.obj">
+      <Filter>ijl15</Filter>
+    </Object>
+    <Object Include="third_party\ijl\timing.obj">
+      <Filter>ijl15</Filter>
+    </Object>
+    <Object Include="third_party\ijl\trace.obj">
+      <Filter>ijl15</Filter>
+    </Object>
+    <Object Include="third_party\ijl\versionl.obj">
+      <Filter>ijl15</Filter>
+    </Object>
+    <Object Include="third_party\msvcrt\rtsyms.o">
+      <Filter>msvcrt</Filter>
+    </Object>
   </ItemGroup>
 </Project>

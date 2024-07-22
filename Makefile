@@ -8,6 +8,8 @@ CFLAGS :=
 
 LDFLAGS := -nodefaultlibs -nostartfiles -lkernel32 -luser32 -Wl,--enable-stdcall-fixup -s
 
+LDFLAGS_MSVCRT := third_party/msvcrt/msvcrt.lib third_party/msvcrt/rtsyms.o
+
 OBJS := \
 	obj/dll/rugburn/main.o \
 	obj/hooks/kernel32/inject.o \
@@ -22,14 +24,11 @@ OBJS := \
 	obj/common.o \
 	obj/config.o \
 	obj/hex.o \
-	obj/ijl.o \
 	obj/json.o \
 	obj/patch.o \
 	obj/regex.o
 
 IJL15OBJS := $(wildcard third_party/ijl/*.obj)
-
-LDFLAGS_MSVCRT := third_party/msvcrt/msvcrt.lib third_party/msvcrt/exceptlist.o
 
 TESTOBJS := \
 	$(OBJS) \
