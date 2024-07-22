@@ -75,6 +75,33 @@ VOID InitCommon() {
 #pragma function(memset)
 #endif
 
+// MSVCRT runtime functions
+#ifdef _MSC_VER
+void __declspec(naked) _aullshr() {
+    __asm {
+        cmp         cl,40h
+        jae         RETZERO
+        cmp         cl,20h
+        jae         MORE32
+        shrd        eax,edx,cl
+        shr         edx,cl
+        ret
+MORE32:
+        mov         eax,edx
+        xor         edx,edx
+        and         cl,1Fh
+        shr         eax,cl
+        ret
+RETZERO:
+        xor         eax,eax
+        xor         edx,edx
+        ret
+    }
+}
+#else
+unsigned long long __stdcall _aullshr(unsigned long long a, long b) { return a >> b; }
+#endif
+
 // C standard library functions
 int strcmp(LPCSTR dest, LPCSTR src) {
     int cmp;
