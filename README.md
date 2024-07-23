@@ -1,4 +1,4 @@
-# rugburn :fire:
+# Rugburn :fire:
 _This project is not endorsed by or related to Ntreev Soft Corporation. See [Trademark Notice](#trademark-notice) for more information._
 
 Rugburn is a replacement for `ijl15.dll` that allows you to run unmodified PangYa™ without GameGuard.
@@ -131,7 +131,7 @@ refer to the entire match, since all regular expressions must fully match
 anyways. `$$` can be used to escape a `$` in the replacement.
 
 ## Compiling
-`rugburn` is typically compiled with MinGW32. A Visual Studio solution is
+Rugburn is typically compiled with MinGW32. A Visual Studio solution is
 provided for convenience and should work in most recent versions of Visual
 Studio.
 
@@ -153,9 +153,9 @@ make CC=gcc
 ```
 ## Install
 
- 1. Back up the ijl15.dll file in your PangYa directory.
+ 1. Back up the `ijl15.dll` file in your PangYa directory.
 
- 2. Copy out/ijl15.dll from your Rugburn directory to your PangYa directory.
+ 2. Copy `out/ijl15.dll` from your Rugburn directory to your PangYa directory, replacing the existing `ijl15.dll`.
 
 ## Usage
 Once installed, you can run ProjectG directly. Enjoy!
@@ -172,7 +172,7 @@ Please note that I may take a while to get to your pull request. This project is
 "Rugburn" was chosen arbitrarily, inspired by an anagram of GameGuard. Before release it was known as ijlshim or ggtfo, and you may see occasional references to this in the code or Git history.
 
 ## License
-Most of the code of rugburn is licensed under the ISC license. Some portions are licensed differently. See [LICENSE.md](./LICENSE.md) for complete licensing information.
+Most of the code of Rugburn is licensed under the ISC license. Some portions are licensed differently. See [LICENSE.md](./LICENSE.md) for complete licensing information.
 
 The long and short of Rugburn's license is that you are free to do with it what you please, although you should maintain the necessary copyright license disclaimers if you are reproducing a substantial portion of the program.
 
