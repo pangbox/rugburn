@@ -255,7 +255,7 @@ VOID WriteEntireFile(LPCSTR szPath, LPCSTR data, DWORD dwBytesToWrite) {
     BOOL bErrorFlag = FALSE;
 
     hFile =
-        pCreateFileA(szPath, FILE_WRITE_DATA, 0, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+        pCreateFileA(szPath, GENERIC_WRITE, 0, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
     if (hFile == INVALID_HANDLE_VALUE) {
         FatalError("Error creating file %s.", szPath);
         return;
@@ -333,8 +333,9 @@ VOID Log(PCHAR fmt, ...) {
     cb += VSPrintfZ(logmsg, fmt, args);
     va_end(args);
 
-    hAppend = pCreateFileA(LOG_FILENAME, FILE_APPEND_DATA, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL,
-                           OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+    hAppend = pCreateFileA(LOG_FILENAME, GENERIC_WRITE, 0, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL,
+                           NULL);
+    SetFilePointer(hAppend, 0, 0, FILE_END);
     pWriteFile(hAppend, buffer, cb, &cb, NULL);
     pCloseHandle(hAppend);
     FreeMem(buffer);
