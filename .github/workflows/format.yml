@@ -13,4 +13,4 @@ jobs:
     - uses: DeterminateSystems/nix-installer-action@v11
     - uses: DeterminateSystems/magic-nix-cache-action@v6
     - name: Check formatting
-      run: nix develop --command clang-format --dry-run -Werror src/**.c src/**.h
+      run: nix develop --command clang-format --dry-run -Werror src/**/*.c src/**/*.h
