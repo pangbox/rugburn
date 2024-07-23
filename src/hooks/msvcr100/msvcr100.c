@@ -40,7 +40,7 @@ VOID InitMsvcr100Hook() {
         Log("Not checking for Wine _stricmp bug: msvcr100 functions not found.\n");
     }
 
-    Log("Checking for Wine _stricmp bug; current locale: %s - Temporarily switching to Kor.\n", oldlocale);
+    Log("Checking for Wine _stricmp bug in msvcr100; current locale: %s - Temporarily switching to Kor.\n", oldlocale);
 
     pSetLocale(2, "Kor");
     result = pStricmp("\xB3\xA1", "\xBC\xBC");
@@ -71,7 +71,7 @@ VOID InitMsvcr71Hook() {
         Log("Not checking for Wine _stricmp bug: msvcr71 functions not found.\n");
     }
 
-    Log("Checking for Wine _stricmp bug; current locale: %s - Temporarily switching to Kor.\n", oldlocale);
+    Log("Checking for Wine _stricmp bug in msvcr71; current locale: %s - Temporarily switching to Kor.\n", oldlocale);
 
     pSetLocale(2, "Kor");
     result = pStricmp("\xB3\xA1", "\xBC\xBC");
