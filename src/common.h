@@ -24,8 +24,8 @@ typedef enum _PANGYAVER {
     PANGYA_BR,
     PANGYA_TW,
     PANGYA_US,
-	PANGYA_EU,
-	PANGYA_SEA
+    PANGYA_EU,
+    PANGYA_SEA
 } PANGYAVER;
 
 // C standard library functions

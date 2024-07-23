@@ -99,29 +99,29 @@ void ParsePatch(LPCSTR lpszText, LPSTR *pDataOut, DWORD *pSizeOut) {
     inPos = lpszText;
     while (*inPos) {
         switch (*inPos++) {
-            case '\\':
-                switch (*inPos++) {
-                    case 'x':
-                        if (ParseHex(*inPos++, &hexDigitVal) == FALSE) {
-                            FatalError("ParsePatch: Bad hex escape near %s", inPos);
-                        }
-                        if (ParseHex(*inPos++, &hexDigitVal) == FALSE) {
-                            FatalError("ParsePatch: Bad hex escape near %s", inPos);
-                        }
-                        (*pSizeOut)++;
-                        break;
-                    case '\\':
-                        (*pSizeOut)++;
-                        break;
-                    case '\0':
-                        FatalError("ParsePatch: Unexpected end of string in escape code");
-                        break;
-                    default:
-                        FatalError("ParsePatch: Unknown escape code: %s", inPos);
+        case '\\':
+            switch (*inPos++) {
+            case 'x':
+                if (ParseHex(*inPos++, &hexDigitVal) == FALSE) {
+                    FatalError("ParsePatch: Bad hex escape near %s", inPos);
                 }
+                if (ParseHex(*inPos++, &hexDigitVal) == FALSE) {
+                    FatalError("ParsePatch: Bad hex escape near %s", inPos);
+                }
+                (*pSizeOut)++;
+                break;
+            case '\\':
+                (*pSizeOut)++;
+                break;
+            case '\0':
+                FatalError("ParsePatch: Unexpected end of string in escape code");
                 break;
             default:
-                (*pSizeOut)++;
+                FatalError("ParsePatch: Unknown escape code: %s", inPos);
+            }
+            break;
+        default:
+            (*pSizeOut)++;
         }
     }
 
@@ -133,32 +133,32 @@ void ParsePatch(LPCSTR lpszText, LPSTR *pDataOut, DWORD *pSizeOut) {
     outPos = *pDataOut;
     while (*inPos) {
         switch (*inPos) {
-            case '\\':
-                inPos++;
-                switch (*inPos++) {
-                    case 'x':
-                        if (!ParseHex(*inPos++, &hexDigitVal)) {
-                            FatalError("ParsePatch: Bad hex escape near %s", inPos);
-                        }
-                        hexOctetVal = hexDigitVal << 4;
-                        if (!ParseHex(*inPos++, &hexDigitVal)) {
-                            FatalError("ParsePatch: Bad hex escape near %s", inPos);
-                        }
-                        hexOctetVal |= hexDigitVal;
-                        *outPos++ = (CHAR)(BYTE)hexOctetVal;
-                        break;
-                    case '\\':
-                        *outPos++ = '\\';
-                        break;
-                    case '\0':
-                        FatalError("ParsePatch: Unexpected end of string in escape code");
-                        break;
-                    default:
-                        FatalError("ParsePatch: Unknown escape code: %s", inPos);
+        case '\\':
+            inPos++;
+            switch (*inPos++) {
+            case 'x':
+                if (!ParseHex(*inPos++, &hexDigitVal)) {
+                    FatalError("ParsePatch: Bad hex escape near %s", inPos);
                 }
+                hexOctetVal = hexDigitVal << 4;
+                if (!ParseHex(*inPos++, &hexDigitVal)) {
+                    FatalError("ParsePatch: Bad hex escape near %s", inPos);
+                }
+                hexOctetVal |= hexDigitVal;
+                *outPos++ = (CHAR)(BYTE)hexOctetVal;
+                break;
+            case '\\':
+                *outPos++ = '\\';
+                break;
+            case '\0':
+                FatalError("ParsePatch: Unexpected end of string in escape code");
                 break;
             default:
-                *(outPos++) = *(inPos++);
+                FatalError("ParsePatch: Unknown escape code: %s", inPos);
+            }
+            break;
+        default:
+            *(outPos++) = *(inPos++);
         }
     }
 }

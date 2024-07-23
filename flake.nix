@@ -63,7 +63,9 @@
         };
 
         # Dev shell
-        devShell = pkgs.mkShell { nativeBuildInputs = nativeBuildInputs ++ nativeCheckInputs; };
+        devShell = pkgs.mkShell {
+          nativeBuildInputs = nativeBuildInputs ++ nativeCheckInputs ++ [ pkgs.clang-tools ];
+        };
 
         # Clangd setup
         setupClangd = pkgs.writeShellScriptBin "setup-clangd.sh" ''
