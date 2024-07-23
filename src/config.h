@@ -20,9 +20,9 @@ typedef struct _PORTREWRITERULE {
 } PORTREWRITERULE, *LPPORTREWRITERULE;
 
 typedef struct _PATCHADDRESS {
-	DWORD addr;
-	LPSTR patch;
-	DWORD patchLen;
+    DWORD addr;
+    LPSTR patch;
+    DWORD patchLen;
 } PATCHADDRESS, *LPPATCHADDRESS;
 
 typedef struct _RUGBURNCONFIG {
@@ -32,8 +32,8 @@ typedef struct _RUGBURNCONFIG {
     PORTREWRITERULE PortRewriteRules[MAXPORTREWRITES];
     int NumPortRewriteRules;
 
-	PATCHADDRESS PatchAddress[MAXPATCHADDRESS];
-	int NumPatchAddress;
+    PATCHADDRESS PatchAddress[MAXPATCHADDRESS];
+    int NumPatchAddress;
 } RUGBURNCONFIG, *LPRUGBURNCONFIG;
 
 extern RUGBURNCONFIG Config;

@@ -1,4 +1,4 @@
-name: MinGW32 CI
+name: Format
 on:
   push:
     branches: [ master ]
@@ -12,11 +12,5 @@ jobs:
       uses: actions/checkout@v2
     - uses: DeterminateSystems/nix-installer-action@v11
     - uses: DeterminateSystems/magic-nix-cache-action@v6
-    - uses: DeterminateSystems/flake-checker-action@v7
-    - name: Configure
-      run: nix develop --command make -j8 all
-    - name: Upload
-      uses: actions/upload-artifact@v2
-      with:
-        name: ijl15.dll
-        path: out/ijl15.dll
+    - name: Check formatting
+      run: nix develop --command clang-format --dry-run -Werror src/**.c src/**.h
