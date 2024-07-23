@@ -1,14 +1,11 @@
 # rugburn :fire:
 _This project is not endorsed by or related to Ntreev Soft Corporation. See [Trademark Notice](#trademark-notice) for more information._
 
-`rugburn` is an unobtrusive and small shim for `ijl15.dll` that allows you to
-run unmodified PangYa™ without GameGuard.
+Rugburn is a replacement for `ijl15.dll` that allows you to run unmodified PangYa™ without GameGuard.
 
-This also allows you to run PangYa under Wine :)
+This also allows you to run PangYa under Wine/Linux :)
 
-To patch your installation (new way), use [the web patcher](https://rugburn.gg).
-
-To install without patching (old way), grab a binary from the [Releases](https://github.com/pangbox/rugburn/releases) page and follow the [installation instructions](#install).
+To install, grab a binary from the [Releases](https://github.com/pangbox/rugburn/releases) page and follow the [installation instructions](#install).
 
 See [Configuration](#configuration) for information on how to use it.
 
@@ -17,8 +14,7 @@ Features:
   * Redirects network traffic to localhost, configurable via a configuration
     file. Supports basic regular expressions for rewriting URLs.
 
-  * Patches GameGuard's check routines to allow it to run indefinitely without
-    GameGuard.
+  * Disarms anti-cheat software like GameGuard or HackShield.
 
   * Prevents PangYa from creating annoying topmost windows.
 
@@ -31,6 +27,50 @@ Features:
     active region of PangYa and does not offer GameGuard emulation that would
     be needed to stay connected to an official server.** This program is
     designed for personal and educational use.
+
+## Client Support
+Rugburn should work with any PangYa client, but in order to disarm anti-cheat software, some special support is usually needed. Unsupported clients may work to some extent.
+
+The following clients are currently supported:
+
+- Albatross 18 323a
+- Albatross 18 404
+- PangYa US 431
+- PangYa US 500a
+- PangYa US 627
+- PangYa US 633
+- PangYa US 727
+- PangYa US 806
+- PangYa US 824
+- PangYa US 852
+- PangYa JP 2.11
+- PangYa JP 2.25b
+- PangYa JP 4.00a
+- PangYa JP 4.01h1
+- PangYa JP 585
+- PangYa JP 972
+- PangYa JP 974
+- PangYa JP 983
+- PangYa TW 3.00a
+- PangYa TW 4.00a
+- PangYa ID 2.12a
+- PangYa KR 3.26a
+- PangYa KR 603
+- PangYa KR 839
+- PangYa TH 217
+- PangYa TH 300b1
+- PangYa TH 580
+- PangYa TH 644
+- PangYa TH 714c
+- PangYa TH 829c
+- PangYa SEA 2.16a
+- PangYa SEA 3.20
+- PangYa EU 3.01a
+- PangYa EU 400a
+- PangYa EU 500
+- PangYa BR 2.15a
+- PangYa BR 3.00
+- PangYa BR 3.05a
 
 ## Configuration
 When running PangYa with Rugburn for the first time, a sample configuration
@@ -58,6 +98,20 @@ file is created at `rugburn.json`. It looks like this:
 
 You can add `PortRewrites` to override and redirect Winsock2 connections,
 whereas you can add `UrlRewrites` to rewrite WinHTTP requests.
+
+### Custom Patches
+
+You can specify custom memory patches using the `PatchAddress` key:
+
+```json
+{
+    "PatchAddress": {
+        "0x00d19ffc": "lobby_gbin\\x00"
+    }
+}
+```
+
+The keys are hexadecimal addresses for where to apply the patch, and the values are strings containing the data to patch at that address. A special form of hexadecimal escape is supported in the strings to allow raw data including NULL bytes to be present in the string. To use it, use a double reverse solidus followed by `x` and two hexadecimal digits. A single reverse solidus will be treated as a JSON string escape instead.
 
 ### Regular Expressions
 Regular expression support in Rugburn is somewhat limited. The following
