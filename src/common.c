@@ -288,7 +288,7 @@ VOID FatalError(PCHAR fmt, ...) {
     }
 
     va_start(args, fmt);
-    SPrintfZ(buffer, fmt, args);
+    VSPrintfZ(buffer, fmt, args);
     va_end(args);
 
     pMessageBoxA(HWND_DESKTOP, buffer, "rugburn", MB_OK | MB_ICONERROR);
@@ -301,7 +301,7 @@ VOID Warning(PCHAR fmt, ...) {
     PCHAR buffer = AllocMem(4096);
 
     va_start(args, fmt);
-    SPrintfZ(buffer, fmt, args);
+    VSPrintfZ(buffer, fmt, args);
     va_end(args);
 
     pMessageBoxA(HWND_DESKTOP, buffer, "rugburn", MB_OK | MB_ICONWARNING);
@@ -425,7 +425,7 @@ PANGYAVER DetectPangyaVersion() {
         return PANGYA_SEA;
     } else if (FileExists("German.dat")) {
         return PANGYA_EU;
-	}
+    }
     return PANGYA_US;
 }
 
@@ -440,15 +440,14 @@ PSTR GetPangyaArg(PANGYAVER pangyaVersion) {
     case PANGYA_TH:
         return DupStr("{E69B65A2-7A7E-4977-85E5-B19516D885CB}");
 
-	case PANGYA_EU:
-		{
+    case PANGYA_EU: {
 
-			if (FileExists("ProjectG_300eu+.pak"))
-                return DupStr("{98C07F18-BB68-467e-8C2C-29F63771460A}");
-            else if (FileExists("ProjetcG_400eu+.pak"))
-                return DupStr("{EE3C542D-525E-4711-BD3B-588BBAB17426}");
-			else
-                return DupStr("{E69B65A2-7A7E-4977-85E5-B19516D885CB}");
-		}
+        if (FileExists("ProjectG_300eu+.pak"))
+            return DupStr("{98C07F18-BB68-467e-8C2C-29F63771460A}");
+        else if (FileExists("ProjetcG_400eu+.pak"))
+            return DupStr("{EE3C542D-525E-4711-BD3B-588BBAB17426}");
+        else
+            return DupStr("{E69B65A2-7A7E-4977-85E5-B19516D885CB}");
+    }
     }
 }
