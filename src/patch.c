@@ -1,26 +1,14 @@
 #include "patch.h"
 #include "ld.h"
 
-static PFNWRITEPROCESSMEMORYPROC pWriteProcessMemory = NULL;
-static PFNFLUSHINSTRUCTIONCACHEPROC pFlushInstructionCache = NULL;
-static PFNVIRTUALPROTECTPROC pVirtualProtect = NULL;
-static PFNGETCURRENTPROCESSPROC pGetCurrentProcess = NULL;
-
-VOID InitPatch() {
-    pWriteProcessMemory = GetProc(hKernel32Module, "WriteProcessMemory");
-    pFlushInstructionCache = GetProc(hKernel32Module, "FlushInstructionCache");
-    pVirtualProtect = GetProc(hKernel32Module, "VirtualProtect");
-    pGetCurrentProcess = GetProc(hKernel32Module, "GetCurrentProcess");
-}
-
 /**
  * Patch is a small routine for patching arbitrary memory.
  */
 VOID Patch(LPVOID dst, LPVOID src, DWORD size) {
     DWORD OldProtection;
-    pVirtualProtect(dst, size, PAGE_EXECUTE_READWRITE, &OldProtection);
+    VirtualProtect(dst, size, PAGE_EXECUTE_READWRITE, &OldProtection);
     memcpy(dst, src, size);
-    pVirtualProtect(dst, size, OldProtection, &OldProtection);
+    VirtualProtect(dst, size, OldProtection, &OldProtection);
 }
 
 /**
@@ -35,25 +23,25 @@ VOID InstallHook(PVOID pfnProc, PVOID pfnTargetProc) {
     CHAR pbHook[6] = {0xE9, 0x00, 0x00, 0x00, 0x00, 0xC3};
 
     // Unprotect function.
-    if (pVirtualProtect(pfnProc, 6, PAGE_EXECUTE_READWRITE, &dwOldProtect) == 0) {
+    if (VirtualProtect(pfnProc, 6, PAGE_EXECUTE_READWRITE, &dwOldProtect) == 0) {
         FatalError("Failed to install hook: VirtualProtect failed. (%08x)", LastErr());
     }
 
     // Create and install hook.
     dwRelAddr = ((DWORD)pfnTargetProc - (DWORD)pfnProc - 5);
     memcpy(&pbHook[1], &dwRelAddr, 4);
-    if (!pWriteProcessMemory(pGetCurrentProcess(), pfnProc, pbHook, 6, NULL)) {
+    if (!WriteProcessMemory(GetCurrentProcess(), pfnProc, pbHook, 6, NULL)) {
         FatalError("Failed to install hook: WriteProcessMemory failed. (%08x)", LastErr());
     }
 
     // Re-protect function.
-    if (pVirtualProtect(pfnProc, 6, dwOldProtect, &dwOldProtect) == 0) {
+    if (VirtualProtect(pfnProc, 6, dwOldProtect, &dwOldProtect) == 0) {
         FatalError("Failed to install hook: VirtualProtect failed. (%08x)", LastErr());
     }
 
     // Flush the icache. Otherwise, it is theoretically possible that our
     // patch will not work consistently.
-    if (pFlushInstructionCache(pGetCurrentProcess(), pfnProc, 6) == 0) {
+    if (FlushInstructionCache(GetCurrentProcess(), pfnProc, 6) == 0) {
         FatalError("Failed to install hook: FlushInstructionCache failed. (%08x)", LastErr());
     }
 }
@@ -110,7 +98,7 @@ PCHAR BuildTrampoline(DWORD fn, DWORD prefixLen) {
     codeblock[prefixLen + 5] = 0xC3;
 
     // Mark the codeblock as executable.
-    pVirtualProtect(codeblock, trampolineLen, PAGE_EXECUTE_READWRITE, &oldProtect);
+    VirtualProtect(codeblock, trampolineLen, PAGE_EXECUTE_READWRITE, &oldProtect);
 
     return codeblock;
 }
@@ -177,7 +165,7 @@ PVOID BuildThiscallToStdcallThunk(PVOID pfnProc) {
     codeblock[8] = 0xC3;
 
     // Mark the codeblock as executable.
-    pVirtualProtect(codeblock, thunkLen, PAGE_EXECUTE_READWRITE, &oldProtect);
+    VirtualProtect(codeblock, thunkLen, PAGE_EXECUTE_READWRITE, &oldProtect);
 
     return codeblock;
 }
@@ -215,7 +203,7 @@ PVOID BuildStdcallToThiscallThunk(PVOID pfnProc) {
     codeblock[8] = 0xC3;
 
     // Mark the codeblock as executable.
-    pVirtualProtect(codeblock, thunkLen, PAGE_EXECUTE_READWRITE, &oldProtect);
+    VirtualProtect(codeblock, thunkLen, PAGE_EXECUTE_READWRITE, &oldProtect);
 
     return codeblock;
 }
@@ -259,7 +247,7 @@ PVOID BuildStdcallToVirtualThiscallThunk(DWORD dwVtblOffset) {
     codeblock[11] = 0xC3;
 
     // Mark the codeblock as executable.
-    pVirtualProtect(codeblock, thunkLen, PAGE_EXECUTE_READWRITE, &oldProtect);
+    VirtualProtect(codeblock, thunkLen, PAGE_EXECUTE_READWRITE, &oldProtect);
 
     return codeblock;
 }

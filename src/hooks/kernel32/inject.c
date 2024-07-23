@@ -1,6 +1,7 @@
 #include "inject.h"
 #include "../../patch.h"
 
+static HMODULE hKernel32Module;
 static HANDLE hGameguardFakeHandle;
 static HANDLE hOtherFakeHandle;
 
@@ -58,6 +59,7 @@ static BOOL STDCALL GetExitCodeProcessHook(HANDLE hProcess, LPDWORD lpExitCode) 
 }
 
 VOID InitInjectHook() {
+    hKernel32Module = LoadLib("kernel32");
     pCreateMutexA = GetProc(hKernel32Module, "CreateMutexA");
     hGameguardFakeHandle = pCreateMutexA(NULL, FALSE, NULL);
     hOtherFakeHandle = pCreateMutexA(NULL, FALSE, NULL);

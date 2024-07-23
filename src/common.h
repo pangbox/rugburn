@@ -28,17 +28,6 @@ typedef enum _PANGYAVER {
 	PANGYA_SEA
 } PANGYAVER;
 
-extern HMODULE hKernel32Module;
-extern HMODULE hWinsock;
-extern PFNHTONSPROC pHtons;
-extern PFNGETADDRINFO pGetAddrInfo;
-extern PFNFREEADDRINFO pFreeAddrInfo;
-extern PFNVIRTUALQUERYPROC pVirtualQuery;
-extern PFNGETLASTERRORPROC pGetLastError;
-extern PFNGETMODULEHANDLEAPROC pGetModuleHandleA;
-
-VOID InitCommon();
-
 // C standard library functions
 int strcmp(LPCSTR dest, LPCSTR src);
 int memcmp(LPCVOID dest, LPCVOID src, size_t size);

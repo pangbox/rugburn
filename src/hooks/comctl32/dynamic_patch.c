@@ -3,7 +3,8 @@
 #include "../../hooks/projectg/us852/ranking.h"
 #include "../../patch.h"
 
-static HMODULE hComCtl32 = NULL;
+static HMODULE hComCtl32Module = NULL;
+static HMODULE hKernel32Module = NULL;
 static PFNINITCOMMONCONTROLSEXPROC pInitCommonControlsEx = NULL;
 static PFNGETSTARTUPINFOAPROC pGetStartupInfoA = NULL;
 static PFNGETSTARTUPINFOWPROC pGetStartupInfoW = NULL;
@@ -13,9 +14,9 @@ static PFNGETSTARTUPINFOWPROC pGetStartupInfoW = NULL;
 BOOL compare_virtual_memory(DWORD _dwAddress, DWORD _value) {
     MEMORY_BASIC_INFORMATION mbi;
 
-    if (pVirtualQuery((void *)_dwAddress, &mbi, sizeof(mbi)) == 0) {
+    if (VirtualQuery((void *)_dwAddress, &mbi, sizeof(mbi)) == 0) {
         Log("[compare_virtual_memory] Address 0x%08lX failed in VirtualQuery, ErrorCode: %08lX\r\n",
-            _dwAddress, pGetLastError());
+            _dwAddress, LastErr());
         return FALSE;
     }
 
@@ -31,11 +32,11 @@ BOOL compare_virtual_memory(DWORD _dwAddress, DWORD _value) {
 }
 
 BOOL isModuleAllocationBase(DWORD _dwAddress) {
-	MEMORY_BASIC_INFORMATION mbi;
+    MEMORY_BASIC_INFORMATION mbi;
 
-    if (pVirtualQuery((void *)_dwAddress, &mbi, sizeof(mbi)) == 0) {
+    if (VirtualQuery((void *)_dwAddress, &mbi, sizeof(mbi)) == 0) {
         Log("[isImageMemory] Address 0x%08lX failed in VirtualQuery, ErrorCode: %08lX\r\n",
-            _dwAddress, pGetLastError());
+            _dwAddress, LastErr());
         return FALSE;
     }
 
@@ -44,11 +45,11 @@ BOOL isModuleAllocationBase(DWORD _dwAddress) {
         return FALSE;
     }
 
-	// is not module alloction base
-	if ((DWORD)pGetModuleHandleA(NULL) != (DWORD)mbi.AllocationBase)
+    // is not module alloction base
+    if ((DWORD)GetModuleHandleA(NULL) != (DWORD)mbi.AllocationBase)
         return FALSE;
 
-	return TRUE;
+    return TRUE;
 }
 
 /**
@@ -256,7 +257,7 @@ void PatchGG_EU() {
     } else if (compare_virtual_memory(0x006B5369, 0xFF6182E8)) {
         Patch((LPVOID)0x006B5369, "\xE9\x00\x00\x00\x00", 5);
         Log("Patched GG check routines (EU S3 400a)\r\n");
-	} else if (compare_virtual_memory(0x0075FB71, 0xFECECAE8)) {
+    } else if (compare_virtual_memory(0x0075FB71, 0xFECECAE8)) {
         Patch((LPVOID)0x0075FB71, "\xE9\x00\x00\x00\x00", 5);
         Log("Patched GG check routines (EU S4 500)\r\n");
     }
@@ -321,24 +322,24 @@ BOOL STDCALL InitCommonControlsExHook(const INITCOMMONCONTROLSEX *picce) {
 }
 
 VOID STDCALL GetStartupInfoAHook(LPSTARTUPINFOA lpStartupInfo) {
-
     pGetStartupInfoA(lpStartupInfo);
 
-	if (isModuleAllocationBase(GETRETURNADDRESS(lpStartupInfo)))
-		oneExec_PatchDynamicAndGG();
+    if (isModuleAllocationBase(GETRETURNADDRESS(lpStartupInfo)))
+        oneExec_PatchDynamicAndGG();
 }
 
 VOID STDCALL GetStartupInfoWHook(LPSTARTUPINFOW lpStartupInfo) {
-
     pGetStartupInfoW(lpStartupInfo);
 
-	if (isModuleAllocationBase(GETRETURNADDRESS(lpStartupInfo)))
-		oneExec_PatchDynamicAndGG();
+    if (isModuleAllocationBase(GETRETURNADDRESS(lpStartupInfo)))
+        oneExec_PatchDynamicAndGG();
 }
 
 VOID InitComCtl32Hook() {
-    hComCtl32 = LoadLib("Comctl32");
-    pInitCommonControlsEx = HookProc(hComCtl32, "InitCommonControlsEx", InitCommonControlsExHook);
+    hComCtl32Module = LoadLib("comctl32");
+    hKernel32Module = LoadLib("kernel32");
+    pInitCommonControlsEx =
+        HookProc(hComCtl32Module, "InitCommonControlsEx", InitCommonControlsExHook);
     pGetStartupInfoA = HookProc(hKernel32Module, "GetStartupInfoA", GetStartupInfoAHook);
     pGetStartupInfoW = HookProc(hKernel32Module, "GetStartupInfoW", GetStartupInfoWHook);
 }

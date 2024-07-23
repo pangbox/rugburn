@@ -4,9 +4,9 @@ SRCDIR := src/
 OBJDIR := obj/
 VERSION ?= $(shell git describe --tags --always --dirty)
 
-CFLAGS :=
+CFLAGS := -DSTRSAFE_NO_DEPRECATE
 
-LDFLAGS := -nodefaultlibs -nostartfiles -lkernel32 -luser32 -Wl,--enable-stdcall-fixup -s
+LDFLAGS := -nodefaultlibs -nostartfiles -lws2_32 -lkernel32 -luser32 -Wl,--enable-stdcall-fixup -s
 
 LDFLAGS_MSVCRT := third_party/msvcrt/msvcrt.lib third_party/msvcrt/rtsyms.o
 
