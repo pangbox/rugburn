@@ -6,9 +6,7 @@ VERSION ?= $(shell git describe --tags --always --dirty)
 
 CFLAGS := -DSTRSAFE_NO_DEPRECATE
 
-LDFLAGS := -nodefaultlibs -nostartfiles -lws2_32 -lkernel32 -luser32 -Wl,--enable-stdcall-fixup -s
-
-LDFLAGS_MSVCRT := third_party/msvcrt/msvcrt.lib third_party/msvcrt/rtsyms.o
+LDFLAGS := -nodefaultlibs -nostartfiles -lws2_32 -lkernel32 -luser32 third_party/msvcrt/msvcrt.lib third_party/msvcrt/rtsyms.o -Wl,--enable-stdcall-fixup -s
 
 OBJS := \
 	obj/dll/rugburn/main.o \
@@ -51,7 +49,7 @@ $(OBJDIR)%.o: $(SRCDIR)%.c
 	$(CC) -c $(CFLAGS) "$<" -o "$@"
 $(OUT): $(OBJS)
 	@mkdir -p "$(dir $@)"
-	$(CC) $(OBJS) $(IJL15OBJS) $(LDFLAGS_MSVCRT) $(LDFLAGS) -shared -o "$@" export.def -Wl,-e_DllMain
+	$(CC) $(OBJS) $(IJL15OBJS) $(LDFLAGS) -shared -o "$@" export.def -Wl,-e_DllMain
 $(TESTOUT): $(TESTOBJS)
 	@mkdir -p "$(dir $@)"
 	$(CC) $(TESTOBJS) $(LDFLAGS) -o "$@" -Wl,-e_start
