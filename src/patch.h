@@ -3,7 +3,6 @@
 
 #include "common.h"
 
-VOID InitPatch();
 VOID Patch(LPVOID dst, LPVOID src, DWORD size);
 VOID InstallHook(PVOID pfnProc, PVOID pfnTargetProc);
 DWORD CountOpcodeBytes(FARPROC fn, DWORD minBytes);

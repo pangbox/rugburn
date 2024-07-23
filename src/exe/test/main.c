@@ -75,26 +75,11 @@ const DISPATCH_TESTCASE dispatch_tests[] = {
 };
 
 const LPCSTR ld_tests[] = {
-    "5531d289e583ec14",
-    "5589e5538d45e4",
-    "5589e5575653",
-    "5589e583ec10",
-    "55b911000000",
-    "6a1868b82f817c",
-    "6a2468685b1c77",
-    "8bff558bec33c0",
-    "8bff558bec51",
-    "8bff558bec53",
-    "8bff558bec56",
-    "8bff558bec5d",
-    "8bff558bec64a118000000",
-    "8bff558bec64a130000000",
-    "8bff558bec6801000040",
-    "8bff558bec6a00",
-    "8bff558bec83ec0c",
-    "8bff558bec83ec18",
-    "8bff558bec83ec3c",
-    "ff25241af476",
+    "5531d289e583ec14",       "5589e5538d45e4",         "5589e5575653",         "5589e583ec10",
+    "55b911000000",           "6a1868b82f817c",         "6a2468685b1c77",       "8bff558bec33c0",
+    "8bff558bec51",           "8bff558bec53",           "8bff558bec56",         "8bff558bec5d",
+    "8bff558bec64a118000000", "8bff558bec64a130000000", "8bff558bec6801000040", "8bff558bec6a00",
+    "8bff558bec83ec0c",       "8bff558bec83ec18",       "8bff558bec83ec3c",     "ff25241af476",
     "ff259017f476",
 };
 
@@ -108,8 +93,6 @@ extern void __cdecl start(void) {
     totaltests += COUNT_OF(patch_tests);
     totaltests += COUNT_OF(dispatch_tests);
     totaltests += COUNT_OF(ld_tests);
-
-    InitCommon();
 
     ConsoleLog("1..%d\r\n", totaltests);
 
@@ -177,7 +160,6 @@ extern void __cdecl start(void) {
         FreeMem(result);
     }
 
-    InitPatch();
     for (i = 0; i < COUNT_OF(dispatch_tests); ++i) {
         dispatch_tests[i].proc(&dispatch_tests[i], ++testnum);
     }
@@ -192,7 +174,8 @@ extern void __cdecl start(void) {
         if (dwLengthActual == dwLengthExpected) {
             ConsoleLog("ok %d - CountOpcodeBytes(%s)\r\n", testnum, ld_tests[i], dwLengthExpected);
         } else {
-            ConsoleLog("not ok %d - CountOpcodeBytes(%s)\r\n# expected %d, got %d\r\n", testnum, ld_tests[i], dwLengthExpected, dwLengthActual);
+            ConsoleLog("not ok %d - CountOpcodeBytes(%s)\r\n# expected %d, got %d\r\n", testnum,
+                       ld_tests[i], dwLengthExpected, dwLengthActual);
         }
     }
 

@@ -30,8 +30,7 @@ static VOID InitEnvironment() {
     pangyaVersion = DetectPangyaVersion();
     szPangyaArg = GetPangyaArg(pangyaVersion);
 
-    pSetEnvironmentVariableA = GetProc(hKernel32Module, "SetEnvironmentVariableA");
-    if (pSetEnvironmentVariableA("PANGYA_ARG", szPangyaArg) == 0) {
+    if (SetEnvironmentVariableA("PANGYA_ARG", szPangyaArg) == 0) {
         FatalError("Couldn't set PANGYA_ARG (%08x)", LastErr());
     }
     FreeMem(szPangyaArg);
@@ -42,8 +41,6 @@ extern BOOL STDCALL DllMain(HANDLE hInstance, DWORD dwReason, LPVOID reserved) {
         return TRUE;
     }
 
-    InitCommon();
-    InitPatch();
 
     InitLog();
     InitEnvironment();

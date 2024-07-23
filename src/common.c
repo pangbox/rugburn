@@ -6,77 +6,12 @@ static PSTR pszSelfPath = NULL;
 static PSTR pszSelfName = NULL;
 static PSTR pszLogPrefix = NULL;
 
-static HMODULE hUser32Module = NULL;
-static PFNWVSPRINTFAPROC pwvsprintfA = NULL;
-static PFNMESSAGEBOXAPROC pMessageBoxA = NULL;
-
-HMODULE hKernel32Module = NULL;
-static PFNLOCALALLOCPROC pLocalAlloc = NULL;
-static PFNLOCALFREEPROC pLocalFree = NULL;
-static PFNGETMODULEFILENAMEAPROC pGetModuleFileNameA = NULL;
-static PFNGETFILEATTRIBUTESAPROC pGetFileAttributesA = NULL;
-static PFNCREATEFILEAPROC pCreateFileA = NULL;
-static PFNEXITPROCESSPROC pExitProcess = NULL;
-static PFNGETFILESIZEPROC pGetFileSize = NULL;
-static PFNREADFILEPROC pReadFile = NULL;
-static PFNWRITEFILEPROC pWriteFile = NULL;
-static PFNCLOSEHANDLEPROC pCloseHandle = NULL;
-static PFNLSTRCPYAPROC plstrcpyA = NULL;
-static PFNGETCURRENTTHREADIDPROC pGetCurrentThreadId = NULL;
-static PFNGETCURRENTPROCESSIDPROC pGetCurrentProcessId = NULL;
-static PFNFREELIBRARYPROC pFreeLibrary = NULL;
-static PFNSLEEPPROC pSleep = NULL;
-static PFNGETSTDHANDLEPROC pGetStdHandle = NULL;
-
-HMODULE hWinsock = NULL;
-PFNHTONSPROC pHtons = NULL;
-PFNGETADDRINFO pGetAddrInfo = NULL;
-PFNFREEADDRINFO pFreeAddrInfo = NULL;
-PFNVIRTUALQUERYPROC pVirtualQuery = NULL;
-PFNGETLASTERRORPROC pGetLastError = NULL;
-PFNGETMODULEHANDLEAPROC pGetModuleHandleA = NULL;
-
-VOID InitCommon() {
-    hUser32Module = LoadLib("user32");
-    pMessageBoxA = GetProc(hUser32Module, "MessageBoxA");
-    pwvsprintfA = GetProc(hUser32Module, "wvsprintfA");
-
-    hKernel32Module = LoadLib("kernel32");
-    pLocalAlloc = GetProc(hKernel32Module, "LocalAlloc");
-    pLocalFree = GetProc(hKernel32Module, "LocalFree");
-    pGetModuleHandleA = GetProc(hKernel32Module, "GetModuleHandleA");
-    pGetModuleFileNameA = GetProc(hKernel32Module, "GetModuleFileNameA");
-    pGetFileAttributesA = GetProc(hKernel32Module, "GetFileAttributesA");
-    pCreateFileA = GetProc(hKernel32Module, "CreateFileA");
-    pExitProcess = GetProc(hKernel32Module, "ExitProcess");
-    pGetFileSize = GetProc(hKernel32Module, "GetFileSize");
-    pReadFile = GetProc(hKernel32Module, "ReadFile");
-    pWriteFile = GetProc(hKernel32Module, "WriteFile");
-    pCloseHandle = GetProc(hKernel32Module, "CloseHandle");
-    plstrcpyA = GetProc(hKernel32Module, "lstrcpyA");
-    pGetCurrentThreadId = GetProc(hKernel32Module, "GetCurrentThreadId");
-    pGetCurrentProcessId = GetProc(hKernel32Module, "GetCurrentProcessId");
-    pGetLastError = GetProc(hKernel32Module, "GetLastError");
-    pFreeLibrary = GetProc(hKernel32Module, "FreeLibrary");
-    pSleep = GetProc(hKernel32Module, "Sleep");
-    pGetStdHandle = GetProc(hKernel32Module, "GetStdHandle");
-    pVirtualQuery = GetProc(hKernel32Module, "VirtualQuery");
-
-    hWinsock = LoadLib("ws2_32");
-    pHtons = GetProc(hWinsock, "htons");
-    pGetAddrInfo = GetProc(hWinsock, "getaddrinfo");
-    pFreeAddrInfo = GetProc(hWinsock, "freeaddrinfo");
-}
-
 #ifdef _MSC_VER
 #pragma function(strcmp)
 #pragma function(memcmp)
 #pragma function(memcpy)
 #pragma function(memset)
-#endif
 
-// MSVCRT runtime functions
-#ifdef _MSC_VER
 void __declspec(naked) _aullshr() {
     __asm {
         cmp         cl,40h
@@ -152,12 +87,7 @@ PVOID memset(PVOID p, INT c, UINT size) {
 }
 
 // String formatting
-int VSPrintfZ(LPSTR dest, LPCSTR fmt, va_list args) {
-    if (!pwvsprintfA) {
-        *(DWORD *)0 = 0;
-    }
-    return pwvsprintfA(dest, fmt, args);
-}
+int VSPrintfZ(LPSTR dest, LPCSTR fmt, va_list args) { return wvsprintfA(dest, fmt, args); }
 
 int SPrintfZ(LPSTR dest, LPCSTR fmt, ...) {
     int result;
@@ -171,19 +101,9 @@ int SPrintfZ(LPSTR dest, LPCSTR fmt, ...) {
 }
 
 // Memory allocation
-PVOID AllocMem(size_t size) {
-    if (!pLocalAlloc) {
-        return NULL;
-    }
-    return pLocalAlloc(0, size);
-}
+PVOID AllocMem(size_t size) { return LocalAlloc(0, size); }
 
-VOID FreeMem(PVOID mem) {
-    if (!pLocalFree) {
-        return;
-    }
-    pLocalFree(mem);
-}
+VOID FreeMem(PVOID mem) { LocalFree(mem); }
 
 LPSTR DupStr(LPCSTR src) {
     LPSTR str;
@@ -208,12 +128,12 @@ PSTR GetSelfPath() {
 
     pszSelfPath = AllocMem(4096);
 
-    pGetModuleFileNameA(pGetModuleHandleA("ijl15"), pszSelfPath, 4096);
+    GetModuleFileNameA(GetModuleHandleA("ijl15"), pszSelfPath, 4096);
 
     return pszSelfPath;
 }
 
-BOOL FileExists(LPCTSTR szPath) { return pGetFileAttributesA(szPath) != INVALID_FILE_ATTRIBUTES; }
+BOOL FileExists(LPCTSTR szPath) { return GetFileAttributesA(szPath) != INVALID_FILE_ATTRIBUTES; }
 
 LPSTR ReadEntireFile(LPCSTR szPath) {
     HANDLE hFile = NULL;
@@ -221,20 +141,20 @@ LPSTR ReadEntireFile(LPCSTR szPath) {
     BOOL bErrorFlag = FALSE;
     LPSTR buffer = NULL, data = NULL;
 
-    hFile = pCreateFileA(szPath, GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+    hFile = CreateFileA(szPath, GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
     if (hFile == INVALID_HANDLE_VALUE) {
         FatalError("Error opening file %s.", szPath);
-        pExitProcess(1);
+        ExitProcess(1);
         return NULL;
     }
 
-    dwBytesToRead = pGetFileSize(hFile, NULL);
+    dwBytesToRead = GetFileSize(hFile, NULL);
     buffer = AllocMem(dwBytesToRead + 1);
     memset(buffer, 0, dwBytesToRead + 1);
 
     data = buffer;
     while (dwBytesToRead > 0) {
-        bErrorFlag = pReadFile(hFile, data, dwBytesToRead, &dwBytesRead, NULL);
+        bErrorFlag = ReadFile(hFile, data, dwBytesToRead, &dwBytesRead, NULL);
 
         if (!bErrorFlag) {
             FatalError("Error loading file %s.", szPath);
@@ -245,7 +165,7 @@ LPSTR ReadEntireFile(LPCSTR szPath) {
         dwBytesToRead -= dwBytesRead;
     }
 
-    pCloseHandle(hFile);
+    CloseHandle(hFile);
     return buffer;
 }
 
@@ -254,15 +174,14 @@ VOID WriteEntireFile(LPCSTR szPath, LPCSTR data, DWORD dwBytesToWrite) {
     DWORD dwBytesWritten;
     BOOL bErrorFlag = FALSE;
 
-    hFile =
-        pCreateFileA(szPath, GENERIC_WRITE, 0, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+    hFile = CreateFileA(szPath, GENERIC_WRITE, 0, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
     if (hFile == INVALID_HANDLE_VALUE) {
         FatalError("Error creating file %s.", szPath);
         return;
     }
 
     while (dwBytesToWrite > 0) {
-        bErrorFlag = pWriteFile(hFile, data, dwBytesToWrite, &dwBytesWritten, NULL);
+        bErrorFlag = WriteFile(hFile, data, dwBytesToWrite, &dwBytesWritten, NULL);
 
         if (!bErrorFlag) {
             FatalError("Error writing to file %s.", szPath);
@@ -273,7 +192,7 @@ VOID WriteEntireFile(LPCSTR szPath, LPCSTR data, DWORD dwBytesToWrite) {
         dwBytesToWrite -= dwBytesWritten;
     }
 
-    pCloseHandle(hFile);
+    CloseHandle(hFile);
 }
 
 VOID FatalError(PCHAR fmt, ...) {
@@ -282,18 +201,18 @@ VOID FatalError(PCHAR fmt, ...) {
 
     buffer = AllocMem(4096);
 
-    // Cause a pagefault if we're unable to do anything.
-    if (!buffer || !pMessageBoxA || !pExitProcess) {
-        *(DWORD *)0 = 0;
+    if (!buffer) {
+        MessageBoxA(HWND_DESKTOP, "Out of memory.", "rugburn", MB_OK | MB_ICONERROR);
+        ExitProcess(1);
     }
 
     va_start(args, fmt);
     VSPrintfZ(buffer, fmt, args);
     va_end(args);
 
-    pMessageBoxA(HWND_DESKTOP, buffer, "rugburn", MB_OK | MB_ICONERROR);
+    MessageBoxA(HWND_DESKTOP, buffer, "rugburn", MB_OK | MB_ICONERROR);
     FreeMem(buffer);
-    pExitProcess(1);
+    ExitProcess(1);
 }
 
 VOID Warning(PCHAR fmt, ...) {
@@ -304,7 +223,7 @@ VOID Warning(PCHAR fmt, ...) {
     VSPrintfZ(buffer, fmt, args);
     va_end(args);
 
-    pMessageBoxA(HWND_DESKTOP, buffer, "rugburn", MB_OK | MB_ICONWARNING);
+    MessageBoxA(HWND_DESKTOP, buffer, "rugburn", MB_OK | MB_ICONWARNING);
     FreeMem(buffer);
 }
 
@@ -317,13 +236,13 @@ VOID Log(PCHAR fmt, ...) {
     DWORD cb = 0;
 
     if (pszLogPrefix != NULL) {
-        plstrcpyA(logmsg, pszLogPrefix);
+        lstrcpyA(logmsg, pszLogPrefix);
         while (*logmsg != '\0')
             logmsg++;
     }
 
-    SPrintfZ(pfxbuffer, "T:%d] ", pGetCurrentThreadId());
-    plstrcpyA(logmsg, pfxbuffer);
+    SPrintfZ(pfxbuffer, "T:%d] ", GetCurrentThreadId());
+    lstrcpyA(logmsg, pfxbuffer);
     while (*logmsg != '\0')
         logmsg++;
 
@@ -333,11 +252,11 @@ VOID Log(PCHAR fmt, ...) {
     cb += VSPrintfZ(logmsg, fmt, args);
     va_end(args);
 
-    hAppend = pCreateFileA(LOG_FILENAME, GENERIC_WRITE, 0, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL,
-                           NULL);
+    hAppend =
+        CreateFileA(LOG_FILENAME, GENERIC_WRITE, 0, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
     SetFilePointer(hAppend, 0, 0, FILE_END);
-    pWriteFile(hAppend, buffer, cb, &cb, NULL);
-    pCloseHandle(hAppend);
+    WriteFile(hAppend, buffer, cb, &cb, NULL);
+    CloseHandle(hAppend);
     FreeMem(buffer);
     FreeMem(pfxbuffer);
 }
@@ -348,7 +267,7 @@ VOID InitLog() {
     PCHAR szBaseName;
     DWORD cbFileName;
 
-    cbFileName = pGetModuleFileNameA(NULL, szFileName, 4096);
+    cbFileName = GetModuleFileNameA(NULL, szFileName, 4096);
     szBaseName = szFileName + cbFileName;
 
     while (szBaseName > szFileName) {
@@ -360,7 +279,7 @@ VOID InitLog() {
     }
 
     pszSelfName = szBaseName;
-    SPrintfZ(szPfxBuf, "%s:%d] ", szBaseName, pGetCurrentProcessId());
+    SPrintfZ(szPfxBuf, "%s:%d] ", szBaseName, GetCurrentProcessId());
     pszLogPrefix = szPfxBuf;
 }
 
@@ -372,8 +291,8 @@ VOID ConsoleLog(PCHAR fmt, ...) {
     va_start(args, fmt);
     cb += VSPrintfZ(buffer, fmt, args);
     va_end(args);
-    hConsole = pGetStdHandle((DWORD)-11);
-    pWriteFile(hConsole, buffer, cb, &cb, NULL);
+    hConsole = GetStdHandle((DWORD)-11);
+    WriteFile(hConsole, buffer, cb, &cb, NULL);
     FreeMem(buffer);
 }
 
@@ -388,7 +307,7 @@ HMODULE LoadLib(LPCSTR szName) {
     return hModule;
 }
 
-VOID FreeLib(HMODULE hModule) { pFreeLibrary(hModule); }
+VOID FreeLib(HMODULE hModule) { FreeLibrary(hModule); }
 
 PVOID GetProc(HMODULE hModule, LPCSTR szName) {
     PVOID pvProc;
@@ -401,11 +320,11 @@ PVOID GetProc(HMODULE hModule, LPCSTR szName) {
     return pvProc;
 }
 
-DWORD LastErr() { return pGetLastError(); }
+DWORD LastErr() { return GetLastError(); }
 
-VOID Delay(DWORD dwMilliseconds) { pSleep(dwMilliseconds); }
+VOID Delay(DWORD dwMilliseconds) { Sleep(dwMilliseconds); }
 
-VOID Exit(DWORD dwExitCode) { pExitProcess(dwExitCode); }
+VOID Exit(DWORD dwExitCode) { ExitProcess(dwExitCode); }
 
 PANGYAVER DetectPangyaVersion() {
     if (FileExists("PangyaUS.ini")) {
@@ -441,14 +360,12 @@ PSTR GetPangyaArg(PANGYAVER pangyaVersion) {
     case PANGYA_TH:
         return DupStr("{E69B65A2-7A7E-4977-85E5-B19516D885CB}");
 
-    case PANGYA_EU: {
-
+    case PANGYA_EU:
         if (FileExists("ProjectG_300eu+.pak"))
             return DupStr("{98C07F18-BB68-467e-8C2C-29F63771460A}");
         else if (FileExists("ProjetcG_400eu+.pak"))
             return DupStr("{EE3C542D-525E-4711-BD3B-588BBAB17426}");
         else
             return DupStr("{E69B65A2-7A7E-4977-85E5-B19516D885CB}");
-    }
     }
 }
