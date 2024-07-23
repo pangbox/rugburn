@@ -3,6 +3,7 @@
 #include "json.h"
 #include "patch.h"
 #include <ws2tcpip.h>
+#include <wspiapi.h>
 
 LPCSTR RugburnConfigFilename = "rugburn.json";
 RUGBURNCONFIG Config;
