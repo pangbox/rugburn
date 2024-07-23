@@ -77,48 +77,37 @@ refer to the entire match, since all regular expressions must fully match
 anyways. `$$` can be used to escape a `$` in the replacement.
 
 ## Compiling
-`rugburn` is compiled with OpenWatcom, a simple compiler with few dependencies.
-It was chosen because it offered an easy path to cross-compilation while also
-allowing for tiny binaries that did not depend on libc.
+`rugburn` is typically compiled with MinGW32. A Visual Studio solution is
+provided for convenience and should work in most recent versions of Visual
+Studio.
 
 Prerequisites:
-  * OpenWatcom V2: https://github.com/open-watcom/open-watcom-v2/releases
+  * MinGW32
   * GNU Make
-  * Go (optional: needed for Slipstream)
 
 And all you have to do is run `make`.
 ```sh
 make
 ```
 
-And you should find an `rugburn.dll` in your `out/` directory.
+And you should find an `ijl15.dll` in your `out/` directory.
 
-By default, the makefile will assume OpenWatcom is installed into `/usr/bin/watcom`. You can override this by passing in the `WATCOM` variable:
+By default, the Makefile will assume that `i686-w64-mingw32-gcc` is the appropriate compiler. You can override this by passing in the `CC` variable:
 
 ```
-make WATCOM=$HOME/Programs/watcom
+make CC=gcc
 ```
 ## Install
 
- 1. Move the original `ijl15.dll` binary in the PangYa folder to `ijl15_real.dll`.
-    The exact name is important.
+ 1. Back up the ijl15.dll file in your PangYa directory.
 
- 2. Copy the rugburn `rugburn.dll` into the PangYa folder and rename it to `ijl15.dll`.
-
-Do not use update.exe anymore. Just run ProjectG directly. (The update servers
-are still active in US, so if you run the updater you may accidentally patch
-over your files.)
-
-## Using Slipstream
-You can use the web patcher if just want to patch your `ijl15.dll` with the latest version of Rugburn. It does not require an active internet connection.
-
-To use Slipstream manually, you can use the `make slipstream` command. Note that it requires the Go toolchain. You should find a patched `ijl15.dll` in your `out/` directory.
+ 2. Copy out/ijl15.dll from your Rugburn directory to your PangYa directory.
 
 ## Usage
 Once installed, you can run ProjectG directly. Enjoy!
 
 ## Troubleshooting
-If you have any issues, I can **not** guarantee that I can help you. However, please feel free to create a GitHub issue. Please describe your problem and if applicable, attach a copy of the `ijllog.txt` file.
+If you have any issues, I can **not** guarantee that I can help you. However, please feel free to create a GitHub issue. Please describe your problem and if applicable, attach a copy of the `gglog.txt` file.
 
 ## Contributing
 I would be overjoyed if anyone wanted to contribute to this project! However, the project is considered _nearly_ feature complete and therefore new features may not always be accepted. Well-tested, well-written improvements to the patching routines would definitely be welcome.
@@ -131,10 +120,24 @@ Please note that I may take a while to get to your pull request. This project is
 ## License
 Most of the code of rugburn is licensed under the ISC license. Some portions are licensed differently. See [LICENSE.md](./LICENSE.md) for complete licensing information.
 
-A copy of the Intel JPEG Library is included in the `third_party/ijl` directory. It is an unfree redistributable. For more information, see its [LICENSE.md](./third_party/ijl/LICENSE.md) file. This file is only used when producing a Slipstream patch.
+The long and short of Rugburn's license is that you are free to do with it what you please, although you should maintain the necessary copyright license disclaimers if you are reproducing a substantial portion of the program.
+
+A copy of the Intel JPEG Library is included in the `third_party/ijl` directory. It is an unfree redistributable. For more information, see its [LICENSE.md](./third_party/ijl/LICENSE.md) file.
+
+When compiled together with the Intel JPEG Library, which is what you get by default, the resulting binary is unfree but redistributable.
+
+> **Note**: This section is not legal advice. The `LICENSE.md` file contains the canonical text covering the rights granted to you and your legal obligations.
 
 ## Special Thanks
-Special thanks to the [PangyaTools](https://github.com/pangyatools) community for motivation and advice.
+I would like to give special thanks to:
+
+- The entire [Retreev](https://github.com/retreev) community for motivation and advice.
+
+- Acrisio Filho for their many efforts; Rugburn contributions, many reverse engineering efforts, the SuperSS project, and more.
+
+- pixeldesu for supporting and funding PangYa preservation efforts, and for a variety of PangYa reverse engineering efforts.
+
+- You! I originally created Rugburn for myself only, but I am nonetheless pleased whenever I do see anybody interested in it. I hope that you will find it useful, whether for playing PangYa or for your own preservation endeavors, or perhaps even just as a curiosity.
 
 ## Trademark Notice
 PangYa is a registered trademark of Ntreev Soft Co., Ltd. Corporation. Pangbox is not endorsed or related to Ntreev Soft Co., Ltd. Corporation in any way. "PangYa" and related trademarks are used strictly for purposes of identification.
