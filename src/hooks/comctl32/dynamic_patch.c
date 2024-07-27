@@ -212,9 +212,24 @@ void PatchHS_ID() {
 }
 
 void PatchHS_BR() {
-    if (compare_virtual_memory(0x005FE1B3, 0xFF8858E8)) {
+    if (compare_virtual_memory(0x005FE093, 0xFF8858E8)) {
+        Patch((LPVOID)0x005FE093, "\xE9\x00\x00\x00\x00", 5);
+        Log("Patched HSHIELD check routines (BR S1 2.14a)\r\n");
+    } else if (compare_virtual_memory(0x005FE0B3, 0xFF8858E8)) {
+        Patch((LPVOID)0x005FE0B3, "\xE9\x00\x00\x00\x00", 5);
+        Log("Patched HSHIELD check routines (BR S1 2.14b)\r\n");
+    } else if (compare_virtual_memory(0x005FE1A3, 0xFF8858E8)) {
+        Patch((LPVOID)0x005FE1A3, "\xE9\x00\x00\x00\x00", 5);
+        Log("Patched HSHIELD check routines (BR S1 2.15)\r\n");
+    } else if (compare_virtual_memory(0x005FE1B3, 0xFF8858E8)) {
         Patch((LPVOID)0x005FE1B3, "\xE9\x00\x00\x00\x00", 5);
         Log("Patched HSHIELD check routines (BR S1 2.15a)\r\n");
+    } else if (compare_virtual_memory(0x005FE1D3, 0xFF8838E8)) {
+        Patch((LPVOID)0x005FE1D3, "\xE9\x00\x00\x00\x00", 5);
+        Log("Patched HSHIELD check routines (BR S1 2.16)\r\n");
+    } else if (compare_virtual_memory(0x006020A3, 0xFF86F8E8)) {
+        Patch((LPVOID)0x006020A3, "\xE9\x00\x00\x00\x00", 5);
+        Log("Patched HSHIELD check routines (BR S1 2.20c)\r\n");
     } else if (compare_virtual_memory(0x0065B4B2, 0xFF6299E8)) {
         Patch((LPVOID)0x0065B4B2, "\xE9\x00\x00\x00\x00", 5);
         Log("Patched HSHIELD check routines (BR S2 3.00)\r\n");
