@@ -37,8 +37,6 @@
  * run the updater first.
  */
 static VOID InitEnvironment() {
-    PFNSETENVIRONMENTVARIABLEAPROC pSetEnvironmentVariableA;
-
     PANGYAVER pangyaVersion;
     PSTR szPangyaArg;
 
