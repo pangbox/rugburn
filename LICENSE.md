@@ -3,6 +3,8 @@
 The following files, part of the Intel JPEG SDK version 1.5, are licensed under
 the Intel JPEG Product License Agreement:
 
+* [third_party/ijl/ijl.h](./third_party/ijl/ijl.h)
+* [third_party/ijl/ijl15.lib](./third_party/ijl/ijl15.lib)
 * [third_party/ijl/aan_fdct1.obj](./third_party/ijl/aan_fdct1.obj)
 * [third_party/ijl/aan_fdct.obj](./third_party/ijl/aan_fdct.obj)
 * [third_party/ijl/aan_idct1.obj](./third_party/ijl/aan_idct1.obj)
