@@ -6,7 +6,17 @@ VERSION ?= $(shell git describe --tags --always --dirty)
 
 CFLAGS := -DSTRSAFE_NO_DEPRECATE
 
-LDFLAGS := -nodefaultlibs -nostartfiles -lws2_32 -lkernel32 -luser32 third_party/msvcrt/msvcrt.lib third_party/msvcrt/rtsyms.o -Wl,--enable-stdcall-fixup -s
+LDFLAGS := \
+	-nodefaultlibs \
+	-nostartfiles \
+	third_party/ijl/ijl15l.lib \
+	-lws2_32 \
+	-lkernel32 \
+	-luser32 \
+	third_party/msvcrt/msvcrt.lib \
+	third_party/msvcrt/rtsyms.o \
+	-Wl,--enable-stdcall-fixup \
+	-s
 
 OBJS := \
 	obj/dll/rugburn/main.o \
@@ -22,11 +32,10 @@ OBJS := \
 	obj/common.o \
 	obj/config.o \
 	obj/hex.o \
+	obj/ijl15.o \
 	obj/json.o \
 	obj/patch.o \
 	obj/regex.o
-
-IJL15OBJS := $(wildcard third_party/ijl/*.obj)
 
 TESTOBJS := \
 	$(OBJS) \
@@ -49,7 +58,7 @@ $(OBJDIR)%.o: $(SRCDIR)%.c
 	$(CC) -c $(CFLAGS) "$<" -o "$@"
 $(OUT): $(OBJS)
 	@mkdir -p "$(dir $@)"
-	$(CC) $(OBJS) $(IJL15OBJS) $(LDFLAGS) -shared -o "$@" export.def -Wl,-e_DllMain
+	$(CC) $(OBJS) $(LDFLAGS) -shared -o "$@" export.def -Wl,-e_DllMain
 $(TESTOUT): $(TESTOBJS)
 	@mkdir -p "$(dir $@)"
 	$(CC) $(TESTOBJS) $(LDFLAGS) -o "$@" -Wl,-e_start

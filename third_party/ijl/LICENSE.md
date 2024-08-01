@@ -8,7 +8,7 @@ By copying, installing, or otherwise using the Materials, you agree to be bound
 by the terms of this Agreement.  If you do not agree to the terms of this
 Agreement, do not copy, install, or use the Materials.
 
-# Intel® JPEG Library 1.51 Product License Agreement
+# IntelÂ® JPEG Library 1.51 Product License Agreement
 
 LICENSE GRANT: Subject to the License Restrictions below, Intel Corporation
 ("Intel") grants to you the following non-exclusive, non-assignable royalty-free

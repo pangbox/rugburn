@@ -1,8 +1,8 @@
 LIBRARY IJL15
 EXPORTS
-	ijlGetLibVersion	@1
-	ijlInit	@2
-	ijlFree	@3
-	ijlRead	@4
-	ijlWrite	@5
-	ijlErrorStr	@6
+	ijlGetLibVersion = ijlGetLibVersionWrapper	@1
+	ijlInit = ijlInitWrapper	@2
+	ijlFree = ijlFreeWrapper	@3
+	ijlRead = ijlReadWrapper	@4
+	ijlWrite = ijlWriteWrapper	@5
+	ijlErrorStr = ijlErrorStrWrapper	@6
