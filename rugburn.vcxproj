@@ -154,7 +154,7 @@
       <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
       <ModuleDefinitionFile>export.def</ModuleDefinitionFile>
       <EntryPointSymbol>DllMain</EntryPointSymbol>
-      <AdditionalDependencies>kernel32.lib;user32.lib;shlwapi.lib;ws2_32.lib;$(ProjectDir)\third_party\msvcrt\msvcrt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>kernel32.lib;user32.lib;shlwapi.lib;ws2_32.lib;$(ProjectDir)\third_party\msvcrt\msvcrt.lib;$(ProjectDir)\third_party\ijl\ijl15l.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
   </ItemDefinitionGroup>
@@ -188,6 +188,7 @@
     <ClCompile Include="src\config.c" />
     <ClCompile Include="src\dll\rugburn\main.c" />
     <ClCompile Include="src\hex.c" />
+    <ClCompile Include="src\ijl15.c" />
     <ClCompile Include="src\hooks\comctl32\dynamic_patch.c" />
     <ClCompile Include="src\hooks\hooks.c" />
     <ClCompile Include="src\hooks\kernel32\inject.c" />
@@ -205,45 +206,8 @@
     <None Include="export.def" />
     <None Include="LICENSE.md" />
     <None Include="README.md" />
-    <None Include="src\third_party\lend\COPYING" />
   </ItemGroup>
   <ItemGroup>
-    <Object Include="third_party\ijl\aan_fdct.obj" />
-    <Object Include="third_party\ijl\aan_fdct1.obj" />
-    <Object Include="third_party\ijl\aan_idct.obj" />
-    <Object Include="third_party\ijl\aan_idct1.obj" />
-    <Object Include="third_party\ijl\cc_ss_decoder.obj" />
-    <Object Include="third_party\ijl\cc_ss_decoder1.obj" />
-    <Object Include="third_party\ijl\cc_ss_encoder.obj" />
-    <Object Include="third_party\ijl\cc_ss_encoder1.obj" />
-    <Object Include="third_party\ijl\cpuid.obj" />
-    <Object Include="third_party\ijl\cpuid1.obj" />
-    <Object Include="third_party\ijl\decoder_parser.obj" />
-    <Object Include="third_party\ijl\decode_buffer.obj" />
-    <Object Include="third_party\ijl\encoder_parser.obj" />
-    <Object Include="third_party\ijl\encode_buffer.obj" />
-    <Object Include="third_party\ijl\encode_buffer1.obj" />
-    <Object Include="third_party\ijl\fileio.obj" />
-    <Object Include="third_party\ijl\frame_decoder.obj" />
-    <Object Include="third_party\ijl\frame_encoder.obj" />
-    <Object Include="third_party\ijl\globals.obj" />
-    <Object Include="third_party\ijl\huff_decode.obj" />
-    <Object Include="third_party\ijl\huff_encode.obj" />
-    <Object Include="third_party\ijl\huff_encode1.obj" />
-    <Object Include="third_party\ijl\init.obj" />
-    <Object Include="third_party\ijl\ipp_fdct.obj" />
-    <Object Include="third_party\ijl\ipp_fdct1.obj" />
-    <Object Include="third_party\ijl\ipp_idct.obj" />
-    <Object Include="third_party\ijl\ipp_idct1.obj" />
-    <Object Include="third_party\ijl\jpgintfc.obj" />
-    <Object Include="third_party\ijl\mdecode.obj" />
-    <Object Include="third_party\ijl\precomp.obj" />
-    <Object Include="third_party\ijl\scan_decoder.obj" />
-    <Object Include="third_party\ijl\scan_encoder.obj" />
-    <Object Include="third_party\ijl\tables.obj" />
-    <Object Include="third_party\ijl\timing.obj" />
-    <Object Include="third_party\ijl\trace.obj" />
-    <Object Include="third_party\ijl\versionl.obj" />
     <Object Include="third_party\msvcrt\rtsyms.o" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
