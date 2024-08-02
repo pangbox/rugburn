@@ -20,6 +20,8 @@
 #include "../../patch.h"
 #include "../../regex.h"
 
+#include "../../../third_party/ijl/ijl.h"
+
 typedef struct _REGEX_TESTCASE {
     LPCSTR pattern, replace, text, expected;
 } REGEX_TESTCASE;
@@ -99,6 +101,50 @@ const LPCSTR ld_tests[] = {
     "ff259017f476",
 };
 
+BOOL ijl15_crash_test() {
+    JPEG_CORE_PROPERTIES jcp;
+    DWORD dwWholeImageSize, dwJPGSizeBytes;
+    PVOID pJPGBytes;
+    IJLERR jerr;
+
+    // Load JPEG into memory
+    pJPGBytes = ReadEntireFile("third_party/testdata/exception.jpg", &dwJPGSizeBytes);
+    jerr = ijlInit(&jcp);
+    if (jerr < 0) {
+        return FALSE;
+    }
+
+    // Parse JPEG header
+    jcp.JPGFile = 0;
+    jcp.JPGBytes = pJPGBytes;
+    jcp.JPGSizeBytes = dwJPGSizeBytes;
+    ijlRead(&jcp, IJL_JBUFF_READPARAMS);
+    if (jerr < 0) {
+        return FALSE;
+    }
+
+    // Read JPEG image
+    dwWholeImageSize = jcp.JPGWidth * jcp.JPGHeight * jcp.DIBChannels;
+    PVOID buffer = AllocMem(dwWholeImageSize);
+    jcp.DIBColor = IJL_G;
+    jcp.DIBChannels = 1;
+    jcp.DIBWidth = jcp.JPGWidth;
+    jcp.DIBHeight = jcp.JPGHeight;
+    jcp.DIBPadBytes = 0;
+    jcp.DIBBytes = buffer;
+    jerr = ijlRead(&jcp, IJL_JBUFF_READWHOLEIMAGE);
+    FreeMem(buffer);
+
+    // Return success if there was no error
+    return jerr >= 0;
+}
+
+typedef BOOL (*UNIT_TEST)();
+
+const UNIT_TEST unit_tests[] = {
+    ijl15_crash_test,
+};
+
 #define COUNT_OF(x) ((sizeof(x) / sizeof(0 [x])) / ((size_t)(!(sizeof(x) % sizeof(0 [x])))))
 
 extern void __cdecl start(void) {
@@ -109,6 +155,7 @@ extern void __cdecl start(void) {
     totaltests += COUNT_OF(patch_tests);
     totaltests += COUNT_OF(dispatch_tests);
     totaltests += COUNT_OF(ld_tests);
+    totaltests += COUNT_OF(unit_tests);
 
     ConsoleLog("1..%d\r\n", totaltests);
 
@@ -192,6 +239,15 @@ extern void __cdecl start(void) {
         } else {
             ConsoleLog("not ok %d - CountOpcodeBytes(%s)\r\n# expected %d, got %d\r\n", testnum,
                        ld_tests[i], dwLengthExpected, dwLengthActual);
+        }
+    }
+
+    for (i = 0; i < COUNT_OF(unit_tests); ++i) {
+        ++testnum;
+        if (unit_tests[i]()) {
+            ConsoleLog("ok %d - unit test %d\r\n", testnum, i);
+        } else {
+            ConsoleLog("not ok %d - unit test %d\r\n", testnum, i);
         }
     }
 

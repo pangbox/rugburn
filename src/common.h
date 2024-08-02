@@ -61,7 +61,7 @@ LPSTR DupStr(LPCSTR src);
 
 // Utility functions
 BOOL FileExists(LPCSTR szPath);
-LPSTR ReadEntireFile(LPCSTR szPath);
+LPSTR ReadEntireFile(LPCSTR szPath, LPDWORD dwFileSize);
 VOID WriteEntireFile(LPCSTR szPath, LPCSTR data, DWORD dwBytesToWrite);
 VOID FatalError(PCHAR fmt, ...);
 VOID Warning(PCHAR fmt, ...);

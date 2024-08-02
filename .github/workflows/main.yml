@@ -14,9 +14,9 @@ jobs:
     - uses: DeterminateSystems/magic-nix-cache-action@v6
     - uses: DeterminateSystems/flake-checker-action@v7
     - name: Configure
-      run: nix develop --command make -j8 all
+      run: nix build
     - name: Upload
       uses: actions/upload-artifact@v2
       with:
         name: ijl15.dll
-        path: out/ijl15.dll
+        path: result/lib/ijl15.dll
