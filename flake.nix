@@ -20,7 +20,6 @@
         # Common dependencies
         nativeBuildInputs = [
           pkgs.makeWrapper
-          pkgs.bear
           pkgs.pkgsCross.mingw32.stdenv.cc
         ];
 
@@ -33,16 +32,22 @@
 
           inherit nativeBuildInputs;
 
-          nativeCheckInputs = nativeCheckInputs ++ [ pkgs.wine ];
+          nativeCheckInputs = nativeCheckInputs ++ [ pkgs.winePackages.minimal ];
+
+          FONTCONFIG_FILE = pkgs.makeFontsConf { fontDirectories = [ ]; };
 
           checkPhase = ''
             runHook preCheck
 
-            export WINEPREFIX="$TMPDIR/.wine"
-            make check
+            export WINEPREFIX="$PWD/.wine"
+            export WINEARCH="win32"
+            HOME="$PWD" WINEDEBUG="-all" wineboot
+            HOME="$PWD" WINEDEBUG="fixme-all" make check
 
             runHook postCheck
           '';
+
+          doCheck = true;
 
           buildPhase = ''
             runHook preBuild

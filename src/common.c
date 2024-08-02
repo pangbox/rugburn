@@ -50,6 +50,7 @@ RETZERO:
     }
 }
 #else
+void __chkstk_ms(void) { return; }
 unsigned long long __stdcall _aullshr(unsigned long long a, long b) { return a >> b; }
 #endif
 
@@ -151,7 +152,7 @@ PSTR GetSelfPath() {
 
 BOOL FileExists(LPCTSTR szPath) { return GetFileAttributesA(szPath) != INVALID_FILE_ATTRIBUTES; }
 
-LPSTR ReadEntireFile(LPCSTR szPath) {
+LPSTR ReadEntireFile(LPCSTR szPath, LPDWORD dwFileSize) {
     HANDLE hFile = NULL;
     DWORD dwBytesRead = 0, dwBytesToRead = 0;
     BOOL bErrorFlag = FALSE;
@@ -181,6 +182,10 @@ LPSTR ReadEntireFile(LPCSTR szPath) {
         dwBytesToRead -= dwBytesRead;
     }
 
+    if (dwFileSize) {
+        *dwFileSize = dwBytesRead;
+    }
+
     CloseHandle(hFile);
     return buffer;
 }
@@ -190,7 +195,7 @@ VOID WriteEntireFile(LPCSTR szPath, LPCSTR data, DWORD dwBytesToWrite) {
     DWORD dwBytesWritten;
     BOOL bErrorFlag = FALSE;
 
-    hFile = CreateFileA(szPath, GENERIC_WRITE, 0, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+    hFile = CreateFileA(szPath, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
     if (hFile == INVALID_HANDLE_VALUE) {
         FatalError("Error creating file %s.", szPath);
         return;

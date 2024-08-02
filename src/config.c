@@ -103,7 +103,7 @@ void LoadJsonRugburnConfig() {
                         sizeof(ExampleRugburnConfig) - 1);
         json = DupStr(ExampleRugburnConfig);
     } else {
-        json = ReadEntireFile(RugburnConfigFilename);
+        json = ReadEntireFile(RugburnConfigFilename, NULL);
     }
     memset(&Config, 0, sizeof(RUGBURNCONFIG));
     JsonReadMap(&json, ReadJsonConfigMap);
