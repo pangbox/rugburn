@@ -68,7 +68,12 @@ The following clients are currently supported:
 - PangYa EU 3.01a
 - PangYa EU 400a
 - PangYa EU 500
+- PangYa BR 2.14a
+- PangYa BR 2.14b
+- PangYa BR 2.15
 - PangYa BR 2.15a
+- PangYa BR 2.16
+- PangYa BR 2.20c
 - PangYa BR 3.00
 - PangYa BR 3.05a
 
