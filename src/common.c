@@ -27,81 +27,10 @@ static PSTR pszLogPrefix = NULL;
 #pragma function(memcmp)
 #pragma function(memcpy)
 #pragma function(memset)
-
-void __declspec(naked) _aullshr() {
-    __asm {
-        cmp         cl,40h
-        jae         RETZERO
-        cmp         cl,20h
-        jae         MORE32
-        shrd        eax,edx,cl
-        shr         edx,cl
-        ret
-MORE32:
-        mov         eax,edx
-        xor         edx,edx
-        and         cl,1Fh
-        shr         eax,cl
-        ret
-RETZERO:
-        xor         eax,eax
-        xor         edx,edx
-        ret
-    }
-}
 #else
 void __chkstk_ms(void) { return; }
 unsigned long long __stdcall _aullshr(unsigned long long a, long b) { return a >> b; }
 #endif
-
-// C standard library functions
-int strcmp(LPCSTR dest, LPCSTR src) {
-    int cmp;
-    do {
-        cmp = *dest - *src;
-        if (cmp > 0) {
-            return 1;
-        } else if (cmp < 0) {
-            return -1;
-        }
-    } while (*dest++ && *src++);
-    return 0;
-}
-
-int memcmp(LPCVOID dest, LPCVOID src, size_t size) {
-    LPCSTR bdest = (LPCSTR)dest;
-    LPCSTR bsrc = (LPCSTR)src;
-    int cmp;
-    while (size > 0) {
-        cmp = *bdest++ - *bsrc++;
-        if (cmp > 0) {
-            return 1;
-        } else if (cmp < 0) {
-            return -1;
-        }
-        --size;
-    }
-    return 0;
-}
-
-PVOID memcpy(PVOID dest, VOID const *src, size_t size) {
-    BYTE *bdest = (BYTE *)dest;
-    BYTE const *bsrc = (BYTE const *)src;
-    while (size > 0) {
-        *bdest++ = *bsrc++;
-        --size;
-    }
-    return dest;
-}
-
-PVOID memset(PVOID p, INT c, UINT size) {
-    PCHAR data = (PCHAR)p;
-    while (size > 0) {
-        *data++ = c;
-        --size;
-    }
-    return p;
-}
 
 // String formatting
 int VSPrintfZ(LPSTR dest, LPCSTR fmt, va_list args) { return wvsprintfA(dest, fmt, args); }

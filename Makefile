@@ -14,7 +14,6 @@ LDFLAGS := \
 	-lkernel32 \
 	-luser32 \
 	third_party/msvcrt/msvcrt.lib \
-	third_party/msvcrt/rtsyms.o \
 	-Wl,--enable-stdcall-fixup \
 	-s
 
@@ -35,7 +34,8 @@ OBJS := \
 	obj/ijl15.o \
 	obj/json.o \
 	obj/patch.o \
-	obj/regex.o
+	obj/regex.o \
+	obj/stubs.o
 
 TESTOBJS := \
 	$(OBJS) \
@@ -54,6 +54,9 @@ all: $(OUT) $(TESTOUT)
 
 # Rugburn
 $(OBJDIR)%.o: $(SRCDIR)%.c
+	@mkdir -p "$(dir $@)"
+	$(CC) -c $(CFLAGS) "$<" -o "$@"
+$(OBJDIR)%.o: $(SRCDIR)%.S
 	@mkdir -p "$(dir $@)"
 	$(CC) -c $(CFLAGS) "$<" -o "$@"
 $(OUT): $(OBJS)
