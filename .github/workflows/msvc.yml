@@ -13,6 +13,8 @@ jobs:
     - uses: ilammy/msvc-dev-cmd@v1
     - name: Build
       run: msbuild.exe rugburn.sln "/p:Configuration=Release;Platform=x86"
+    - name: Test
+      run: ./out/Win32/Release/test.exe
     - name: Upload
       uses: actions/upload-artifact@v2
       with:

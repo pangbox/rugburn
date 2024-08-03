@@ -3,6 +3,8 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29123.88
 MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "rugburn_test", "rugburn_test.vcxproj", "{CDF5F5B1-A35F-4E0D-87F4-41D1ABDE8D94}"
+EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "rugburn", "rugburn.vcxproj", "{92071CFB-43D1-497D-BC04-B4646D0623BE}"
 EndProject
 Global
@@ -11,6 +13,10 @@ Global
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{CDF5F5B1-A35F-4E0D-87F4-41D1ABDE8D94}.Debug|x86.ActiveCfg = Debug|Win32
+		{CDF5F5B1-A35F-4E0D-87F4-41D1ABDE8D94}.Debug|x86.Build.0 = Debug|Win32
+		{CDF5F5B1-A35F-4E0D-87F4-41D1ABDE8D94}.Release|x86.ActiveCfg = Release|Win32
+		{CDF5F5B1-A35F-4E0D-87F4-41D1ABDE8D94}.Release|x86.Build.0 = Release|Win32
 		{92071CFB-43D1-497D-BC04-B4646D0623BE}.Debug|x86.ActiveCfg = Debug|Win32
 		{92071CFB-43D1-497D-BC04-B4646D0623BE}.Debug|x86.Build.0 = Debug|Win32
 		{92071CFB-43D1-497D-BC04-B4646D0623BE}.Release|x86.ActiveCfg = Release|Win32
