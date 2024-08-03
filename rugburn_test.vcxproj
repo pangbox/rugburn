@@ -12,23 +12,23 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
-    <ProjectGuid>{92071CFB-43D1-497D-BC04-B4646D0623BE}</ProjectGuid>
-    <RootNamespace>rugburn</RootNamespace>
+    <ProjectGuid>{cdf5f5b1-a35f-4e0d-87f4-41d1abde8d94}</ProjectGuid>
+    <RootNamespace>rugburntest</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
-    <CharacterSet>MultiByte</CharacterSet>
+    <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
-    <WholeProgramOptimization>false</WholeProgramOptimization>
-    <CharacterSet>MultiByte</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -43,12 +43,12 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <TargetName>ijl15</TargetName>
+    <TargetName>test</TargetName>
     <OutDir>$(SolutionDir)out\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)obj\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <TargetName>ijl15</TargetName>
+    <TargetName>test</TargetName>
     <OutDir>$(SolutionDir)out\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)obj\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
@@ -69,8 +69,8 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
-      <ModuleDefinitionFile>export.def</ModuleDefinitionFile>
-      <EntryPointSymbol>DllMain</EntryPointSymbol>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EntryPointSymbol>start</EntryPointSymbol>
       <AdditionalDependencies>kernel32.lib;user32.lib;shlwapi.lib;ws2_32.lib;$(ProjectDir)\third_party\msvcrt\msvcrt.lib;$(ProjectDir)\third_party\ijl\ijl15l.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
@@ -95,8 +95,8 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
-      <ModuleDefinitionFile>export.def</ModuleDefinitionFile>
-      <EntryPointSymbol>DllMain</EntryPointSymbol>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EntryPointSymbol>start</EntryPointSymbol>
       <AdditionalDependencies>kernel32.lib;user32.lib;shlwapi.lib;ws2_32.lib;$(ProjectDir)\third_party\msvcrt\msvcrt.lib;$(ProjectDir)\third_party\ijl\ijl15l.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
@@ -104,21 +104,21 @@
   <ItemGroup>
     <ClCompile Include="src\common.c" />
     <ClCompile Include="src\config.c" />
-    <ClCompile Include="src\dll\rugburn\main.c" />
+    <ClCompile Include="src\exe\test\main.c" />
     <ClCompile Include="src\hex.c" />
-    <ClCompile Include="src\ijl15.c" />
     <ClCompile Include="src\hooks\comctl32\dynamic_patch.c" />
     <ClCompile Include="src\hooks\hooks.c" />
     <ClCompile Include="src\hooks\kernel32\inject.c" />
+    <ClCompile Include="src\hooks\msvcr100\msvcr100.c" />
+    <ClCompile Include="src\hooks\projectg\us852\ranking.c" />
     <ClCompile Include="src\hooks\user32\window.c" />
     <ClCompile Include="src\hooks\wininet\netredir.c" />
     <ClCompile Include="src\hooks\ws2_32\redir.c" />
+    <ClCompile Include="src\ijl15.c" />
     <ClCompile Include="src\json.c" />
+    <ClCompile Include="src\ld.c" />
     <ClCompile Include="src\patch.c" />
     <ClCompile Include="src\regex.c" />
-    <ClCompile Include="src\ld.c" />
-    <ClCompile Include="src\hooks\msvcr100\msvcr100.c" />
-    <ClCompile Include="src\hooks\projectg\us852\ranking.c" />
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="src\stubs.asm">
@@ -134,7 +134,6 @@
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
-    <None Include="export.def" />
     <None Include="LICENSE.md" />
     <None Include="README.md" />
   </ItemGroup>
