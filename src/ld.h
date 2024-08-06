@@ -14,11 +14,8 @@
  * THIS SOFTWARE.
  */
 
-#ifndef LD_H
-#define LD_H
+#pragma once
 
 #include "common.h"
 
 unsigned int LenDisasm(LPVOID address);
-
-#endif

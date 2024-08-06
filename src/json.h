@@ -14,8 +14,7 @@
  * THIS SOFTWARE.
  */
 
-#ifndef JSON_H
-#define JSON_H
+#pragma once
 
 #include "common.h"
 
@@ -50,5 +49,3 @@ int JsonReadInteger(LPSTR *json);
 BOOL JsonReadBool(LPSTR *json);
 void JsonReadMap(LPSTR *json, LFNREADMAPVALUECB valuefn);
 void JsonReadArray(LPSTR *json, LFNREADARRAYVALUECB valuefn);
-
-#endif

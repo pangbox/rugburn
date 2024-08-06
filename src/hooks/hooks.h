@@ -14,11 +14,8 @@
  * THIS SOFTWARE.
  */
 
-#ifndef HOOKS_HOOKS_H
-#define HOOKS_HOOKS_H
+#pragma once
 
 #include "../common.h"
 
 VOID InitHooks();
-
-#endif
