@@ -14,8 +14,7 @@
  * THIS SOFTWARE.
  */
 
-#ifndef PATCH_H
-#define PATCH_H
+#pragma once
 
 #include "common.h"
 
@@ -28,5 +27,3 @@ PVOID HookProc(HMODULE hModule, LPCSTR szName, PVOID pfnTargetProc);
 PVOID BuildThiscallToStdcallThunk(PVOID pfnProc);
 PVOID BuildStdcallToThiscallThunk(PVOID pfnProc);
 PVOID BuildStdcallToVirtualThiscallThunk(DWORD dwVtblOffset);
-
-#endif

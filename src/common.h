@@ -14,8 +14,7 @@
  * THIS SOFTWARE.
  */
 
-#ifndef COMMON_H
-#define COMMON_H
+#pragma once
 
 #define STDCALL __stdcall
 #define EXPORT __export
@@ -76,5 +75,3 @@ VOID Exit(DWORD dwExitCode);
 PANGYAVER DetectPangyaVersion();
 PSTR GetPangyaArg(PANGYAVER pangyaVersion);
 PSTR GetSelfPath();
-
-#endif

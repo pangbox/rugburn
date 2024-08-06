@@ -14,8 +14,7 @@
  * THIS SOFTWARE.
  */
 
-#ifndef RE_H
-#define RE_H
+#pragma once
 
 #include "common.h"
 
@@ -28,5 +27,3 @@ LPSTR ReReplace(REGEX *find, LPCSTR replace, LPCSTR text);
 int ReGetNumCaptures(REGEX *pattern);
 int ReGetCaptureLen(REGEX *pattern, int i);
 void ReGetCaptureData(REGEX *pattern, int i, LPSTR buffer);
-
-#endif

@@ -14,8 +14,7 @@
  * THIS SOFTWARE.
  */
 
-#ifndef CONFIG_H
-#define CONFIG_H
+#pragma once
 
 #include "common.h"
 #include "regex.h"
@@ -58,5 +57,3 @@ void LoadJsonRugburnConfig();
 LPCSTR RewriteURL(LPCSTR url);
 BOOL RewriteAddr(LPSOCKADDR_IN addr);
 void PatchAddress();
-
-#endif

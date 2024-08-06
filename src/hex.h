@@ -14,8 +14,7 @@
  * THIS SOFTWARE.
  */
 
-#ifndef HEX_H
-#define HEX_H
+#pragma once
 
 #include "common.h"
 
@@ -24,5 +23,3 @@ DWORD FromHex(LPCSTR pHex, PVOID pData);
 
 DWORD ParseAddress(LPCSTR lpszText);
 void ParsePatch(LPCSTR lpszText, LPSTR *pDataOut, DWORD *pSizeOut);
-
-#endif

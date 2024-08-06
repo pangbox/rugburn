@@ -21,8 +21,7 @@
  * hook various APIs to manipulate or inspect behavior.
  */
 
-#ifndef COMMON_FNPTR_H
-#define COMMON_FNPTR_H
+#pragma once
 
 #include <windows.h>
 #include <ws2tcpip.h>
@@ -157,5 +156,3 @@ typedef int(STDCALL *PFNIJLFREEPROC)(int);
 typedef int(STDCALL *PFNIJLREADPROC)(int, int);
 typedef int(STDCALL *PFNIJLWRITEPROC)(int, int);
 typedef int(STDCALL *PFNIJLERRORSTRPROC)(int);
-
-#endif

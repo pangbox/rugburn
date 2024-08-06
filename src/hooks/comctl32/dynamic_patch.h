@@ -15,11 +15,8 @@
  * THIS SOFTWARE.
  */
 
-#ifndef HOOKS_COMCTL32_DYNAMIC_PATH
-#define HOOKS_COMCTL32_DYNAMIC_PATH
+#pragma once
 
 #include "../../common.h"
 
 VOID InitComCtl32Hook();
-
-#endif // !HOOKS_COMCTL32_DYNAMIC_PATH

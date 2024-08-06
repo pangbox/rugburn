@@ -14,11 +14,8 @@
  * THIS SOFTWARE.
  */
 
-#ifndef HOOKS_PROJECTG_US852_RANKING_H
-#define HOOKS_PROJECTG_US852_RANKING_H
+#pragma once
 
 #include "../../../common.h"
 
 VOID InitUS852RankingHook();
-
-#endif

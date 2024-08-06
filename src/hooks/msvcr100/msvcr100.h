@@ -14,11 +14,8 @@
  * THIS SOFTWARE.
  */
 
-#ifndef HOOKS_MSVCR100_MSVCR100_H
-#define HOOKS_MSVCR100_MSVCR100_H
+#pragma once
 
 #include "../../common.h"
 
 VOID InitMsvcrHook();
-
-#endif
