@@ -49,6 +49,8 @@ typedef struct _RUGBURNCONFIG {
 
     PATCHADDRESS PatchAddress[MAXPATCHADDRESS];
     int NumPatchAddress;
+
+    BOOL bBypassSelfSignedCertificate;
 } RUGBURNCONFIG, *LPRUGBURNCONFIG;
 
 extern RUGBURNCONFIG Config;
