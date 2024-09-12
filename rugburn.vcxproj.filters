@@ -18,6 +18,7 @@
     <ClCompile Include="src\hooks\wininet\netredir.c" />
     <ClCompile Include="src\hooks\ws2_32\redir.c" />
     <ClCompile Include="src\dll\rugburn\main.c" />
+    <ClCompile Include="src\hooks\ole32\web_browser.c" />
   </ItemGroup>
   <ItemGroup>
     <None Include="LICENSE.md" />
