@@ -26,6 +26,9 @@
 #include <windows.h>
 #include <ws2tcpip.h>
 
+// IWebBrowser 1 and 2
+#include <ExDisp.h>
+
 #ifdef __MINGW32__
 
 typedef struct _DNS_QUERY_REQUEST {
@@ -52,6 +55,24 @@ typedef struct tagINITCOMMONCONTROLSEX {
 
 // comctl32.dll
 typedef BOOL(STDCALL *PFNINITCOMMONCONTROLSEXPROC)(const INITCOMMONCONTROLSEX *picce);
+
+// ole32.dll
+typedef HRESULT(STDCALL *PFNCOGETCLASSOBJECTPROC)(REFCLSID rclsid, DWORD dwClsContext,
+                                                  LPVOID pvReserved, REFIID riid, LPVOID *ppv);
+typedef HRESULT(STDCALL *PFNCOCREATEINSTANCEPROC)(REFCLSID rclsid, LPUNKNOWN pUnkOuter,
+                                                  DWORD dwClsContext, REFIID riid, LPVOID *ppv);
+
+// oleaut32.dll
+typedef BSTR (STDCALL *PFNSYSALLOCSTRINGPROC)(const OLECHAR *psz);
+typedef void (STDCALL *PFNSYSFREESTRINGPROC)(BSTR bstrString);
+
+// ieframe.dll
+typedef HRESULT(STDCALL *PFNINVOKEPROC)(IDispatch *This, DISPID dispIdMember, REFIID riid,
+                                        LCID lcid, WORD wFlags, DISPPARAMS *pDispParams,
+                                        VARIANT *pVarResult, EXCEPINFO *pExcepInfo, UINT *puArgErr);
+typedef HRESULT(STDCALL *PFNNAVIGATEPROC)(IWebBrowser2 *This, BSTR URL, VARIANT *Flags,
+                                          VARIANT *TargetFrameName, VARIANT *PostData,
+                                          VARIANT *Headers);
 
 // general
 typedef BOOL(WINAPI *PFNDLLMAINPROC)(HANDLE, DWORD, LPVOID);
@@ -141,10 +162,39 @@ typedef VOID(STDCALL *PFNGETSTARTUPINFOAPROC)(LPSTARTUPINFOA lpStartupInfo);
 typedef VOID(STDCALL *PFNGETSTARTUPINFOWPROC)(LPSTARTUPINFOW lpStartupInfo);
 
 // wininet.dll
-typedef void(STDCALL *PFNINTERNETCONNECTAPROC)(HINTERNET, LPCSTR, INTERNET_PORT, LPCSTR, LPCSTR,
-                                               DWORD, DWORD, DWORD_PTR);
 typedef HINTERNET(STDCALL *PFNINTERNETOPENURLAPROC)(HINTERNET, LPCSTR, LPCSTR, DWORD, DWORD,
                                                     DWORD_PTR);
+typedef HINTERNET(STDCALL *PFNINTERNETCONNECTAPROC)(HINTERNET hInternet, LPCSTR lpszServerName,
+                                                    INTERNET_PORT nServerPort, LPCSTR lpszUserName,
+                                                    LPCSTR lpszPassword, DWORD dwService,
+                                                    DWORD dwFlags, DWORD_PTR dwContext);
+typedef HINTERNET(STDCALL *PFNHTTPOPENREQUESTAPROC)(HINTERNET hConnect, LPCSTR lpszVerb,
+                                                    LPCSTR lpszObjectName, LPCSTR lpszVersion,
+                                                    LPCSTR lpszReferrer, LPCSTR *lplpszAcceptTypes,
+                                                    DWORD dwFlags, DWORD_PTR dwContext);
+typedef BOOL(STDCALL *PFNHTTPSENDREQUESTAPROC)(HINTERNET hRequest, LPCSTR lpszHeaders,
+                                               DWORD dwHeadersLength, LPVOID lpOptional,
+                                               DWORD dwOptionalLength);
+typedef BOOL(STDCALL *PFNHTTPSENDREQUESTEXAPROC)(HINTERNET hRequest,
+                                                 LPINTERNET_BUFFERSA lpBuffersIn,
+                                                 LPINTERNET_BUFFERSA lpBuffersOut, DWORD dwFlags,
+                                                 DWORD_PTR dwContext);
+typedef BOOL(STDCALL *PFNHTTPENDREQUESTAPROC)(HINTERNET hRequest, LPINTERNET_BUFFERSA lpBuffersOut,
+                                              DWORD dwFlags, DWORD_PTR dwContext);
+typedef BOOL(STDCALL *PFNHTTPADDREQUESTHEADERSAPROC)(HINTERNET hRequest, LPCSTR lpszHeaders,
+                                                     DWORD dwHeadersLength, DWORD dwModifiers);
+typedef BOOL(STDCALL *PFNHTTPQUERYINFOAPROC)(HINTERNET hRequest, DWORD dwInfoLevel, LPVOID lpBuffer,
+                                             LPDWORD lpdwBufferLength, LPDWORD lpdwIndex);
+typedef BOOL(STDCALL *PFNINTERNETCLOSEHANDLEPROC)(HINTERNET hInternet);
+typedef BOOL(STDCALL *PFNINTERNETWRITEFILEPROC)(HINTERNET hFile, LPCVOID lpBuffer,
+                                                DWORD dwNumberOfBytesToWrite,
+                                                LPDWORD lpdwNumberOfBytesWritten);
+typedef BOOL(STDCALL *PFNINTERNETQUERYOPTIONAPROC)(HINTERNET hInternet, DWORD dwOption,
+                                                   LPVOID lpBuffer, LPDWORD lpdwBufferLength);
+typedef BOOL(STDCALL *PFNINTERNETSETOPTIONAPROC)(HINTERNET hInternet, DWORD dwOption,
+                                                 LPVOID lpBuffer, DWORD dwBufferLength);
+typedef BOOL(STDCALL *PFNINTERNETCRACKURLAPROC)(LPCSTR lpszUrl, DWORD dwUrlLength, DWORD dwFlags,
+                                                LPURL_COMPONENTSA lpUrlComponents);
 
 // winmm.dll
 typedef DWORD(STDCALL *PFNTIMEGETTIMEPROC)();
