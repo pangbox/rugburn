@@ -79,7 +79,7 @@ PSTR GetSelfPath() {
     return pszSelfPath;
 }
 
-BOOL FileExists(LPCTSTR szPath) { return GetFileAttributesA(szPath) != INVALID_FILE_ATTRIBUTES; }
+BOOL FileExists(LPCSTR szPath) { return GetFileAttributesA(szPath) != INVALID_FILE_ATTRIBUTES; }
 
 LPSTR ReadEntireFile(LPCSTR szPath, LPDWORD dwFileSize) {
     HANDLE hFile = NULL;
