@@ -15,11 +15,11 @@
  */
 
 #include "inject.h"
+#include "../../config.h"
 #include "../../patch.h"
 
 static HMODULE hKernel32Module;
 static HANDLE hGameguardFakeHandle;
-static HANDLE hOtherFakeHandle;
 
 static PFNCREATEMUTEXAPROC pCreateMutexA;
 static PFNCREATEPROCESSAPROC pCreateProcessA = NULL;
@@ -64,18 +64,15 @@ static BOOL STDCALL CreateProcessAHook(LPCSTR lpApplicationName, LPSTR lpCommand
         lpEnvironment, lpCurrentDirectory, lpStartupInfo, lpProcessInformation);
     if (lpApplicationName != NULL && StrContains(lpApplicationName, "GameGuard.des")) {
         lpProcessInformation->hProcess = hGameguardFakeHandle;
-    } else {
-        lpProcessInformation->hProcess = hOtherFakeHandle;
+        return TRUE;
     }
-    return TRUE;
+	return pCreateProcessA(lpApplicationName, lpCommandLine, lpProcessAttributes, lpThreadAttributes, bInheritHandles, dwCreationFlags, lpEnvironment, lpCurrentDirectory, lpStartupInfo, lpProcessInformation);
 }
 
 static BOOL STDCALL GetExitCodeProcessHook(HANDLE hProcess, LPDWORD lpExitCode) {
     Log("GetExitCodeProcess(%08x, %08x);\r\n", hProcess, lpExitCode);
     if (hProcess == hGameguardFakeHandle) {
         *lpExitCode = 0x755;
-    } else if (hProcess == hOtherFakeHandle) {
-        *lpExitCode = 0x0;
     } else {
         return pGetExitCodeProcess(hProcess, lpExitCode);
     }
@@ -86,7 +83,6 @@ VOID InitInjectHook() {
     hKernel32Module = LoadLib("kernel32");
     pCreateMutexA = GetProc(hKernel32Module, "CreateMutexA");
     hGameguardFakeHandle = pCreateMutexA(NULL, FALSE, NULL);
-    hOtherFakeHandle = pCreateMutexA(NULL, FALSE, NULL);
     pCreateProcessA = HookProc(hKernel32Module, "CreateProcessA", CreateProcessAHook);
     pGetExitCodeProcess = HookProc(hKernel32Module, "GetExitCodeProcess", GetExitCodeProcessHook);
 }
