@@ -106,6 +106,7 @@
     <ClCompile Include="src\config.c" />
     <ClCompile Include="src\dll\rugburn\main.c" />
     <ClCompile Include="src\hex.c" />
+    <ClCompile Include="src\hooks\ole32\web_browser.c" />
     <ClCompile Include="src\ijl15.c" />
     <ClCompile Include="src\hooks\comctl32\dynamic_patch.c" />
     <ClCompile Include="src\hooks\hooks.c" />
