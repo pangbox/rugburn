@@ -83,6 +83,18 @@ void ReadJsonPatchAddressMap(LPSTR *json, LPCSTR key) {
     Config.NumPatchAddress++;
 }
 
+void ReadJsonBypassSelfSignedCertificate(LPSTR *json, LPCSTR key) {
+    LPCSTR value = JsonReadString(json);
+
+	Config.bBypassSelfSignedCertificate = FALSE;
+
+	if (value == NULL || value == "")
+		return;
+
+	if (_stricmp(value, "TRUE") == 0)
+		Config.bBypassSelfSignedCertificate = TRUE;
+}
+
 void ReadJsonConfigMap(LPSTR *json, LPCSTR key) {
     if (!strcmp(key, "UrlRewrites")) {
         JsonReadMap(json, ReadJsonUrlRewriteRuleMap);
@@ -90,6 +102,8 @@ void ReadJsonConfigMap(LPSTR *json, LPCSTR key) {
         JsonReadArray(json, ReadJsonPortRewriteRuleArray);
     } else if (!strcmp(key, "PatchAddress")) {
         JsonReadMap(json, ReadJsonPatchAddressMap);
+    } else if (!strcmp(key, "BypassSelfSignedCertificate")) {
+        ReadJsonBypassSelfSignedCertificate(json, key);
     } else {
         FatalError("Unexpected JSON config key '%s'", key);
     }
