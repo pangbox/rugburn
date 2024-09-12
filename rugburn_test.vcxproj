@@ -110,6 +110,7 @@
     <ClCompile Include="src\hooks\hooks.c" />
     <ClCompile Include="src\hooks\kernel32\inject.c" />
     <ClCompile Include="src\hooks\msvcr100\msvcr100.c" />
+    <ClCompile Include="src\hooks\ole32\web_browser.c" />
     <ClCompile Include="src\hooks\projectg\us852\ranking.c" />
     <ClCompile Include="src\hooks\user32\window.c" />
     <ClCompile Include="src\hooks\wininet\netredir.c" />
