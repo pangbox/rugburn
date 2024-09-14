@@ -26,6 +26,7 @@ OBJS := \
 	obj/hooks/ws2_32/redir.o \
 	obj/hooks/wininet/netredir.o \
 	obj/hooks/comctl32/dynamic_patch.o \
+	obj/hooks/ole32/web_browser.o \
 	obj/hooks/hooks.o \
 	obj/ld.o \
 	obj/common.o \

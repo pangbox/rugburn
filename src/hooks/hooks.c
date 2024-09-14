@@ -22,6 +22,7 @@
 #include "user32/window.h"
 #include "wininet/netredir.h"
 #include "ws2_32/redir.h"
+#include "ole32/web_browser.h"
 
 VOID InitHooks() {
     InitInjectHook();
@@ -30,4 +31,5 @@ VOID InitHooks() {
     InitNetRedirHook();
     InitRedirHook();
     InitComCtl32Hook();
+    InitWebBrowserHook();
 }
