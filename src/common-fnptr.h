@@ -63,8 +63,8 @@ typedef HRESULT(STDCALL *PFNCOCREATEINSTANCEPROC)(REFCLSID rclsid, LPUNKNOWN pUn
                                                   DWORD dwClsContext, REFIID riid, LPVOID *ppv);
 
 // oleaut32.dll
-typedef BSTR (STDCALL *PFNSYSALLOCSTRINGPROC)(const OLECHAR *psz);
-typedef void (STDCALL *PFNSYSFREESTRINGPROC)(BSTR bstrString);
+typedef BSTR(STDCALL *PFNSYSALLOCSTRINGLENPROC)(const OLECHAR *strIn, UINT ui);
+typedef void(STDCALL *PFNSYSFREESTRINGPROC)(BSTR bstrString);
 
 // ieframe.dll
 typedef HRESULT(STDCALL *PFNINVOKEPROC)(IDispatch *This, DISPID dispIdMember, REFIID riid,
