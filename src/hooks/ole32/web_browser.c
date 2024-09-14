@@ -8,7 +8,7 @@ static PFNCOGETCLASSOBJECTPROC pCoGetClassObject = NULL;
 static PFNCOCREATEINSTANCEPROC pCoCreateInstance = NULL;
 static PFNINVOKEPROC pInvoke = NULL;
 static PFNNAVIGATEPROC pNavigate = NULL;
-static PFNSYSALLOCSTRINGPROC pSysAllocString = NULL;
+static PFNSYSALLOCSTRINGLENPROC pSysAllocStringLen = NULL;
 static PFNSYSFREESTRINGPROC pSysFreeString = NULL;
 
 // {00000112-0000-0000-C000-000000000046}
@@ -43,17 +43,11 @@ BSTR RewriteURLW(BSTR urlw) {
 
 		len_urlw = MultiByteToWideChar(CP_ACP, 0, newURLA, len, NULL, 0);
 
-		LPOLESTR newURLW = AllocMem((len_urlw + 1) * sizeof(OLECHAR));
+		BSTR newURLBSTR = pSysAllocStringLen(NULL, len_urlw);
 
-		MultiByteToWideChar(CP_ACP, 0, newURLA, len, newURLW, len_urlw);
-
-		newURLW[len_urlw] = '\0';
+		MultiByteToWideChar(CP_ACP, 0, newURLA, len, newURLBSTR, len_urlw);
 
 		FreeMem((HLOCAL)newURLA);
-
-		BSTR newURLBSTR = pSysAllocString(newURLW);
-
-		FreeMem(newURLW);
 
 		return newURLBSTR;
 	}
@@ -90,13 +84,17 @@ HRESULT STDCALL NavigateHook(IWebBrowser2 *This, BSTR URL, VARIANT *Flags, VARIA
 	newURL = RewriteURLW(URL);
 	if (newURL != NULL) {
 		Log("IWebBrowser2->Navigate(%S -> %S)\r\n", URL, newURL);
-		pSysFreeString(URL);
 		URL = newURL;
 	} else {
 		Log("IWebBrowser2->Navigate(%S) // (no rewrite rules matched)\r\n", URL);
 	}
 
-	return pNavigate(This, URL, Flags, TargetFrameName, PostData, Headers);
+	HRESULT hResult = pNavigate(This, URL, Flags, TargetFrameName, PostData, Headers);
+
+	if (newURL != NULL)
+		pSysFreeString(newURL);
+
+	return hResult;
 }
 
 HRESULT STDCALL CoGetClassObjectHook(REFCLSID rclsid, DWORD dwClsContext, LPVOID pvReserved, REFIID riid, LPVOID *ppv) {
@@ -172,7 +170,7 @@ HRESULT STDCALL CoCreateInstanceHook(REFCLSID rclsid, LPUNKNOWN pUnkOuter, DWORD
 void InitWebBrowserHook() {
 	hOle32Module = LoadLib("ole32");
     hOleAut32Module = LoadLib("oleaut32");
-    pSysAllocString = GetProc(hOleAut32Module, "SysAllocString");
+    pSysAllocStringLen = GetProc(hOleAut32Module, "SysAllocStringLen");
 	pSysFreeString = GetProc(hOleAut32Module, "SysFreeString");
     pCoGetClassObject = HookProc(hOle32Module, "CoGetClassObject", CoGetClassObjectHook);
 	pCoCreateInstance = HookProc(hOle32Module, "CoCreateInstance", CoCreateInstanceHook);
