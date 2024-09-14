@@ -69,7 +69,7 @@ typedef struct _internet_ctx {
 
 static internet_ctx g_inet_ctx;
 
-void insertInetCtx(internet_ctx *_ctx) {
+static void insertInetCtx(internet_ctx *_ctx) {
 
     internet_ctx *node = g_inet_ctx._next;
 
@@ -91,10 +91,10 @@ void insertInetCtx(internet_ctx *_ctx) {
     }
 }
 
-void createInetCtx(HINTERNET hOpen, HINTERNET hConnect, LPCSTR lpszServerName,
-                   INTERNET_PORT nServerPort, LPCSTR lpszUserName, LPCSTR lpszPassword,
-                   DWORD dwService, DWORD dwFlags, DWORD_PTR dwContext, HINTERNET hRequest,
-                   HINTERNET hNewConnect) {
+static void createInetCtx(HINTERNET hOpen, HINTERNET hConnect, LPCSTR lpszServerName,
+                          INTERNET_PORT nServerPort, LPCSTR lpszUserName, LPCSTR lpszPassword,
+                          DWORD dwService, DWORD dwFlags, DWORD_PTR dwContext, HINTERNET hRequest,
+                          HINTERNET hNewConnect) {
 
     internet_ctx *ctx = AllocMem(sizeof(internet_ctx));
 
@@ -143,7 +143,7 @@ void createInetCtx(HINTERNET hOpen, HINTERNET hConnect, LPCSTR lpszServerName,
     insertInetCtx(ctx);
 }
 
-void destructInetCtx(internet_ctx *_ctx) {
+static void destructInetCtx(internet_ctx *_ctx) {
 
     if (_ctx == NULL)
         return;
@@ -160,7 +160,7 @@ void destructInetCtx(internet_ctx *_ctx) {
     memset(_ctx, 0, sizeof(internet_ctx));
 }
 
-void removeInetCtx(internet_ctx *_ctx) {
+static void removeInetCtx(internet_ctx *_ctx) {
 
     if (_ctx == NULL || _ctx == &g_inet_ctx)
         return;
@@ -181,7 +181,7 @@ void removeInetCtx(internet_ctx *_ctx) {
     FreeMem((HLOCAL)_ctx);
 }
 
-internet_ctx *findInetCtxByConnect(HINTERNET hConnect) {
+static internet_ctx *findInetCtxByConnect(HINTERNET hConnect) {
 
     if (g_inet_ctx._next == NULL)
         return NULL;
@@ -198,7 +198,7 @@ internet_ctx *findInetCtxByConnect(HINTERNET hConnect) {
     return NULL;
 }
 
-internet_ctx *findInetCtxByRequest(HINTERNET hRequest) {
+static internet_ctx *findInetCtxByRequest(HINTERNET hRequest) {
 
     if (g_inet_ctx._next == NULL)
         return NULL;
@@ -215,7 +215,7 @@ internet_ctx *findInetCtxByRequest(HINTERNET hRequest) {
     return NULL;
 }
 
-int PortLength(INTERNET_PORT _port) {
+static int PortLength(INTERNET_PORT _port) {
 
     if (_port == 80 || _port == 443)
         return 0;
@@ -238,7 +238,7 @@ int PortLength(INTERNET_PORT _port) {
     return length + 7;
 }
 
-int UserNameAndPasswordLength(DWORD _dwUserNameLength, DWORD _dwPasswordLength) {
+static int UserNameAndPasswordLength(DWORD _dwUserNameLength, DWORD _dwPasswordLength) {
 
     if (_dwUserNameLength == 0u && _dwPasswordLength == 0u)
         return 0;
@@ -253,10 +253,9 @@ int UserNameAndPasswordLength(DWORD _dwUserNameLength, DWORD _dwPasswordLength) 
     return length;
 }
 
-HINTERNET STDCALL InternetOpenUrlABypasSelfSignedCertificate(HINTERNET hInternet, LPCSTR lpszUrl,
-                                                             LPCSTR lpszHeaders,
-                                                             DWORD dwHeadersLength, DWORD dwFlags,
-                                                             DWORD_PTR dwContext) {
+static HINTERNET STDCALL InternetOpenUrlABypasSelfSignedCertificate(
+    HINTERNET hInternet, LPCSTR lpszUrl, LPCSTR lpszHeaders, DWORD dwHeadersLength, DWORD dwFlags,
+    DWORD_PTR dwContext) {
 
     URL_COMPONENTSA url_cpsa;
     memset(&url_cpsa, 0, sizeof(URL_COMPONENTSA));
@@ -423,8 +422,9 @@ HINTERNET STDCALL InternetOpenUrlABypasSelfSignedCertificate(HINTERNET hInternet
 /**
  * InternetOpenUrlAHook redirects HTTP calls to localhost.
  */
-HINTERNET STDCALL InternetOpenUrlAHook(HINTERNET hInternet, LPCSTR lpszUrl, LPCSTR lpszHeaders,
-                                       DWORD dwHeadersLength, DWORD dwFlags, DWORD_PTR dwContext) {
+static HINTERNET STDCALL InternetOpenUrlAHook(HINTERNET hInternet, LPCSTR lpszUrl,
+                                              LPCSTR lpszHeaders, DWORD dwHeadersLength,
+                                              DWORD dwFlags, DWORD_PTR dwContext) {
     LPCSTR newURL;
     LPCSTR refURL;
     HINTERNET hResult;
@@ -504,10 +504,10 @@ HINTERNET STDCALL InternetOpenUrlAHook(HINTERNET hInternet, LPCSTR lpszUrl, LPCS
     return hResult;
 }
 
-HINTERNET STDCALL InternetConnectAHook(HINTERNET hInternet, LPCSTR lpszServerName,
-                                       INTERNET_PORT nServerPort, LPCSTR lpszUserName,
-                                       LPCSTR lpszPassword, DWORD dwService, DWORD dwFlags,
-                                       DWORD_PTR dwContext) {
+static HINTERNET STDCALL InternetConnectAHook(HINTERNET hInternet, LPCSTR lpszServerName,
+                                              INTERNET_PORT nServerPort, LPCSTR lpszUserName,
+                                              LPCSTR lpszPassword, DWORD dwService, DWORD dwFlags,
+                                              DWORD_PTR dwContext) {
 
     HINTERNET hConnect = pInternetConnectA(hInternet, lpszServerName, nServerPort, lpszUserName,
                                            lpszPassword, dwService, dwFlags, dwContext);
@@ -519,10 +519,10 @@ HINTERNET STDCALL InternetConnectAHook(HINTERNET hInternet, LPCSTR lpszServerNam
     return hConnect;
 }
 
-HINTERNET STDCALL HttpOpenRequestAHook(HINTERNET hConnect, LPCSTR lpszVerb, LPCSTR lpszObjectName,
-                                       LPCSTR lpszVersion, LPCSTR lpszReferrer,
-                                       LPCSTR *lplpszAcceptTypes, DWORD dwFlags,
-                                       DWORD_PTR dwContext) {
+static HINTERNET STDCALL HttpOpenRequestAHook(HINTERNET hConnect, LPCSTR lpszVerb,
+                                              LPCSTR lpszObjectName, LPCSTR lpszVersion,
+                                              LPCSTR lpszReferrer, LPCSTR *lplpszAcceptTypes,
+                                              DWORD dwFlags, DWORD_PTR dwContext) {
 
     HINTERNET hReq = pHttpOpenRequestA(hConnect, lpszVerb, lpszObjectName, lpszVersion,
                                        lpszReferrer, lplpszAcceptTypes, dwFlags, dwContext);
@@ -685,9 +685,11 @@ HINTERNET STDCALL HttpOpenRequestAHook(HINTERNET hConnect, LPCSTR lpszVerb, LPCS
     return hReq;
 }
 
-BOOL STDCALL HttpSendRequestACertificateInvalidRedirect(HINTERNET hRequest, LPCSTR lpszHeaders,
-                                                        DWORD dwHeadersLength, LPVOID lpOptional,
-                                                        DWORD dwOptionalLength) {
+static BOOL STDCALL HttpSendRequestACertificateInvalidRedirect(HINTERNET hRequest,
+                                                               LPCSTR lpszHeaders,
+                                                               DWORD dwHeadersLength,
+                                                               LPVOID lpOptional,
+                                                               DWORD dwOptionalLength) {
 
     internet_ctx *inet_ctx = findInetCtxByRequest(hRequest);
 
@@ -902,8 +904,9 @@ BOOL STDCALL HttpSendRequestACertificateInvalidRedirect(HINTERNET hRequest, LPCS
     return TRUE;
 }
 
-BOOL STDCALL HttpSendRequestAHook(HINTERNET hRequest, LPCSTR lpszHeaders, DWORD dwHeadersLength,
-                                  LPVOID lpOptional, DWORD dwOptionalLength) {
+static BOOL STDCALL HttpSendRequestAHook(HINTERNET hRequest, LPCSTR lpszHeaders,
+                                         DWORD dwHeadersLength, LPVOID lpOptional,
+                                         DWORD dwOptionalLength) {
 
     BOOL bRet = FALSE;
 
@@ -935,9 +938,9 @@ BOOL STDCALL HttpSendRequestAHook(HINTERNET hRequest, LPCSTR lpszHeaders, DWORD 
     return bRet;
 }
 
-BOOL STDCALL HttpSendRequestExAHook(HINTERNET hRequest, LPINTERNET_BUFFERSA lpBuffersIn,
-                                    LPINTERNET_BUFFERSA lpBuffersOut, DWORD dwFlags,
-                                    DWORD_PTR dwContext) {
+static BOOL STDCALL HttpSendRequestExAHook(HINTERNET hRequest, LPINTERNET_BUFFERSA lpBuffersIn,
+                                           LPINTERNET_BUFFERSA lpBuffersOut, DWORD dwFlags,
+                                           DWORD_PTR dwContext) {
 
     BOOL bRet = FALSE;
 
@@ -960,9 +963,9 @@ BOOL STDCALL HttpSendRequestExAHook(HINTERNET hRequest, LPINTERNET_BUFFERSA lpBu
     return bRet;
 }
 
-BOOL STDCALL HttpEndRequestACertificateInvalidRedirect(HINTERNET hRequest,
-                                                       LPINTERNET_BUFFERSA lpBuffersOut,
-                                                       DWORD dwFlags, DWORD_PTR dwContext) {
+static BOOL STDCALL HttpEndRequestACertificateInvalidRedirect(HINTERNET hRequest,
+                                                              LPINTERNET_BUFFERSA lpBuffersOut,
+                                                              DWORD dwFlags, DWORD_PTR dwContext) {
 
     internet_ctx *inet_ctx = findInetCtxByRequest(hRequest);
 
@@ -1202,8 +1205,8 @@ BOOL STDCALL HttpEndRequestACertificateInvalidRedirect(HINTERNET hRequest,
     return TRUE;
 }
 
-BOOL STDCALL HttpEndRequestAHook(HINTERNET hRequest, LPINTERNET_BUFFERSA lpBuffersOut,
-                                 DWORD dwFlags, DWORD_PTR dwContext) {
+static BOOL STDCALL HttpEndRequestAHook(HINTERNET hRequest, LPINTERNET_BUFFERSA lpBuffersOut,
+                                        DWORD dwFlags, DWORD_PTR dwContext) {
 
     BOOL bRet = FALSE;
 
@@ -1234,8 +1237,8 @@ BOOL STDCALL HttpEndRequestAHook(HINTERNET hRequest, LPINTERNET_BUFFERSA lpBuffe
     return bRet;
 }
 
-BOOL STDCALL HttpAddRequestHeadersAHook(HINTERNET hRequest, LPCSTR lpszHeaders,
-                                        DWORD dwHeadersLength, DWORD dwModifiers) {
+static BOOL STDCALL HttpAddRequestHeadersAHook(HINTERNET hRequest, LPCSTR lpszHeaders,
+                                               DWORD dwHeadersLength, DWORD dwModifiers) {
 
     BOOL bRet = FALSE;
 
@@ -1262,8 +1265,8 @@ BOOL STDCALL HttpAddRequestHeadersAHook(HINTERNET hRequest, LPCSTR lpszHeaders,
     return bRet;
 }
 
-BOOL STDCALL HttpQueryInfoAHook(HINTERNET hRequest, DWORD dwInfoLevel, LPVOID lpBuffer,
-                                LPDWORD lpdwBufferLength, LPDWORD lpdwIndex) {
+static BOOL STDCALL HttpQueryInfoAHook(HINTERNET hRequest, DWORD dwInfoLevel, LPVOID lpBuffer,
+                                       LPDWORD lpdwBufferLength, LPDWORD lpdwIndex) {
 
     BOOL bRet = FALSE;
 
@@ -1278,8 +1281,9 @@ BOOL STDCALL HttpQueryInfoAHook(HINTERNET hRequest, DWORD dwInfoLevel, LPVOID lp
     return bRet;
 }
 
-BOOL STDCALL InternetQueryDataAvailableHook(HINTERNET hFile, LPDWORD lpdwNumberOfBytesAvailable,
-                                            DWORD dwFlags, DWORD_PTR dwContext) {
+static BOOL STDCALL InternetQueryDataAvailableHook(HINTERNET hFile,
+                                                   LPDWORD lpdwNumberOfBytesAvailable,
+                                                   DWORD dwFlags, DWORD_PTR dwContext) {
 
     BOOL bRet = FALSE;
 
@@ -1295,8 +1299,9 @@ BOOL STDCALL InternetQueryDataAvailableHook(HINTERNET hFile, LPDWORD lpdwNumberO
     return bRet;
 }
 
-BOOL STDCALL InternetWriteFileHook(HINTERNET hFile, LPCVOID lpBuffer, DWORD dwNumberOfBytesToWrite,
-                                   LPDWORD lpdwNumberOfBytesWritten) {
+static BOOL STDCALL InternetWriteFileHook(HINTERNET hFile, LPCVOID lpBuffer,
+                                          DWORD dwNumberOfBytesToWrite,
+                                          LPDWORD lpdwNumberOfBytesWritten) {
 
     BOOL bRet = FALSE;
 
@@ -1320,8 +1325,9 @@ BOOL STDCALL InternetWriteFileHook(HINTERNET hFile, LPCVOID lpBuffer, DWORD dwNu
     return bRet;
 }
 
-BOOL STDCALL InternetReadFileHook(HINTERNET hFile, LPVOID lpBuffer, DWORD dwNumberOfBytesToRead,
-                                  LPDWORD lpdwNumberOfBytesRead) {
+static BOOL STDCALL InternetReadFileHook(HINTERNET hFile, LPVOID lpBuffer,
+                                         DWORD dwNumberOfBytesToRead,
+                                         LPDWORD lpdwNumberOfBytesRead) {
 
     BOOL bRet = FALSE;
 
@@ -1336,7 +1342,7 @@ BOOL STDCALL InternetReadFileHook(HINTERNET hFile, LPVOID lpBuffer, DWORD dwNumb
     return bRet;
 }
 
-BOOL STDCALL InternetCloseHandleHook(HINTERNET hInternet) {
+static BOOL STDCALL InternetCloseHandleHook(HINTERNET hInternet) {
 
     internet_ctx *inet_ctx = findInetCtxByConnect(hInternet);
 

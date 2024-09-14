@@ -24,7 +24,7 @@ const IID kIID_MicrosoftWebBrowser = {
 const IID kIID_IWebBrowser2 = {
     0xD30C1661, 0xCDAF, 0x11D0, {0x8A, 0x3E, 0, 0xC0, 0x4F, 0xC9, 0xE2, 0x6E}};
 
-BSTR RewriteURLW(BSTR urlw) {
+static BSTR RewriteURLW(BSTR urlw) {
 
     int len_urlw = lstrlenW(urlw);
     int len = WideCharToMultiByte(CP_ACP, 0, urlw, len_urlw, NULL, 0, NULL, NULL);
@@ -57,9 +57,9 @@ BSTR RewriteURLW(BSTR urlw) {
     return NULL;
 }
 
-HRESULT InvokeHook(IDispatch *This, DISPID dispIdMember, REFIID riid, LCID lcid, WORD wFlags,
-                   DISPPARAMS *pDispParams, VARIANT *pVarResult, EXCEPINFO *pExcepInfo,
-                   UINT *puArgErr) {
+static HRESULT InvokeHook(IDispatch *This, DISPID dispIdMember, REFIID riid, LCID lcid, WORD wFlags,
+                          DISPPARAMS *pDispParams, VARIANT *pVarResult, EXCEPINFO *pExcepInfo,
+                          UINT *puArgErr) {
 
     BSTR newURL = NULL;
 
@@ -83,8 +83,8 @@ HRESULT InvokeHook(IDispatch *This, DISPID dispIdMember, REFIID riid, LCID lcid,
                    puArgErr);
 }
 
-HRESULT STDCALL NavigateHook(IWebBrowser2 *This, BSTR URL, VARIANT *Flags, VARIANT *TargetFrameName,
-                             VARIANT *PostData, VARIANT *Headers) {
+static HRESULT STDCALL NavigateHook(IWebBrowser2 *This, BSTR URL, VARIANT *Flags,
+                                    VARIANT *TargetFrameName, VARIANT *PostData, VARIANT *Headers) {
 
     BSTR newURL = NULL;
 
@@ -104,8 +104,8 @@ HRESULT STDCALL NavigateHook(IWebBrowser2 *This, BSTR URL, VARIANT *Flags, VARIA
     return hResult;
 }
 
-HRESULT STDCALL CoGetClassObjectHook(REFCLSID rclsid, DWORD dwClsContext, LPVOID pvReserved,
-                                     REFIID riid, LPVOID *ppv) {
+static HRESULT STDCALL CoGetClassObjectHook(REFCLSID rclsid, DWORD dwClsContext, LPVOID pvReserved,
+                                            REFIID riid, LPVOID *ppv) {
 
     static void *g_pInvoke = NULL;
 
@@ -148,8 +148,8 @@ HRESULT STDCALL CoGetClassObjectHook(REFCLSID rclsid, DWORD dwClsContext, LPVOID
     return ret;
 }
 
-HRESULT STDCALL CoCreateInstanceHook(REFCLSID rclsid, LPUNKNOWN pUnkOuter, DWORD dwClsContext,
-                                     REFIID riid, LPVOID *ppv) {
+static HRESULT STDCALL CoCreateInstanceHook(REFCLSID rclsid, LPUNKNOWN pUnkOuter,
+                                            DWORD dwClsContext, REFIID riid, LPVOID *ppv) {
 
     static void *g_pNavigate = NULL;
 

@@ -78,11 +78,11 @@ typedef struct _DISPATCH_TESTCASE {
     PFNDISPATCHTESTPROC proc;
 } DISPATCH_TESTCASE;
 
-void STDCALL DispatchTest(const DISPATCH_TESTCASE *_this, DWORD testnum) {
+static void STDCALL DispatchTest(const DISPATCH_TESTCASE *_this, DWORD testnum) {
     ConsoleLog("ok %d - %s\r\n", testnum, _this->name);
 }
 
-void STDCALL DispatchThroughThiscallTest(const DISPATCH_TESTCASE *_this, DWORD testnum) {
+static void STDCALL DispatchThroughThiscallTest(const DISPATCH_TESTCASE *_this, DWORD testnum) {
     PFNDISPATCHTESTPROC pfnDispatchProc =
         (PFNDISPATCHTESTPROC)BuildStdcallToThiscallThunk(BuildThiscallToStdcallThunk(DispatchTest));
     pfnDispatchProc(_this, testnum);
@@ -101,7 +101,7 @@ const LPCSTR ld_tests[] = {
     "ff259017f476",
 };
 
-BOOL ijl15_crash_test() {
+static BOOL ijl15_crash_test() {
     JPEG_CORE_PROPERTIES jcp;
     DWORD dwWholeImageSize, dwJPGSizeBytes;
     PVOID pJPGBytes;

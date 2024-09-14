@@ -24,9 +24,9 @@ static HMODULE hMsvcrModule = NULL;
 static STRICMPFNPTR pStricmp = NULL;
 static SETLOCALEFNPTR pSetLocale = NULL;
 
-int lower(int c) { return (c >= 'A' && c <= 'Z') ? c + 'a' - 'A' : c; }
+static int lower(int c) { return (c >= 'A' && c <= 'Z') ? c + 'a' - 'A' : c; }
 
-int __cdecl StricmpHook(const char *s1, const char *s2) {
+static int __cdecl StricmpHook(const char *s1, const char *s2) {
     int result = 0;
     if (!s1 || !s2)
         return 0x7fffffff;
@@ -39,7 +39,7 @@ int __cdecl StricmpHook(const char *s1, const char *s2) {
     return result;
 }
 
-VOID InitMsvcr100Hook() {
+static VOID InitMsvcr100Hook() {
     const char *oldlocale;
     int result;
 
@@ -72,7 +72,7 @@ VOID InitMsvcr100Hook() {
     }
 }
 
-VOID InitMsvcr71Hook() {
+static VOID InitMsvcr71Hook() {
     const char *oldlocale;
     int result;
 
