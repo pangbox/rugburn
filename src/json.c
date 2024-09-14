@@ -21,7 +21,7 @@
 
 #include "json.h"
 
-BOOL JsonIsSpace(CHAR ch) {
+static BOOL JsonIsSpace(CHAR ch) {
     return ch == ' ' || ch == '\t' || ch == '\r' || ch == '\n' || ch == '\v';
 }
 
@@ -55,12 +55,12 @@ LPCSTR JsonTokenName(JSONTOKENTYPE type) {
     return "(unknown)";
 }
 
-void JsonConsumeWhitespace(LPSTR *json) {
+static void JsonConsumeWhitespace(LPSTR *json) {
     while (JsonIsSpace(**json))
         (*json)++;
 }
 
-void JsonConsumeIntegerToken(LPSTR *json, LPJSONTOKEN token) {
+static void JsonConsumeIntegerToken(LPSTR *json, LPJSONTOKEN token) {
     int value = 0;
     int sign = 1;
 
@@ -100,7 +100,7 @@ void JsonConsumeIntegerToken(LPSTR *json, LPJSONTOKEN token) {
     }
 }
 
-void JsonConsumeSymbolToken(LPSTR *json, LPJSONTOKEN token) {
+static void JsonConsumeSymbolToken(LPSTR *json, LPJSONTOKEN token) {
     switch (*(*json)++) {
     case '{':
         token->token_type = JSON_TOK_LBRACE;
@@ -126,7 +126,7 @@ void JsonConsumeSymbolToken(LPSTR *json, LPJSONTOKEN token) {
     }
 }
 
-void JsonConsumeStringToken(LPSTR *json, LPJSONTOKEN token) {
+static void JsonConsumeStringToken(LPSTR *json, LPJSONTOKEN token) {
     LPCSTR strptr;
     LPSTR wptr;
     CHAR ch;
@@ -190,7 +190,7 @@ void JsonConsumeStringToken(LPSTR *json, LPJSONTOKEN token) {
     }
 }
 
-void JsonConsumeKeywordToken(LPSTR *json, LPJSONTOKEN token) {
+static void JsonConsumeKeywordToken(LPSTR *json, LPJSONTOKEN token) {
     if (memcmp(*json, "true", 4) == 0) {
         *json += 4;
         token->token_type = JSON_TOK_TRUE;

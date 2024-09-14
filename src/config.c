@@ -37,7 +37,7 @@ const char ExampleRugburnConfig[] =
     "  ]\r\n"
     "}\r\n";
 
-void ReadJsonUrlRewriteRuleMap(LPSTR *json, LPCSTR key) {
+static void ReadJsonUrlRewriteRuleMap(LPSTR *json, LPCSTR key) {
     LPCSTR value = JsonReadString(json);
 
     if (Config.NumUrlRewriteRules == MAXURLREWRITES) {
@@ -49,7 +49,7 @@ void ReadJsonUrlRewriteRuleMap(LPSTR *json, LPCSTR key) {
     Config.NumUrlRewriteRules++;
 }
 
-void ReadJsonPortRewriteRuleMap(LPSTR *json, LPCSTR key) {
+static void ReadJsonPortRewriteRuleMap(LPSTR *json, LPCSTR key) {
     if (!strcmp(key, "FromPort")) {
         Config.PortRewriteRules[Config.NumPortRewriteRules].fromport = JsonReadInteger(json);
     } else if (!strcmp(key, "ToPort")) {
@@ -61,7 +61,7 @@ void ReadJsonPortRewriteRuleMap(LPSTR *json, LPCSTR key) {
     }
 }
 
-void ReadJsonPortRewriteRuleArray(LPSTR *json) {
+static void ReadJsonPortRewriteRuleArray(LPSTR *json) {
     if (Config.NumPortRewriteRules == MAXURLREWRITES) {
         FatalError("Reached maximum number of URL rewrite rules!");
     }
@@ -70,7 +70,7 @@ void ReadJsonPortRewriteRuleArray(LPSTR *json) {
     Config.NumPortRewriteRules++;
 }
 
-void ReadJsonPatchAddressMap(LPSTR *json, LPCSTR key) {
+static void ReadJsonPatchAddressMap(LPSTR *json, LPCSTR key) {
     LPCSTR value = JsonReadString(json);
 
     if (Config.NumPatchAddress == MAXPATCHADDRESS) {
@@ -83,7 +83,7 @@ void ReadJsonPatchAddressMap(LPSTR *json, LPCSTR key) {
     Config.NumPatchAddress++;
 }
 
-void ReadJsonBypassSelfSignedCertificate(LPSTR *json, LPCSTR key) {
+static void ReadJsonBypassSelfSignedCertificate(LPSTR *json, LPCSTR key) {
     LPCSTR value = JsonReadString(json);
 
     Config.bBypassSelfSignedCertificate = FALSE;
@@ -95,7 +95,7 @@ void ReadJsonBypassSelfSignedCertificate(LPSTR *json, LPCSTR key) {
         Config.bBypassSelfSignedCertificate = TRUE;
 }
 
-void ReadJsonConfigMap(LPSTR *json, LPCSTR key) {
+static void ReadJsonConfigMap(LPSTR *json, LPCSTR key) {
     if (!strcmp(key, "UrlRewrites")) {
         JsonReadMap(json, ReadJsonUrlRewriteRuleMap);
     } else if (!strcmp(key, "PortRewrites")) {
