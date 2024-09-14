@@ -19,10 +19,10 @@
 #include "comctl32/dynamic_patch.h"
 #include "kernel32/inject.h"
 #include "msvcr100/msvcr100.h"
+#include "ole32/web_browser.h"
 #include "user32/window.h"
 #include "wininet/netredir.h"
 #include "ws2_32/redir.h"
-#include "ole32/web_browser.h"
 
 VOID InitHooks() {
     InitInjectHook();

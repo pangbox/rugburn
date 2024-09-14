@@ -689,7 +689,7 @@ BOOL STDCALL HttpSendRequestACertificateInvalidRedirect(HINTERNET hRequest, LPCS
                                                         DWORD dwHeadersLength, LPVOID lpOptional,
                                                         DWORD dwOptionalLength) {
 
-	internet_ctx *inet_ctx = findInetCtxByRequest(hRequest);
+    internet_ctx *inet_ctx = findInetCtxByRequest(hRequest);
 
     if (inet_ctx == NULL)
         return FALSE;
@@ -701,8 +701,8 @@ BOOL STDCALL HttpSendRequestACertificateInvalidRedirect(HINTERNET hRequest, LPCS
         DWORD statusCode = 0;
         DWORD dwStatusCodeLength = sizeof(statusCode);
         ret2 = pHttpQueryInfoA((inet_ctx->hNewRequest != NULL ? inet_ctx->hNewRequest : hRequest),
-                               HTTP_QUERY_STATUS_CODE | HTTP_QUERY_FLAG_NUMBER,
-                               &statusCode, &dwStatusCodeLength, NULL);
+                               HTTP_QUERY_STATUS_CODE | HTTP_QUERY_FLAG_NUMBER, &statusCode,
+                               &dwStatusCodeLength, NULL);
         if (ret2 == FALSE) {
             Log("HttpQueryInfoA(1). failed Error: %d\r\n", LastErr());
             return FALSE;
@@ -815,9 +815,8 @@ BOOL STDCALL HttpSendRequestACertificateInvalidRedirect(HINTERNET hRequest, LPCS
          url_cpsa.dwHostNameLength + PortLength(url_cpsa.nPort));
 
     inet_ctx->hNewRequest = pHttpOpenRequestA(
-        inet_ctx->hNewConnect, inet_ctx->lpszMethod,
-                                       lpszNewObjectName, HTTP_VERSIONA, NULL,
-                          inet_ctx->rgpszAcceptTypes, newFlags, inet_ctx->dwContext);
+        inet_ctx->hNewConnect, inet_ctx->lpszMethod, lpszNewObjectName, HTTP_VERSIONA, NULL,
+        inet_ctx->rgpszAcceptTypes, newFlags, inet_ctx->dwContext);
 
     if (url != NULL)
         FreeMem((HLOCAL)url);
@@ -888,8 +887,8 @@ BOOL STDCALL HttpSendRequestACertificateInvalidRedirect(HINTERNET hRequest, LPCS
             (Config.bBypassSelfSignedCertificate == TRUE &&
              (error == ERROR_INTERNET_SEC_CERT_DATE_INVALID ||
               error == ERROR_INTERNET_SEC_CERT_CN_INVALID || error == ERROR_INTERNET_INVALID_CA))) {
-            ret2 = HttpSendRequestACertificateInvalidRedirect(hRequest, lpszHeaders, dwHeadersLength,
-                                                              lpOptional, dwOptionalLength);
+            ret2 = HttpSendRequestACertificateInvalidRedirect(
+                hRequest, lpszHeaders, dwHeadersLength, lpOptional, dwOptionalLength);
         } else
             Log("HttpSendRequestA(2). failed Error: %d\r\n", error);
 
@@ -908,30 +907,30 @@ BOOL STDCALL HttpSendRequestAHook(HINTERNET hRequest, LPCSTR lpszHeaders, DWORD 
 
     BOOL bRet = FALSE;
 
-	internet_ctx *inet_ctx = findInetCtxByRequest(hRequest);
+    internet_ctx *inet_ctx = findInetCtxByRequest(hRequest);
 
-	if (inet_ctx == NULL)
-		bRet = pHttpSendRequestA(hRequest, lpszHeaders, dwHeadersLength, lpOptional, dwOptionalLength);
-	else {
+    if (inet_ctx == NULL)
+        bRet =
+            pHttpSendRequestA(hRequest, lpszHeaders, dwHeadersLength, lpOptional, dwOptionalLength);
+    else {
 
-		bRet = pHttpSendRequestA(
-                (inet_ctx->hNewRequest != NULL ? inet_ctx->hNewRequest : hRequest), lpszHeaders,
-                dwHeadersLength, lpOptional, dwOptionalLength);
+        bRet = pHttpSendRequestA((inet_ctx->hNewRequest != NULL ? inet_ctx->hNewRequest : hRequest),
+                                 lpszHeaders, dwHeadersLength, lpOptional, dwOptionalLength);
 
-		if (bRet == TRUE)
-			return bRet;
+        if (bRet == TRUE)
+            return bRet;
 
-		DWORD error = LastErr();
+        DWORD error = LastErr();
 
-		if (error == ERROR_HTTP_REDIRECT_NEEDS_CONFIRMATION ||
-			(Config.bBypassSelfSignedCertificate == TRUE &&
-				(error == ERROR_INTERNET_SEC_CERT_DATE_INVALID ||
-				error == ERROR_INTERNET_SEC_CERT_CN_INVALID || error == ERROR_INTERNET_INVALID_CA))) {
+        if (error == ERROR_HTTP_REDIRECT_NEEDS_CONFIRMATION ||
+            (Config.bBypassSelfSignedCertificate == TRUE &&
+             (error == ERROR_INTERNET_SEC_CERT_DATE_INVALID ||
+              error == ERROR_INTERNET_SEC_CERT_CN_INVALID || error == ERROR_INTERNET_INVALID_CA))) {
 
-			bRet = HttpSendRequestACertificateInvalidRedirect(
-				hRequest, lpszHeaders, dwHeadersLength, lpOptional, dwOptionalLength);
-		}
-	}
+            bRet = HttpSendRequestACertificateInvalidRedirect(
+                hRequest, lpszHeaders, dwHeadersLength, lpOptional, dwOptionalLength);
+        }
+    }
 
     return bRet;
 }
@@ -941,22 +940,22 @@ BOOL STDCALL HttpSendRequestExAHook(HINTERNET hRequest, LPINTERNET_BUFFERSA lpBu
                                     DWORD_PTR dwContext) {
 
     BOOL bRet = FALSE;
-    
-	internet_ctx *inet_ctx = findInetCtxByRequest(hRequest);
 
-	if (inet_ctx == NULL)
-		bRet = pHttpSendRequestExA(hRequest, lpBuffersIn, lpBuffersOut, dwFlags, dwContext);
-	else {
+    internet_ctx *inet_ctx = findInetCtxByRequest(hRequest);
 
-		bRet = pHttpSendRequestExA(
-                (inet_ctx->hNewRequest != NULL ? inet_ctx->hNewRequest : hRequest), lpBuffersIn,
-                lpBuffersOut, dwFlags, dwContext);
+    if (inet_ctx == NULL)
+        bRet = pHttpSendRequestExA(hRequest, lpBuffersIn, lpBuffersOut, dwFlags, dwContext);
+    else {
 
-		if (bRet == FALSE)
-			return bRet;
+        bRet =
+            pHttpSendRequestExA((inet_ctx->hNewRequest != NULL ? inet_ctx->hNewRequest : hRequest),
+                                lpBuffersIn, lpBuffersOut, dwFlags, dwContext);
 
-		inet_ctx->lpBuffersIn = lpBuffersIn;
-	}
+        if (bRet == FALSE)
+            return bRet;
+
+        inet_ctx->lpBuffersIn = lpBuffersIn;
+    }
 
     return bRet;
 }
@@ -965,7 +964,7 @@ BOOL STDCALL HttpEndRequestACertificateInvalidRedirect(HINTERNET hRequest,
                                                        LPINTERNET_BUFFERSA lpBuffersOut,
                                                        DWORD dwFlags, DWORD_PTR dwContext) {
 
-	internet_ctx *inet_ctx = findInetCtxByRequest(hRequest);
+    internet_ctx *inet_ctx = findInetCtxByRequest(hRequest);
 
     if (inet_ctx == NULL)
         return FALSE;
@@ -977,8 +976,8 @@ BOOL STDCALL HttpEndRequestACertificateInvalidRedirect(HINTERNET hRequest,
         DWORD statusCode = 0;
         DWORD dwStatusCodeLength = sizeof(statusCode);
         ret2 = pHttpQueryInfoA((inet_ctx->hNewRequest != NULL ? inet_ctx->hNewRequest : hRequest),
-                               HTTP_QUERY_STATUS_CODE | HTTP_QUERY_FLAG_NUMBER,
-                               &statusCode, &dwStatusCodeLength, NULL);
+                               HTTP_QUERY_STATUS_CODE | HTTP_QUERY_FLAG_NUMBER, &statusCode,
+                               &dwStatusCodeLength, NULL);
         if (ret2 == FALSE) {
             Log("HttpQueryInfoA(1). failed Error: %d\r\n", LastErr());
             return FALSE;
@@ -1064,7 +1063,7 @@ BOOL STDCALL HttpEndRequestACertificateInvalidRedirect(HINTERNET hRequest,
     }
 
     inet_ctx->hNewConnect = pInternetConnectA(inet_ctx->hOpen, lpszHostName, url_cpsa.nPort, NULL,
-                                           NULL, INTERNET_SERVICE_HTTP, dwFlags, dwContext);
+                                              NULL, INTERNET_SERVICE_HTTP, dwFlags, dwContext);
 
     if (lpszHostName != NULL)
         FreeMem((HLOCAL)lpszHostName);
@@ -1091,8 +1090,7 @@ BOOL STDCALL HttpEndRequestACertificateInvalidRedirect(HINTERNET hRequest,
 
     inet_ctx->hNewRequest =
         pHttpOpenRequestA(inet_ctx->hNewConnect, inet_ctx->lpszMethod, lpszNewObjectName,
-                          HTTP_VERSIONA, NULL,
-                          inet_ctx->rgpszAcceptTypes, newFlags, dwContext);
+                          HTTP_VERSIONA, NULL, inet_ctx->rgpszAcceptTypes, newFlags, dwContext);
 
     if (url != NULL)
         FreeMem((HLOCAL)url);
@@ -1168,8 +1166,7 @@ BOOL STDCALL HttpEndRequestACertificateInvalidRedirect(HINTERNET hRequest,
         DWORD dwNumbetOfBytesWritten = 0;
 
         ret2 = pInternetWriteFile(inet_ctx->hNewRequest, inet_ctx->lpFileBuffer,
-                                  inet_ctx->dwNumberOfBytesToWrite,
-                                  &dwNumbetOfBytesWritten);
+                                  inet_ctx->dwNumberOfBytesToWrite, &dwNumbetOfBytesWritten);
 
         if (ret2 == FALSE && LastErr() != ERROR_INSUFFICIENT_BUFFER) {
             Log("InternetWriteFile. failed Error: %d\r\n", LastErr());
@@ -1190,8 +1187,8 @@ BOOL STDCALL HttpEndRequestACertificateInvalidRedirect(HINTERNET hRequest,
             (Config.bBypassSelfSignedCertificate == TRUE &&
              (error == ERROR_INTERNET_SEC_CERT_DATE_INVALID ||
               error == ERROR_INTERNET_SEC_CERT_CN_INVALID || error == ERROR_INTERNET_INVALID_CA))) {
-            ret2 =
-                HttpEndRequestACertificateInvalidRedirect(hRequest, lpBuffersOut, dwFlags, dwContext);
+            ret2 = HttpEndRequestACertificateInvalidRedirect(hRequest, lpBuffersOut, dwFlags,
+                                                             dwContext);
         } else
             Log("HttpEndRequestA(2). failed Error: %d\r\n", error);
 
@@ -1209,31 +1206,30 @@ BOOL STDCALL HttpEndRequestAHook(HINTERNET hRequest, LPINTERNET_BUFFERSA lpBuffe
                                  DWORD dwFlags, DWORD_PTR dwContext) {
 
     BOOL bRet = FALSE;
-    
-	internet_ctx *inet_ctx = findInetCtxByRequest(hRequest);
 
-	if (inet_ctx == NULL)
-		bRet = pHttpEndRequestA(hRequest, lpBuffersOut, dwFlags, dwContext);
-	else {
+    internet_ctx *inet_ctx = findInetCtxByRequest(hRequest);
 
-		bRet =
-                pHttpEndRequestA((inet_ctx->hNewRequest != NULL ? inet_ctx->hNewRequest : hRequest),
-                                 lpBuffersOut, dwFlags, dwContext);
+    if (inet_ctx == NULL)
+        bRet = pHttpEndRequestA(hRequest, lpBuffersOut, dwFlags, dwContext);
+    else {
 
-		if (bRet == TRUE)
-			return bRet;
+        bRet = pHttpEndRequestA((inet_ctx->hNewRequest != NULL ? inet_ctx->hNewRequest : hRequest),
+                                lpBuffersOut, dwFlags, dwContext);
 
-		DWORD error = LastErr();
+        if (bRet == TRUE)
+            return bRet;
 
-		if (error == ERROR_HTTP_REDIRECT_NEEDS_CONFIRMATION ||
-			(Config.bBypassSelfSignedCertificate == TRUE &&
-				(error == ERROR_INTERNET_SEC_CERT_DATE_INVALID ||
-				error == ERROR_INTERNET_SEC_CERT_CN_INVALID || error == ERROR_INTERNET_INVALID_CA))) {
+        DWORD error = LastErr();
 
-			bRet = HttpEndRequestACertificateInvalidRedirect(hRequest, lpBuffersOut,
-                                                                     dwFlags, dwContext);
-		}
-	}
+        if (error == ERROR_HTTP_REDIRECT_NEEDS_CONFIRMATION ||
+            (Config.bBypassSelfSignedCertificate == TRUE &&
+             (error == ERROR_INTERNET_SEC_CERT_DATE_INVALID ||
+              error == ERROR_INTERNET_SEC_CERT_CN_INVALID || error == ERROR_INTERNET_INVALID_CA))) {
+
+            bRet = HttpEndRequestACertificateInvalidRedirect(hRequest, lpBuffersOut, dwFlags,
+                                                             dwContext);
+        }
+    }
 
     return bRet;
 }
@@ -1242,26 +1238,26 @@ BOOL STDCALL HttpAddRequestHeadersAHook(HINTERNET hRequest, LPCSTR lpszHeaders,
                                         DWORD dwHeadersLength, DWORD dwModifiers) {
 
     BOOL bRet = FALSE;
-    
-	internet_ctx *inet_ctx = findInetCtxByRequest(hRequest);
 
-	if (inet_ctx == NULL)
-		bRet = pHttpAddRequestHeadersA(hRequest, lpszHeaders, dwHeadersLength, dwModifiers);
-	else {
+    internet_ctx *inet_ctx = findInetCtxByRequest(hRequest);
 
-		bRet = pHttpAddRequestHeadersA(
-                (inet_ctx->hNewRequest != NULL ? inet_ctx->hNewRequest : hRequest), lpszHeaders,
-                dwHeadersLength, dwModifiers);
+    if (inet_ctx == NULL)
+        bRet = pHttpAddRequestHeadersA(hRequest, lpszHeaders, dwHeadersLength, dwModifiers);
+    else {
 
-		if (bRet == FALSE || inet_ctx->nHeaders >= MAX_HTTP_HEADER)
-			return bRet;
+        bRet = pHttpAddRequestHeadersA(
+            (inet_ctx->hNewRequest != NULL ? inet_ctx->hNewRequest : hRequest), lpszHeaders,
+            dwHeadersLength, dwModifiers);
 
-		http_header *pHeader = &inet_ctx->vHeaders[inet_ctx->nHeaders++];
+        if (bRet == FALSE || inet_ctx->nHeaders >= MAX_HTTP_HEADER)
+            return bRet;
 
-		pHeader->lpszHeaders = lpszHeaders;
-		pHeader->dwHeaderLength = dwHeadersLength;
-		pHeader->dwModifiers = dwModifiers;
-	}
+        http_header *pHeader = &inet_ctx->vHeaders[inet_ctx->nHeaders++];
+
+        pHeader->lpszHeaders = lpszHeaders;
+        pHeader->dwHeaderLength = dwHeadersLength;
+        pHeader->dwModifiers = dwModifiers;
+    }
 
     return bRet;
 }
@@ -1271,14 +1267,13 @@ BOOL STDCALL HttpQueryInfoAHook(HINTERNET hRequest, DWORD dwInfoLevel, LPVOID lp
 
     BOOL bRet = FALSE;
 
-	internet_ctx *inet_ctx = findInetCtxByRequest(hRequest);
+    internet_ctx *inet_ctx = findInetCtxByRequest(hRequest);
 
-	if (inet_ctx == NULL)
+    if (inet_ctx == NULL)
         bRet = pHttpQueryInfoA(hRequest, dwInfoLevel, lpBuffer, lpdwBufferLength, lpdwIndex);
     else
-        bRet =
-            pHttpQueryInfoA((inet_ctx->hNewRequest != NULL ? inet_ctx->hNewRequest : hRequest),
-                            dwInfoLevel, lpBuffer, lpdwBufferLength, lpdwIndex);
+        bRet = pHttpQueryInfoA((inet_ctx->hNewRequest != NULL ? inet_ctx->hNewRequest : hRequest),
+                               dwInfoLevel, lpBuffer, lpdwBufferLength, lpdwIndex);
 
     return bRet;
 }
@@ -1288,11 +1283,10 @@ BOOL STDCALL InternetQueryDataAvailableHook(HINTERNET hFile, LPDWORD lpdwNumberO
 
     BOOL bRet = FALSE;
 
-	internet_ctx *inet_ctx = findInetCtxByRequest(hFile);
+    internet_ctx *inet_ctx = findInetCtxByRequest(hFile);
 
-	if (inet_ctx == NULL)
-        bRet =
-            pInternetQueryDataAvailable(hFile, lpdwNumberOfBytesAvailable, dwFlags, dwContext);
+    if (inet_ctx == NULL)
+        bRet = pInternetQueryDataAvailable(hFile, lpdwNumberOfBytesAvailable, dwFlags, dwContext);
     else
         bRet = pInternetQueryDataAvailable(
             (inet_ctx->hNewRequest != NULL ? inet_ctx->hNewRequest : hFile),
@@ -1306,21 +1300,22 @@ BOOL STDCALL InternetWriteFileHook(HINTERNET hFile, LPCVOID lpBuffer, DWORD dwNu
 
     BOOL bRet = FALSE;
 
-	internet_ctx *inet_ctx = findInetCtxByRequest(hFile);
+    internet_ctx *inet_ctx = findInetCtxByRequest(hFile);
 
-	if (inet_ctx == NULL)
-		bRet = pInternetWriteFile(hFile, lpBuffer, dwNumberOfBytesToWrite, lpdwNumberOfBytesWritten);
-	else {
+    if (inet_ctx == NULL)
         bRet =
-            pInternetWriteFile((inet_ctx->hNewRequest != NULL ? inet_ctx->hNewRequest : hFile),
-                                lpBuffer, dwNumberOfBytesToWrite, lpdwNumberOfBytesWritten);
+            pInternetWriteFile(hFile, lpBuffer, dwNumberOfBytesToWrite, lpdwNumberOfBytesWritten);
+    else {
+        bRet = pInternetWriteFile((inet_ctx->hNewRequest != NULL ? inet_ctx->hNewRequest : hFile),
+                                  lpBuffer, dwNumberOfBytesToWrite, lpdwNumberOfBytesWritten);
 
-		if (bRet == FALSE || (inet_ctx->lpFileBuffer != NULL && inet_ctx->dwNumberOfBytesToWrite > 0u))
-			return bRet;
+        if (bRet == FALSE ||
+            (inet_ctx->lpFileBuffer != NULL && inet_ctx->dwNumberOfBytesToWrite > 0u))
+            return bRet;
 
-		inet_ctx->lpFileBuffer = lpBuffer;
-		inet_ctx->dwNumberOfBytesToWrite = dwNumberOfBytesToWrite;
-	}
+        inet_ctx->lpFileBuffer = lpBuffer;
+        inet_ctx->dwNumberOfBytesToWrite = dwNumberOfBytesToWrite;
+    }
 
     return bRet;
 }
@@ -1372,7 +1367,7 @@ VOID InitNetRedirHook() {
     pHttpEndRequestA = HookProc(hWinINet, "HttpEndRequestA", HttpEndRequestAHook);
     pHttpAddRequestHeadersA =
         HookProc(hWinINet, "HttpAddRequestHeadersA", HttpAddRequestHeadersAHook);
-	pHttpQueryInfoA = HookProc(hWinINet, "HttpQueryInfoA", HttpQueryInfoAHook);
+    pHttpQueryInfoA = HookProc(hWinINet, "HttpQueryInfoA", HttpQueryInfoAHook);
     pHttpSendRequestExA = HookProc(hWinINet, "HttpSendRequestExA", HttpSendRequestExAHook);
     pInternetCloseHandle = HookProc(hWinINet, "InternetCloseHandle", InternetCloseHandleHook);
     pInternetQueryDataAvailable =

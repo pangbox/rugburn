@@ -66,7 +66,9 @@ static BOOL STDCALL CreateProcessAHook(LPCSTR lpApplicationName, LPSTR lpCommand
         lpProcessInformation->hProcess = hGameguardFakeHandle;
         return TRUE;
     }
-	return pCreateProcessA(lpApplicationName, lpCommandLine, lpProcessAttributes, lpThreadAttributes, bInheritHandles, dwCreationFlags, lpEnvironment, lpCurrentDirectory, lpStartupInfo, lpProcessInformation);
+    return pCreateProcessA(lpApplicationName, lpCommandLine, lpProcessAttributes,
+                           lpThreadAttributes, bInheritHandles, dwCreationFlags, lpEnvironment,
+                           lpCurrentDirectory, lpStartupInfo, lpProcessInformation);
 }
 
 static BOOL STDCALL GetExitCodeProcessHook(HANDLE hProcess, LPDWORD lpExitCode) {

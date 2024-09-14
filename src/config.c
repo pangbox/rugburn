@@ -86,13 +86,13 @@ void ReadJsonPatchAddressMap(LPSTR *json, LPCSTR key) {
 void ReadJsonBypassSelfSignedCertificate(LPSTR *json, LPCSTR key) {
     LPCSTR value = JsonReadString(json);
 
-	Config.bBypassSelfSignedCertificate = FALSE;
+    Config.bBypassSelfSignedCertificate = FALSE;
 
-	if (value == NULL || value == "")
-		return;
+    if (value == NULL || value == "")
+        return;
 
-	if (_stricmp(value, "TRUE") == 0)
-		Config.bBypassSelfSignedCertificate = TRUE;
+    if (_stricmp(value, "TRUE") == 0)
+        Config.bBypassSelfSignedCertificate = TRUE;
 }
 
 void ReadJsonConfigMap(LPSTR *json, LPCSTR key) {
