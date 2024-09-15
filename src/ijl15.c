@@ -18,6 +18,10 @@
 
 #include "../third_party/ijl/ijl.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 const IJLibVersion *__stdcall ijlGetLibVersionWrapper() { return ijlGetLibVersion(); }
 
 IJLERR __stdcall ijlInitWrapper(JPEG_CORE_PROPERTIES *jcprops) { return ijlInit(jcprops); }
@@ -33,3 +37,7 @@ IJLERR __stdcall ijlWriteWrapper(JPEG_CORE_PROPERTIES *jcprops, IJLIOTYPE iotype
 }
 
 const char *__stdcall ijlErrorStrWrapper(IJLERR code) { return ijlErrorStr(code); }
+
+#ifdef __cplusplus
+}
+#endif

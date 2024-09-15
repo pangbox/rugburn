@@ -47,5 +47,5 @@ static int STDCALL ConnectHook(SOCKET s, const struct sockaddr *name, int namele
 
 VOID InitRedirHook() {
     hWinsockModule = LoadLib("ws2_32");
-    pConnect = HookProc(hWinsockModule, "connect", ConnectHook);
+    pConnect = (PFNCONNECTPROC)HookProc(hWinsockModule, "connect", (PVOID)ConnectHook);
 }

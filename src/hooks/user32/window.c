@@ -35,5 +35,6 @@ static HWND STDCALL CreateWindowExAHook(DWORD dwExStyle, LPCSTR lpClassName, LPC
 
 VOID InitWindowHook() {
     hUser32Module = LoadLib("user32");
-    pCreateWindowExA = HookProc(hUser32Module, "CreateWindowExA", CreateWindowExAHook);
+    pCreateWindowExA = (PFNCREATEWINDOWEXAPROC)HookProc(hUser32Module, "CreateWindowExA",
+                                                        (PVOID)CreateWindowExAHook);
 }

@@ -18,12 +18,12 @@
 
 #include "common.h"
 
-VOID Patch(LPVOID dst, LPVOID src, DWORD size);
-VOID InstallHook(PVOID pfnProc, PVOID pfnTargetProc);
-DWORD CountOpcodeBytes(FARPROC fn, DWORD minBytes);
-PCHAR BuildTrampoline(DWORD fn, DWORD prefixLen);
+VOID Patch(LPVOID dst, LPCVOID src, DWORD size);
+VOID InstallHook(PVOID pfnProc, LPCVOID pfnTargetProc);
+DWORD CountOpcodeBytes(LPCVOID fn, DWORD minBytes);
+PBYTE BuildTrampoline(DWORD fn, DWORD prefixLen);
 PVOID HookFunc(PVOID pfnProc, PVOID pvTargetProc);
 PVOID HookProc(HMODULE hModule, LPCSTR szName, PVOID pfnTargetProc);
-PVOID BuildThiscallToStdcallThunk(PVOID pfnProc);
-PVOID BuildStdcallToThiscallThunk(PVOID pfnProc);
+PVOID BuildThiscallToStdcallThunk(LPCVOID pfnProc);
+PVOID BuildStdcallToThiscallThunk(LPCVOID pfnProc);
 PVOID BuildStdcallToVirtualThiscallThunk(DWORD dwVtblOffset);

@@ -83,8 +83,10 @@ static BOOL STDCALL GetExitCodeProcessHook(HANDLE hProcess, LPDWORD lpExitCode) 
 
 VOID InitInjectHook() {
     hKernel32Module = LoadLib("kernel32");
-    pCreateMutexA = GetProc(hKernel32Module, "CreateMutexA");
+    pCreateMutexA = (PFNCREATEMUTEXAPROC)GetProc(hKernel32Module, "CreateMutexA");
     hGameguardFakeHandle = pCreateMutexA(NULL, FALSE, NULL);
-    pCreateProcessA = HookProc(hKernel32Module, "CreateProcessA", CreateProcessAHook);
-    pGetExitCodeProcess = HookProc(hKernel32Module, "GetExitCodeProcess", GetExitCodeProcessHook);
+    pCreateProcessA = (PFNCREATEPROCESSAPROC)HookProc(hKernel32Module, "CreateProcessA",
+                                                      (PVOID)CreateProcessAHook);
+    pGetExitCodeProcess = (PFNGETEXITCODEPROCESSPROC)HookProc(hKernel32Module, "GetExitCodeProcess",
+                                                              (PVOID)GetExitCodeProcessHook);
 }

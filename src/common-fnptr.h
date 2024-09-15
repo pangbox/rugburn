@@ -57,17 +57,17 @@ typedef struct tagINITCOMMONCONTROLSEX {
 typedef BOOL(STDCALL *PFNINITCOMMONCONTROLSEXPROC)(const INITCOMMONCONTROLSEX *picce);
 
 // ole32.dll
-typedef HRESULT(STDCALL *PFNCOGETCLASSOBJECTPROC)(REFCLSID rclsid, DWORD dwClsContext,
-                                                  LPVOID pvReserved, REFIID riid, LPVOID *ppv);
-typedef HRESULT(STDCALL *PFNCOCREATEINSTANCEPROC)(REFCLSID rclsid, LPUNKNOWN pUnkOuter,
-                                                  DWORD dwClsContext, REFIID riid, LPVOID *ppv);
+typedef HRESULT(STDCALL *PFNCOGETCLASSOBJECTPROC)(const IID *rclsid, DWORD dwClsContext,
+                                                  LPVOID pvReserved, const IID *riid, LPVOID *ppv);
+typedef HRESULT(STDCALL *PFNCOCREATEINSTANCEPROC)(const IID *rclsid, LPUNKNOWN pUnkOuter,
+                                                  DWORD dwClsContext, const IID *riid, LPVOID *ppv);
 
 // oleaut32.dll
 typedef BSTR(STDCALL *PFNSYSALLOCSTRINGLENPROC)(const OLECHAR *strIn, UINT ui);
 typedef void(STDCALL *PFNSYSFREESTRINGPROC)(BSTR bstrString);
 
 // ieframe.dll
-typedef HRESULT(STDCALL *PFNINVOKEPROC)(IDispatch *This, DISPID dispIdMember, REFIID riid,
+typedef HRESULT(STDCALL *PFNINVOKEPROC)(IDispatch *This, DISPID dispIdMember, const IID *riid,
                                         LCID lcid, WORD wFlags, DISPPARAMS *pDispParams,
                                         VARIANT *pVarResult, EXCEPINFO *pExcepInfo, UINT *puArgErr);
 typedef HRESULT(STDCALL *PFNNAVIGATEPROC)(IWebBrowser2 *This, BSTR URL, VARIANT *Flags,

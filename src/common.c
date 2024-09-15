@@ -28,8 +28,18 @@ static PSTR pszLogPrefix = NULL;
 #pragma function(memcpy)
 #pragma function(memset)
 #else
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 void __chkstk_ms(void) { return; }
 unsigned long long __stdcall _aullshr(unsigned long long a, long b) { return a >> b; }
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif
 
 // String formatting
@@ -58,7 +68,7 @@ LPSTR DupStr(LPCSTR src) {
 
     while (src[len])
         len++;
-    str = AllocMem(len + 1);
+    str = (LPSTR)AllocMem(len + 1);
     p = str;
     while (*src)
         *p++ = *src++;
@@ -72,7 +82,7 @@ PSTR GetSelfPath() {
         return pszSelfPath;
     }
 
-    pszSelfPath = AllocMem(4096);
+    pszSelfPath = (PSTR)AllocMem(4096);
 
     GetModuleFileNameA(GetModuleHandleA("ijl15"), pszSelfPath, 4096);
 
@@ -95,7 +105,7 @@ LPSTR ReadEntireFile(LPCSTR szPath, LPDWORD dwFileSize) {
     }
 
     dwBytesToRead = GetFileSize(hFile, NULL);
-    buffer = AllocMem(dwBytesToRead + 1);
+    buffer = (LPSTR)AllocMem(dwBytesToRead + 1);
     memset(buffer, 0, dwBytesToRead + 1);
 
     data = buffer;
@@ -145,11 +155,11 @@ VOID WriteEntireFile(LPCSTR szPath, LPCSTR data, DWORD dwBytesToWrite) {
     CloseHandle(hFile);
 }
 
-VOID FatalError(PCHAR fmt, ...) {
+VOID FatalError(LPCSTR fmt, ...) {
     va_list args;
     PCHAR buffer;
 
-    buffer = AllocMem(4096);
+    buffer = (PCHAR)AllocMem(4096);
 
     if (!buffer) {
         MessageBoxA(HWND_DESKTOP, "Out of memory.", "rugburn", MB_OK | MB_ICONERROR);
@@ -165,9 +175,9 @@ VOID FatalError(PCHAR fmt, ...) {
     ExitProcess(1);
 }
 
-VOID Warning(PCHAR fmt, ...) {
+VOID Warning(LPCSTR fmt, ...) {
     va_list args;
-    PCHAR buffer = AllocMem(4096);
+    PCHAR buffer = (PCHAR)AllocMem(4096);
 
     va_start(args, fmt);
     VSPrintfZ(buffer, fmt, args);
@@ -177,11 +187,11 @@ VOID Warning(PCHAR fmt, ...) {
     FreeMem(buffer);
 }
 
-VOID Log(PCHAR fmt, ...) {
+VOID Log(LPCSTR fmt, ...) {
     va_list args;
     HANDLE hAppend;
-    PCHAR buffer = AllocMem(4096);
-    PCHAR pfxbuffer = AllocMem(128);
+    PCHAR buffer = (PCHAR)AllocMem(4096);
+    PCHAR pfxbuffer = (PCHAR)AllocMem(128);
     PCHAR logmsg = buffer;
     DWORD cb = 0;
 
@@ -212,8 +222,8 @@ VOID Log(PCHAR fmt, ...) {
 }
 
 VOID InitLog() {
-    PCHAR szPfxBuf = AllocMem(4096);
-    PCHAR szFileName = AllocMem(4096);
+    PCHAR szPfxBuf = (PCHAR)AllocMem(4096);
+    PCHAR szFileName = (PCHAR)AllocMem(4096);
     PCHAR szBaseName;
     DWORD cbFileName;
 
@@ -233,10 +243,10 @@ VOID InitLog() {
     pszLogPrefix = szPfxBuf;
 }
 
-VOID ConsoleLog(PCHAR fmt, ...) {
+VOID ConsoleLog(LPCSTR fmt, ...) {
     va_list args;
     HANDLE hConsole;
-    PCHAR buffer = AllocMem(4096);
+    PCHAR buffer = (PCHAR)AllocMem(4096);
     DWORD cb = 0;
     va_start(args, fmt);
     cb += VSPrintfZ(buffer, fmt, args);

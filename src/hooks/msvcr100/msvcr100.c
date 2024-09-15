@@ -49,8 +49,8 @@ static VOID InitMsvcr100Hook() {
         return;
     }
 
-    pStricmp = GetProc(hMsvcrModule, "_stricmp");
-    pSetLocale = GetProc(hMsvcrModule, "setlocale");
+    pStricmp = (STRICMPFNPTR)GetProc(hMsvcrModule, "_stricmp");
+    pSetLocale = (SETLOCALEFNPTR)GetProc(hMsvcrModule, "setlocale");
     oldlocale = pSetLocale(2, NULL);
     if (!pStricmp || !pSetLocale) {
         Log("Not checking for Wine _stricmp bug: msvcr100 functions not found.\n");
@@ -66,7 +66,7 @@ static VOID InitMsvcr100Hook() {
 
     if (result == 0) {
         Log("Wine _stricmp bug detected; mitigating.\n");
-        pStricmp = HookProc(hMsvcrModule, "_stricmp", StricmpHook);
+        pStricmp = (STRICMPFNPTR)HookProc(hMsvcrModule, "_stricmp", (PVOID)StricmpHook);
     } else {
         Log("Wine _stricmp bug not detected.\n");
     }
@@ -82,8 +82,8 @@ static VOID InitMsvcr71Hook() {
         return;
     }
 
-    pStricmp = GetProc(hMsvcrModule, "_stricmp");
-    pSetLocale = GetProc(hMsvcrModule, "setlocale");
+    pStricmp = (STRICMPFNPTR)GetProc(hMsvcrModule, "_stricmp");
+    pSetLocale = (SETLOCALEFNPTR)GetProc(hMsvcrModule, "setlocale");
     oldlocale = pSetLocale(2, NULL);
     if (!pStricmp || !pSetLocale) {
         Log("Not checking for Wine _stricmp bug: msvcr71 functions not found.\n");
@@ -99,7 +99,7 @@ static VOID InitMsvcr71Hook() {
 
     if (result == 0) {
         Log("Wine _stricmp bug detected; mitigating.\n");
-        pStricmp = HookProc(hMsvcrModule, "_stricmp", StricmpHook);
+        pStricmp = (STRICMPFNPTR)HookProc(hMsvcrModule, "_stricmp", (PVOID)StricmpHook);
     } else {
         Log("Wine _stricmp bug not detected.\n");
     }

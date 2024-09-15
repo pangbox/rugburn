@@ -50,6 +50,10 @@ static VOID InitEnvironment() {
     FreeMem(szPangyaArg);
 }
 
+#ifdef __cplusplus
+extern "C" BOOL STDCALL DllMain(HANDLE hInstance, DWORD dwReason, LPVOID reserved);
+#endif
+
 extern BOOL STDCALL DllMain(HANDLE hInstance, DWORD dwReason, LPVOID reserved) {
     if (dwReason != DLL_PROCESS_ATTACH) {
         return TRUE;
