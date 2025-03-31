@@ -38,10 +38,10 @@ static CHAR ToHexChar(BYTE bValue) {
     return 0;
 }
 
-LPSTR ToHex(PVOID pData, DWORD dwLen) {
+LPSTR ToHex(LPCVOID pData, DWORD dwLen) {
     LPSTR pHexData, pHexPtr;
-    PCHAR pcData = (PCHAR)pData;
-    pHexData = pHexPtr = AllocMem(dwLen * 2 + 1);
+    LPCSTR pcData = (LPCSTR)pData;
+    pHexData = pHexPtr = (LPSTR)AllocMem(dwLen * 2 + 1);
     while (dwLen--) {
         *pHexPtr++ = ToHexChar((*pcData & 0xF0) >> 4);
         *pHexPtr++ = ToHexChar((*pcData & 0x0F) >> 0);
@@ -142,7 +142,7 @@ void ParsePatch(LPCSTR lpszText, LPSTR *pDataOut, DWORD *pSizeOut) {
     }
 
     // Allocate memory
-    *pDataOut = AllocMem(*pSizeOut);
+    *pDataOut = (LPSTR)AllocMem(*pSizeOut);
 
     // Parse
     inPos = lpszText;

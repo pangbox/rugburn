@@ -83,8 +83,8 @@ static void STDCALL DispatchTest(const DISPATCH_TESTCASE *_this, DWORD testnum) 
 }
 
 static void STDCALL DispatchThroughThiscallTest(const DISPATCH_TESTCASE *_this, DWORD testnum) {
-    PFNDISPATCHTESTPROC pfnDispatchProc =
-        (PFNDISPATCHTESTPROC)BuildStdcallToThiscallThunk(BuildThiscallToStdcallThunk(DispatchTest));
+    PFNDISPATCHTESTPROC pfnDispatchProc = (PFNDISPATCHTESTPROC)BuildStdcallToThiscallThunk(
+        BuildThiscallToStdcallThunk((LPCVOID)DispatchTest));
     pfnDispatchProc(_this, testnum);
 }
 
@@ -116,7 +116,7 @@ static BOOL ijl15_crash_test() {
 
     // Parse JPEG header
     jcp.JPGFile = 0;
-    jcp.JPGBytes = pJPGBytes;
+    jcp.JPGBytes = (PBYTE)pJPGBytes;
     jcp.JPGSizeBytes = dwJPGSizeBytes;
     ijlRead(&jcp, IJL_JBUFF_READPARAMS);
     if (jerr < 0) {
@@ -131,7 +131,7 @@ static BOOL ijl15_crash_test() {
     jcp.DIBWidth = jcp.JPGWidth;
     jcp.DIBHeight = jcp.JPGHeight;
     jcp.DIBPadBytes = 0;
-    jcp.DIBBytes = buffer;
+    jcp.DIBBytes = (PBYTE)buffer;
     jerr = ijlRead(&jcp, IJL_JBUFF_READWHOLEIMAGE);
     FreeMem(buffer);
 
@@ -146,6 +146,10 @@ const UNIT_TEST unit_tests[] = {
 };
 
 #define COUNT_OF(x) ((sizeof(x) / sizeof(0 [x])) / ((size_t)(!(sizeof(x) % sizeof(0 [x])))))
+
+#ifdef __cplusplus
+extern "C" void __cdecl start(void);
+#endif
 
 extern void __cdecl start(void) {
     int i, result = 0, testnum = 0, totaltests = 0;

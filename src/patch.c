@@ -20,7 +20,7 @@
 /**
  * Patch is a small routine for patching arbitrary memory.
  */
-VOID Patch(LPVOID dst, LPVOID src, DWORD size) {
+VOID Patch(LPVOID dst, LPCVOID src, DWORD size) {
     DWORD OldProtection;
     VirtualProtect(dst, size, PAGE_EXECUTE_READWRITE, &OldProtection);
     memcpy(dst, src, size);
@@ -33,10 +33,10 @@ VOID Patch(LPVOID dst, LPVOID src, DWORD size) {
  * so you will need to build a trampoline before installing the hook if you
  * want to be able to call the original function again.
  */
-VOID InstallHook(PVOID pfnProc, PVOID pfnTargetProc) {
+VOID InstallHook(PVOID pfnProc, LPCVOID pfnTargetProc) {
     DWORD dwOldProtect;
     DWORD dwRelAddr;
-    CHAR pbHook[6] = {0xE9, 0x00, 0x00, 0x00, 0x00, 0xC3};
+    BYTE pbHook[6] = {0xE9, 0x00, 0x00, 0x00, 0x00, 0xC3};
 
     // Unprotect function.
     if (VirtualProtect(pfnProc, 6, PAGE_EXECUTE_READWRITE, &dwOldProtect) == 0) {
@@ -66,7 +66,7 @@ VOID InstallHook(PVOID pfnProc, PVOID pfnTargetProc) {
  * Counts at least minBytes bytes worth of instructions, ending at an
  * instruction boundary.
  */
-DWORD CountOpcodeBytes(FARPROC fn, DWORD minBytes) {
+DWORD CountOpcodeBytes(LPCVOID fn, DWORD minBytes) {
     PBYTE fndata = (PBYTE)fn;
     DWORD count = 0;
 
@@ -86,17 +86,17 @@ DWORD CountOpcodeBytes(FARPROC fn, DWORD minBytes) {
  * naive and won't always work well, though for most functions the prefix will
  * be in the prologue and should be safe.
  */
-PCHAR BuildTrampoline(DWORD fn, DWORD prefixLen) {
+PBYTE BuildTrampoline(DWORD fn, DWORD prefixLen) {
     DWORD trampolineLen;
     DWORD oldProtect;
     DWORD relAddr;
-    PCHAR codeblock;
+    PBYTE codeblock;
 
     // Allocate a block of memory. We need to fit the prefix + a jump.
     // Extra byte is for a return so that the instruction after the jump will
     // be valid. I'm not sure if this is strictly necessary.
     trampolineLen = prefixLen + 6;
-    codeblock = AllocMem(trampolineLen);
+    codeblock = (PBYTE)AllocMem(trampolineLen);
 
     // Copy the prefix into our newly minted codeblock.
     memcpy(codeblock, (void *)fn, prefixLen);
@@ -153,14 +153,14 @@ PVOID HookProc(HMODULE hModule, LPCSTR szName, PVOID pfnTargetProc) {
  * convention. The returned function pointer can be used in MSVC ABI vtables.
  * The this pointer will be passed in to pfnProc as the first parameter.
  */
-PVOID BuildThiscallToStdcallThunk(PVOID pfnProc) {
+PVOID BuildThiscallToStdcallThunk(LPCVOID pfnProc) {
     DWORD thunkLen = 9;
     DWORD oldProtect;
     DWORD relAddr;
-    PCHAR codeblock;
+    PBYTE codeblock;
 
     // Allocate data for thunk.
-    codeblock = AllocMem(thunkLen);
+    codeblock = (PBYTE)AllocMem(thunkLen);
 
     // Calculate the jump address.
     relAddr = (DWORD)pfnProc - (DWORD)&codeblock[8];
@@ -191,14 +191,14 @@ PVOID BuildThiscallToStdcallThunk(PVOID pfnProc) {
  * convention. The returned function pointer can be called using stdcall.
  * The first parameter will be used as the this pointer.
  */
-PVOID BuildStdcallToThiscallThunk(PVOID pfnProc) {
+PVOID BuildStdcallToThiscallThunk(LPCVOID pfnProc) {
     DWORD thunkLen = 9;
     DWORD oldProtect;
     DWORD relAddr;
-    PCHAR codeblock;
+    PBYTE codeblock;
 
     // Allocate data for thunk.
-    codeblock = AllocMem(thunkLen);
+    codeblock = (PBYTE)AllocMem(thunkLen);
 
     // Calculate the jump address.
     relAddr = (DWORD)pfnProc - (DWORD)&codeblock[8];
@@ -232,10 +232,10 @@ PVOID BuildStdcallToThiscallThunk(PVOID pfnProc) {
 PVOID BuildStdcallToVirtualThiscallThunk(DWORD dwVtblOffset) {
     DWORD thunkLen = 12;
     DWORD oldProtect;
-    PCHAR codeblock;
+    PBYTE codeblock;
 
     // Allocate data for thunk.
-    codeblock = AllocMem(thunkLen);
+    codeblock = (PBYTE)AllocMem(thunkLen);
 
     // First, set up the stack as above. So, pop off return address into eax,
     // pop off this pointer into ecx, then push return address back to stack.

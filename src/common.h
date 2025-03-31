@@ -16,6 +16,17 @@
 
 #pragma once
 
+#ifdef __cplusplus
+// We must use COM CINTERFACE even in C++
+#define CINTERFACE
+// Temporary: make REF parameters pointers even in C++
+// Otherwise, making our code compatible with both C and C++ is hard.
+#define _REFCLSID_DEFINED
+#define REFCLSID const IID *
+#define _REFIID_DEFINED
+#define REFIID const IID *
+#endif
+
 #define STDCALL __stdcall
 #define EXPORT __export
 
@@ -62,10 +73,10 @@ LPSTR DupStr(LPCSTR src);
 BOOL FileExists(LPCSTR szPath);
 LPSTR ReadEntireFile(LPCSTR szPath, LPDWORD dwFileSize);
 VOID WriteEntireFile(LPCSTR szPath, LPCSTR data, DWORD dwBytesToWrite);
-VOID FatalError(PCHAR fmt, ...);
-VOID Warning(PCHAR fmt, ...);
-VOID Log(PCHAR fmt, ...);
-VOID ConsoleLog(PCHAR fmt, ...);
+VOID FatalError(LPCSTR fmt, ...);
+VOID Warning(LPCSTR fmt, ...);
+VOID Log(LPCSTR fmt, ...);
+VOID ConsoleLog(LPCSTR fmt, ...);
 VOID InitLog();
 HMODULE LoadLib(LPCSTR szName);
 PVOID GetProc(HMODULE hModule, LPCSTR szName);

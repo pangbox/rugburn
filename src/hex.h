@@ -18,7 +18,7 @@
 
 #include "common.h"
 
-LPSTR ToHex(PVOID pData, DWORD dwLen);
+LPSTR ToHex(LPCVOID pData, DWORD dwLen);
 DWORD FromHex(LPCSTR pHex, PVOID pData);
 
 DWORD ParseAddress(LPCSTR lpszText);

@@ -96,7 +96,7 @@ static void createInetCtx(HINTERNET hOpen, HINTERNET hConnect, LPCSTR lpszServer
                           DWORD dwService, DWORD dwFlags, DWORD_PTR dwContext, HINTERNET hRequest,
                           HINTERNET hNewConnect) {
 
-    internet_ctx *ctx = AllocMem(sizeof(internet_ctx));
+    internet_ctx *ctx = (internet_ctx *)AllocMem(sizeof(internet_ctx));
 
     memset(ctx, 0, sizeof(*ctx));
 
@@ -119,7 +119,7 @@ static void createInetCtx(HINTERNET hOpen, HINTERNET hConnect, LPCSTR lpszServer
     if (lpszServerName != NULL) {
         int len = lstrlenA(lpszServerName);
 
-        ctx->lpszServerName = AllocMem(len + 1);
+        ctx->lpszServerName = (LPSTR)AllocMem(len + 1);
         memcpy(ctx->lpszServerName, lpszServerName, len);
         ctx->lpszServerName[len] = '\0';
     }
@@ -127,7 +127,7 @@ static void createInetCtx(HINTERNET hOpen, HINTERNET hConnect, LPCSTR lpszServer
     if (lpszUserName != NULL) {
         int len = lstrlenA(lpszUserName);
 
-        ctx->lpszUserName = AllocMem(len + 1);
+        ctx->lpszUserName = (LPSTR)AllocMem(len + 1);
         memcpy(ctx->lpszUserName, lpszUserName, len);
         ctx->lpszUserName[len] = '\0';
     }
@@ -135,7 +135,7 @@ static void createInetCtx(HINTERNET hOpen, HINTERNET hConnect, LPCSTR lpszServer
     if (lpszPassword != NULL) {
         int len = lstrlenA(lpszPassword);
 
-        ctx->lpszPassword = AllocMem(len + 1);
+        ctx->lpszPassword = (LPSTR)AllocMem(len + 1);
         memcpy(ctx->lpszPassword, lpszPassword, len);
         ctx->lpszPassword[len] = '\0';
     }
@@ -271,7 +271,7 @@ static HINTERNET STDCALL InternetOpenUrlABypasSelfSignedCertificate(
     }
 
     LPSTR lpszHostName =
-        (url_cpsa.dwHostNameLength == 0u ? NULL : AllocMem(url_cpsa.dwHostNameLength + 1));
+        (url_cpsa.dwHostNameLength == 0u ? NULL : (LPSTR)AllocMem(url_cpsa.dwHostNameLength + 1));
 
     if (lpszHostName != NULL) {
         memcpy(lpszHostName, url_cpsa.lpszHostName, url_cpsa.dwHostNameLength);
@@ -384,7 +384,7 @@ static HINTERNET STDCALL InternetOpenUrlABypasSelfSignedCertificate(
             return NULL;
         }
 
-        LPSTR buff = AllocMem(dwBuffLength + 1);
+        LPSTR buff = (LPSTR)AllocMem(dwBuffLength + 1);
 
         ret2 = pHttpQueryInfoA(hReq, HTTP_QUERY_LOCATION, buff, &dwBuffLength, NULL);
         if (ret2 == FALSE) {
@@ -475,7 +475,7 @@ static HINTERNET STDCALL InternetOpenUrlAHook(HINTERNET hInternet, LPCSTR lpszUr
                 return hResult;
             }
 
-            LPSTR buff = AllocMem(dwBuffLength + 1);
+            LPSTR buff = (LPSTR)AllocMem(dwBuffLength + 1);
 
             ret2 = pHttpQueryInfoA(hResult, HTTP_QUERY_LOCATION, buff, &dwBuffLength, NULL);
             if (ret2 == FALSE) {
@@ -541,7 +541,7 @@ static HINTERNET STDCALL HttpOpenRequestAHook(HINTERNET hConnect, LPCSTR lpszVer
                 LastErr());
             return hReq;
         }
-        LPSTR url = AllocMem(len);
+        LPSTR url = (LPSTR)AllocMem(len);
         ret2 = pInternetQueryOptionA(hReq, INTERNET_OPTION_URL, url, &len);
         if (ret2 == FALSE) {
             FreeMem((HLOCAL)url);
@@ -577,11 +577,14 @@ static HINTERNET STDCALL HttpOpenRequestAHook(HINTERNET hConnect, LPCSTR lpszVer
         }
 
         LPSTR lpszHostName =
-            (url_cpsa.dwHostNameLength == 0u ? NULL : AllocMem(url_cpsa.dwHostNameLength + 1));
+            (url_cpsa.dwHostNameLength == 0u ? NULL
+                                             : (LPSTR)AllocMem(url_cpsa.dwHostNameLength + 1));
         LPSTR lpszUserName =
-            (url_cpsa.dwUserNameLength == 0u ? NULL : AllocMem(url_cpsa.dwUserNameLength + 1));
+            (url_cpsa.dwUserNameLength == 0u ? NULL
+                                             : (LPSTR)AllocMem(url_cpsa.dwUserNameLength + 1));
         LPSTR lpszPassword =
-            (url_cpsa.dwPasswordLength == 0u ? NULL : AllocMem(url_cpsa.dwPasswordLength + 1));
+            (url_cpsa.dwPasswordLength == 0u ? NULL
+                                             : (LPSTR)AllocMem(url_cpsa.dwPasswordLength + 1));
 
         if (lpszHostName != NULL) {
             memcpy(lpszHostName, url_cpsa.lpszHostName, url_cpsa.dwHostNameLength);
@@ -676,7 +679,7 @@ static HINTERNET STDCALL HttpOpenRequestAHook(HINTERNET hConnect, LPCSTR lpszVer
         if (lpszVerb != NULL) {
             int len = lstrlenA(lpszVerb);
 
-            inet_ctx->lpszMethod = AllocMem(len + 1);
+            inet_ctx->lpszMethod = (LPSTR)AllocMem(len + 1);
             memcpy(inet_ctx->lpszMethod, lpszVerb, len);
             inet_ctx->lpszMethod[len] = '\0';
         }
@@ -721,7 +724,7 @@ static BOOL STDCALL HttpSendRequestACertificateInvalidRedirect(HINTERNET hReques
             return FALSE;
         }
 
-        url = AllocMem(dwBuffLength + 1);
+        url = (LPSTR)AllocMem(dwBuffLength + 1);
 
         ret2 = pHttpQueryInfoA((inet_ctx->hNewRequest != NULL ? inet_ctx->hNewRequest : hRequest),
                                HTTP_QUERY_LOCATION, url, &dwBuffLength, NULL);
@@ -746,7 +749,7 @@ static BOOL STDCALL HttpSendRequestACertificateInvalidRedirect(HINTERNET hReques
                 LastErr());
             return FALSE;
         }
-        url = AllocMem(len);
+        url = (LPSTR)AllocMem(len);
         ret2 = pInternetQueryOptionA(
             (inet_ctx->hNewRequest != NULL ? inet_ctx->hNewRequest : hRequest), INTERNET_OPTION_URL,
             url, &len);
@@ -773,7 +776,7 @@ static BOOL STDCALL HttpSendRequestACertificateInvalidRedirect(HINTERNET hReques
     }
 
     LPSTR lpszHostName =
-        (url_cpsa.dwHostNameLength == 0u ? NULL : AllocMem(url_cpsa.dwHostNameLength + 1));
+        (url_cpsa.dwHostNameLength == 0u ? NULL : (LPSTR)AllocMem(url_cpsa.dwHostNameLength + 1));
 
     if (lpszHostName != NULL) {
         memcpy(lpszHostName, url_cpsa.lpszHostName, url_cpsa.dwHostNameLength);
@@ -997,7 +1000,7 @@ static BOOL STDCALL HttpEndRequestACertificateInvalidRedirect(HINTERNET hRequest
             return FALSE;
         }
 
-        url = AllocMem(dwBuffLength + 1);
+        url = (LPSTR)AllocMem(dwBuffLength + 1);
 
         ret2 = pHttpQueryInfoA((inet_ctx->hNewRequest != NULL ? inet_ctx->hNewRequest : hRequest),
                                HTTP_QUERY_LOCATION, url, &dwBuffLength, NULL);
@@ -1022,7 +1025,7 @@ static BOOL STDCALL HttpEndRequestACertificateInvalidRedirect(HINTERNET hRequest
                 LastErr());
             return FALSE;
         }
-        url = AllocMem(len);
+        url = (LPSTR)AllocMem(len);
         ret2 = pInternetQueryOptionA(
             (inet_ctx->hNewRequest != NULL ? inet_ctx->hNewRequest : hRequest), INTERNET_OPTION_URL,
             url, &len);
@@ -1049,7 +1052,7 @@ static BOOL STDCALL HttpEndRequestACertificateInvalidRedirect(HINTERNET hRequest
     }
 
     LPSTR lpszHostName =
-        (url_cpsa.dwHostNameLength == 0u ? NULL : AllocMem(url_cpsa.dwHostNameLength + 1));
+        (url_cpsa.dwHostNameLength == 0u ? NULL : (LPSTR)AllocMem(url_cpsa.dwHostNameLength + 1));
 
     if (lpszHostName != NULL) {
         memcpy(lpszHostName, url_cpsa.lpszHostName, url_cpsa.dwHostNameLength);
@@ -1363,21 +1366,31 @@ VOID InitNetRedirHook() {
     memset(&g_inet_ctx, 0, sizeof(g_inet_ctx));
 
     hWinINet = LoadLib("wininet");
-    pInternetQueryOptionA = GetProc(hWinINet, "InternetQueryOptionA");
-    pInternetSetOptionA = GetProc(hWinINet, "InternetSetOptionA");
-    pInternetCrackUrlA = GetProc(hWinINet, "InternetCrackUrlA");
-    pInternetOpenUrlA = HookProc(hWinINet, "InternetOpenUrlA", InternetOpenUrlAHook);
-    pInternetConnectA = HookProc(hWinINet, "InternetConnectA", InternetConnectAHook);
-    pHttpOpenRequestA = HookProc(hWinINet, "HttpOpenRequestA", HttpOpenRequestAHook);
-    pHttpSendRequestA = HookProc(hWinINet, "HttpSendRequestA", HttpSendRequestAHook);
-    pHttpEndRequestA = HookProc(hWinINet, "HttpEndRequestA", HttpEndRequestAHook);
-    pHttpAddRequestHeadersA =
-        HookProc(hWinINet, "HttpAddRequestHeadersA", HttpAddRequestHeadersAHook);
-    pHttpQueryInfoA = HookProc(hWinINet, "HttpQueryInfoA", HttpQueryInfoAHook);
-    pHttpSendRequestExA = HookProc(hWinINet, "HttpSendRequestExA", HttpSendRequestExAHook);
-    pInternetCloseHandle = HookProc(hWinINet, "InternetCloseHandle", InternetCloseHandleHook);
-    pInternetQueryDataAvailable =
-        HookProc(hWinINet, "InternetQueryDataAvailable", InternetQueryDataAvailableHook);
-    pInternetWriteFile = HookProc(hWinINet, "InternetWriteFile", InternetWriteFileHook);
-    pInternetReadFile = HookProc(hWinINet, "InternetReadFile", InternetReadFileHook);
+    pInternetQueryOptionA = (PFNINTERNETQUERYOPTIONAPROC)GetProc(hWinINet, "InternetQueryOptionA");
+    pInternetSetOptionA = (PFNINTERNETSETOPTIONAPROC)GetProc(hWinINet, "InternetSetOptionA");
+    pInternetCrackUrlA = (PFNINTERNETCRACKURLAPROC)GetProc(hWinINet, "InternetCrackUrlA");
+    pInternetOpenUrlA = (PFNINTERNETOPENURLAPROC)HookProc(hWinINet, "InternetOpenUrlA",
+                                                          (PVOID)InternetOpenUrlAHook);
+    pInternetConnectA = (PFNINTERNETCONNECTAPROC)HookProc(hWinINet, "InternetConnectA",
+                                                          (PVOID)InternetConnectAHook);
+    pHttpOpenRequestA = (PFNHTTPOPENREQUESTAPROC)HookProc(hWinINet, "HttpOpenRequestA",
+                                                          (PVOID)HttpOpenRequestAHook);
+    pHttpSendRequestA = (PFNHTTPSENDREQUESTAPROC)HookProc(hWinINet, "HttpSendRequestA",
+                                                          (PVOID)HttpSendRequestAHook);
+    pHttpEndRequestA =
+        (PFNHTTPENDREQUESTAPROC)HookProc(hWinINet, "HttpEndRequestA", (PVOID)HttpEndRequestAHook);
+    pHttpAddRequestHeadersA = (PFNHTTPADDREQUESTHEADERSAPROC)HookProc(
+        hWinINet, "HttpAddRequestHeadersA", (PVOID)HttpAddRequestHeadersAHook);
+    pHttpQueryInfoA =
+        (PFNHTTPQUERYINFOAPROC)HookProc(hWinINet, "HttpQueryInfoA", (PVOID)HttpQueryInfoAHook);
+    pHttpSendRequestExA = (PFNHTTPSENDREQUESTEXAPROC)HookProc(hWinINet, "HttpSendRequestExA",
+                                                              (PVOID)HttpSendRequestExAHook);
+    pInternetCloseHandle = (PFNINTERNETCLOSEHANDLEPROC)HookProc(hWinINet, "InternetCloseHandle",
+                                                                (PVOID)InternetCloseHandleHook);
+    pInternetQueryDataAvailable = (PFNINTERNETQUERYDATAAVAILABLEPROC)HookProc(
+        hWinINet, "InternetQueryDataAvailable", (PVOID)InternetQueryDataAvailableHook);
+    pInternetWriteFile = (PFNINTERNETWRITEFILEPROC)HookProc(hWinINet, "InternetWriteFile",
+                                                            (PVOID)InternetWriteFileHook);
+    pInternetReadFile = (PFNINTERNETREADFILEPROC)HookProc(hWinINet, "InternetReadFile",
+                                                          (PVOID)InternetReadFileHook);
 }

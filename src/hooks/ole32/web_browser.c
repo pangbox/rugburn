@@ -29,7 +29,7 @@ static BSTR RewriteURLW(BSTR urlw) {
     int len_urlw = lstrlenW(urlw);
     int len = WideCharToMultiByte(CP_ACP, 0, urlw, len_urlw, NULL, 0, NULL, NULL);
 
-    PCHAR url = AllocMem(len + 1);
+    PCHAR url = (PCHAR)AllocMem(len + 1);
 
     WideCharToMultiByte(CP_ACP, 0, urlw, len_urlw, url, len, NULL, NULL);
 
@@ -57,9 +57,9 @@ static BSTR RewriteURLW(BSTR urlw) {
     return NULL;
 }
 
-static HRESULT InvokeHook(IDispatch *This, DISPID dispIdMember, REFIID riid, LCID lcid, WORD wFlags,
-                          DISPPARAMS *pDispParams, VARIANT *pVarResult, EXCEPINFO *pExcepInfo,
-                          UINT *puArgErr) {
+static HRESULT InvokeHook(IDispatch *This, DISPID dispIdMember, const IID *riid, LCID lcid,
+                          WORD wFlags, DISPPARAMS *pDispParams, VARIANT *pVarResult,
+                          EXCEPINFO *pExcepInfo, UINT *puArgErr) {
 
     BSTR newURL = NULL;
 
@@ -104,8 +104,8 @@ static HRESULT STDCALL NavigateHook(IWebBrowser2 *This, BSTR URL, VARIANT *Flags
     return hResult;
 }
 
-static HRESULT STDCALL CoGetClassObjectHook(REFCLSID rclsid, DWORD dwClsContext, LPVOID pvReserved,
-                                            REFIID riid, LPVOID *ppv) {
+static HRESULT STDCALL CoGetClassObjectHook(const IID *rclsid, DWORD dwClsContext,
+                                            LPVOID pvReserved, const IID *riid, LPVOID *ppv) {
 
     static void *g_pInvoke = NULL;
 
@@ -113,7 +113,7 @@ static HRESULT STDCALL CoGetClassObjectHook(REFCLSID rclsid, DWORD dwClsContext,
 
     if (ret >= 0) {
 
-        if (memcmp(rclsid, &kIID_MicrosoftWebBrowser, sizeof(IID)) == 0) {
+        if (memcmp((LPCVOID)rclsid, &kIID_MicrosoftWebBrowser, sizeof(IID)) == 0) {
 
             IClassFactory *obj = (IClassFactory *)*ppv;
 
@@ -137,8 +137,8 @@ static HRESULT STDCALL CoGetClassObjectHook(REFCLSID rclsid, DWORD dwClsContext,
             }
 
             if (g_pInvoke != iDispatch2->lpVtbl->Invoke) {
-                g_pInvoke = iDispatch2->lpVtbl->Invoke;
-                pInvoke = HookFunc(g_pInvoke, InvokeHook);
+                g_pInvoke = (PVOID)iDispatch2->lpVtbl->Invoke;
+                pInvoke = (PFNINVOKEPROC)HookFunc(g_pInvoke, (PVOID)InvokeHook);
                 Log("Install InvokeHook(0x%08p): 0x%08p -> 0x%08p\r\n", g_pInvoke, InvokeHook,
                     pInvoke);
             }
@@ -148,8 +148,8 @@ static HRESULT STDCALL CoGetClassObjectHook(REFCLSID rclsid, DWORD dwClsContext,
     return ret;
 }
 
-static HRESULT STDCALL CoCreateInstanceHook(REFCLSID rclsid, LPUNKNOWN pUnkOuter,
-                                            DWORD dwClsContext, REFIID riid, LPVOID *ppv) {
+static HRESULT STDCALL CoCreateInstanceHook(const IID *rclsid, LPUNKNOWN pUnkOuter,
+                                            DWORD dwClsContext, const IID *riid, LPVOID *ppv) {
 
     static void *g_pNavigate = NULL;
 
@@ -159,7 +159,7 @@ static HRESULT STDCALL CoCreateInstanceHook(REFCLSID rclsid, LPUNKNOWN pUnkOuter
 
         if (memcmp(rclsid, &kIID_MicrosoftWebBrowser, sizeof(IID)) == 0) {
 
-            IUnknown *obj = *ppv;
+            IUnknown *obj = (IUnknown *)*ppv;
             IWebBrowser2 *webbrowser2 = NULL;
 
             HRESULT ret2 =
@@ -170,8 +170,8 @@ static HRESULT STDCALL CoCreateInstanceHook(REFCLSID rclsid, LPUNKNOWN pUnkOuter
             }
 
             if (g_pNavigate != webbrowser2->lpVtbl->Navigate) {
-                g_pNavigate = webbrowser2->lpVtbl->Navigate;
-                pNavigate = HookFunc(g_pNavigate, NavigateHook);
+                g_pNavigate = (PVOID)webbrowser2->lpVtbl->Navigate;
+                pNavigate = (PFNNAVIGATEPROC)HookFunc(g_pNavigate, (PVOID)NavigateHook);
                 Log("Install NavigateHook(0x%08p): 0x%08p -> 0x%08p\r\n", g_pNavigate, NavigateHook,
                     pNavigate);
             }
@@ -184,8 +184,10 @@ static HRESULT STDCALL CoCreateInstanceHook(REFCLSID rclsid, LPUNKNOWN pUnkOuter
 void InitWebBrowserHook() {
     hOle32Module = LoadLib("ole32");
     hOleAut32Module = LoadLib("oleaut32");
-    pSysAllocStringLen = GetProc(hOleAut32Module, "SysAllocStringLen");
-    pSysFreeString = GetProc(hOleAut32Module, "SysFreeString");
-    pCoGetClassObject = HookProc(hOle32Module, "CoGetClassObject", CoGetClassObjectHook);
-    pCoCreateInstance = HookProc(hOle32Module, "CoCreateInstance", CoCreateInstanceHook);
+    pSysAllocStringLen = (PFNSYSALLOCSTRINGLENPROC)GetProc(hOleAut32Module, "SysAllocStringLen");
+    pSysFreeString = (PFNSYSFREESTRINGPROC)GetProc(hOleAut32Module, "SysFreeString");
+    pCoGetClassObject = (PFNCOGETCLASSOBJECTPROC)HookProc(hOle32Module, "CoGetClassObject",
+                                                          (PVOID)CoGetClassObjectHook);
+    pCoCreateInstance = (PFNCOCREATEINSTANCEPROC)HookProc(hOle32Module, "CoCreateInstance",
+                                                          (PVOID)CoCreateInstanceHook);
 }

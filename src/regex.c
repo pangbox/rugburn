@@ -105,7 +105,7 @@ LPSTR ReReplace(REGEX *pattern, LPCSTR replace, LPCSTR text) {
     outLen++;
 
     // Substitution
-    result = AllocMem(outLen);
+    result = (LPSTR)AllocMem(outLen);
     ptr = replace;
     ptrout = result;
     while (*ptr != 0) {

@@ -55,7 +55,7 @@
             make -j
 
             (printf -- "-nostdlib\n-nostdinc\n-nostdinc++\n--target=i686-pc-windows-gnu\n-D_WIN32\n-D__MINGW32__\n-DSTRSAFE_NO_DEPRECATE" \
-              && </dev/null i686-w64-mingw32-gcc -E -v - 2>&1 \
+              && </dev/null i686-w64-mingw32-g++ -E -v - 2>&1 \
                 | grep ^COLLECT_GCC_OPTIONS= \
                 | tail -1 \
                 | cut -d= -f2- \

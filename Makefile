@@ -1,4 +1,4 @@
-CC := i686-w64-mingw32-gcc
+CXX := i686-w64-mingw32-g++
 RM := rm
 SRCDIR := src/
 OBJDIR := obj/
@@ -56,16 +56,19 @@ all: $(OUT) $(TESTOUT)
 # Rugburn
 $(OBJDIR)%.o: $(SRCDIR)%.c
 	@mkdir -p "$(dir $@)"
-	$(CC) -c $(CFLAGS) "$<" -o "$@"
+	$(CXX) -c $(CFLAGS) "$<" -o "$@"
+$(OBJDIR)%.o: $(SRCDIR)%.cpp
+	@mkdir -p "$(dir $@)"
+	$(CXX) -c $(CFLAGS) "$<" -o "$@"
 $(OBJDIR)%.o: $(SRCDIR)%.S
 	@mkdir -p "$(dir $@)"
-	$(CC) -c $(CFLAGS) "$<" -o "$@"
+	$(CXX) -c $(CFLAGS) "$<" -o "$@"
 $(OUT): $(OBJS)
 	@mkdir -p "$(dir $@)"
-	$(CC) $(OBJS) $(LDFLAGS) -shared -o "$@" export.def -Wl,-e_DllMain
+	$(CXX) $(OBJS) $(LDFLAGS) -shared -o "$@" export.def -Wl,-e_DllMain
 $(TESTOUT): $(TESTOBJS)
 	@mkdir -p "$(dir $@)"
-	$(CC) $(TESTOBJS) $(LDFLAGS) -o "$@" -Wl,-e_start
+	$(CXX) $(TESTOBJS) $(LDFLAGS) -o "$@" -Wl,-e_start
 check: out/test.exe
 	$(EXECWIN) out/test.exe | tappy
 clean:

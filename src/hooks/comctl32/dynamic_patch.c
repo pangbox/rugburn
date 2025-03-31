@@ -378,8 +378,10 @@ static VOID STDCALL GetStartupInfoWHook(LPSTARTUPINFOW lpStartupInfo) {
 VOID InitComCtl32Hook() {
     hComCtl32Module = LoadLib("comctl32");
     hKernel32Module = LoadLib("kernel32");
-    pInitCommonControlsEx =
-        HookProc(hComCtl32Module, "InitCommonControlsEx", InitCommonControlsExHook);
-    pGetStartupInfoA = HookProc(hKernel32Module, "GetStartupInfoA", GetStartupInfoAHook);
-    pGetStartupInfoW = HookProc(hKernel32Module, "GetStartupInfoW", GetStartupInfoWHook);
+    pInitCommonControlsEx = (PFNINITCOMMONCONTROLSEXPROC)HookProc(
+        hComCtl32Module, "InitCommonControlsEx", (PVOID)InitCommonControlsExHook);
+    pGetStartupInfoA = (PFNGETSTARTUPINFOAPROC)HookProc(hKernel32Module, "GetStartupInfoA",
+                                                        (PVOID)GetStartupInfoAHook);
+    pGetStartupInfoW = (PFNGETSTARTUPINFOWPROC)HookProc(hKernel32Module, "GetStartupInfoW",
+                                                        (PVOID)GetStartupInfoWHook);
 }

@@ -151,10 +151,10 @@ make
 
 And you should find an `ijl15.dll` in your `out/` directory.
 
-By default, the Makefile will assume that `i686-w64-mingw32-gcc` is the appropriate compiler. You can override this by passing in the `CC` variable:
+By default, the Makefile will assume that `i686-w64-mingw32-g++` is the appropriate compiler. You can override this by passing in the `CXX` variable:
 
 ```
-make CC=gcc
+make CXX=g++
 ```
 ## Install
 
