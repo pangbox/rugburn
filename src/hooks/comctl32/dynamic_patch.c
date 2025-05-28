@@ -138,12 +138,15 @@ static void PatchGG_US() {
     } else if (compare_virtual_memory(0x00979A19, 0xFEA222E8)) {
         Patch((LPVOID)0x00979A19, "\xE9\x00\x00\x00\x00", 5);
         Log("Patched GG check routines (US S8 806)\r\n");
+    } else if (compare_virtual_memory(0x006119E8, 0xFF85A3E8)) {
+        Patch((LPVOID)0x006119E8, "\xE9\x00\x00\x00\x00", 5);
+        Log("Patched GG check routines (Albatross18 S1 242a)\r\n");
     } else if (compare_virtual_memory(0x0066DB32, 0xFF6D89E8)) {
         Patch((LPVOID)0x0066DB32, "\xE9\x00\x00\x00\x00", 5);
-        Log("Patched GG check routines (Albatross S2 323a)\r\n");
+        Log("Patched GG check routines (Albatross18 S2 323a)\r\n");
     } else if (compare_virtual_memory(0x006AF52B, 0xFF61B0E8)) {
         Patch((LPVOID)0x006AF52B, "\xE9\x00\x00\x00\x00", 5);
-        Log("Patched GG check routines (Albatross S3 404)\r\n");
+        Log("Patched GG check routines (Albatross18 S3 404)\r\n");
     }
 }
 
