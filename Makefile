@@ -30,6 +30,7 @@ OBJS := \
 	obj/hooks/hooks.o \
 	obj/ld.o \
 	obj/common.o \
+	obj/custommemory.o \
 	obj/config.o \
 	obj/hex.o \
 	obj/ijl15.o \

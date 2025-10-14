@@ -104,6 +104,7 @@
   <ItemGroup>
     <ClCompile Include="src\common.c" />
     <ClCompile Include="src\config.c" />
+    <ClCompile Include="src\custommemory.c" />
     <ClCompile Include="src\exe\test\main.c" />
     <ClCompile Include="src\hex.c" />
     <ClCompile Include="src\hooks\comctl32\dynamic_patch.c" />

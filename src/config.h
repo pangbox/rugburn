@@ -22,6 +22,7 @@
 #define MAXURLREWRITES 64
 #define MAXPORTREWRITES 16
 #define MAXPATCHADDRESS 64
+#define MAXCUSTOMMEMORY 64
 
 typedef struct _URLREWRITERULE {
     REGEX *from;
@@ -40,6 +41,16 @@ typedef struct _PATCHADDRESS {
     DWORD patchLen;
 } PATCHADDRESS, *LPPATCHADDRESS;
 
+typedef struct _CUSTOMMEMORY {
+    LPCSTR name;
+    LPSTR value;
+    LPSTR newvalue;
+    DWORD nameLen;
+    DWORD valueLen;
+    DWORD newvalueLen;
+    BOOL bExecuteMemory;
+} CUSTOMMEMORY, *LPCUSTOMMEMORY;
+
 typedef struct _RUGBURNCONFIG {
     URLREWRITERULE UrlRewriteRules[MAXURLREWRITES];
     int NumUrlRewriteRules;
@@ -50,6 +61,9 @@ typedef struct _RUGBURNCONFIG {
     PATCHADDRESS PatchAddress[MAXPATCHADDRESS];
     int NumPatchAddress;
 
+	CUSTOMMEMORY CustomMemory[MAXCUSTOMMEMORY];
+    int NumCustomMemory;
+
     BOOL bBypassSelfSignedCertificate;
 } RUGBURNCONFIG, *LPRUGBURNCONFIG;
 
@@ -59,3 +73,4 @@ void LoadJsonRugburnConfig();
 LPCSTR RewriteURL(LPCSTR url);
 BOOL RewriteAddr(LPSOCKADDR_IN addr);
 void PatchAddress();
+LPVOID findCustomMemoryByReference(LPCSTR lpRef, DWORD len);

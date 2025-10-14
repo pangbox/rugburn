@@ -79,6 +79,7 @@ VOID Log(LPCSTR fmt, ...);
 VOID ConsoleLog(LPCSTR fmt, ...);
 VOID InitLog();
 HMODULE LoadLib(LPCSTR szName);
+HMODULE LoadLibOrWarning(LPCSTR szName);
 PVOID GetProc(HMODULE hModule, LPCSTR szName);
 DWORD LastErr();
 VOID Delay(DWORD dwMilliseconds);

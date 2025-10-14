@@ -15,6 +15,7 @@
  */
 
 #include "hex.h"
+#include "config.h"
 
 static BOOL ParseHex(CHAR ch, LPDWORD pOutValue) {
     if (ch >= '0' && ch <= '9') {
@@ -34,6 +35,24 @@ static CHAR ToHexChar(BYTE bValue) {
         return bValue + '0';
     } else if (bValue >= 0xa && bValue <= 0xf) {
         return bValue + 'a' - 10;
+    }
+    return 0;
+}
+
+static DWORD findNextReference(LPCSTR lpszText, LPVOID *pOutRef) {
+    LPCSTR inPos;
+    DWORD dif;
+    *pOutRef = NULL;
+
+    inPos = lpszText;
+    while (*inPos) {
+        if (*inPos++ == '\\' && *inPos != '\0' && *inPos++ == 'r') {
+            dif = inPos - lpszText - 2;
+            if ((*pOutRef = findCustomMemoryByReference(lpszText, dif)) == NULL)
+                break;
+
+            return dif + 2;
+        }
     }
     return 0;
 }
@@ -104,11 +123,14 @@ DWORD ParseAddress(LPCSTR lpszText) {
     return result;
 }
 
+// Parse Patch With Custom Memory Reference
 void ParsePatch(LPCSTR lpszText, LPSTR *pDataOut, DWORD *pSizeOut) {
     DWORD hexDigitVal;
     DWORD hexOctetVal;
     LPCSTR inPos;
     LPSTR outPos;
+    LPVOID refVal;
+    DWORD refSize;
     *pSizeOut = 0;
 
     // Calculate length
@@ -128,6 +150,14 @@ void ParsePatch(LPCSTR lpszText, LPSTR *pDataOut, DWORD *pSizeOut) {
                 break;
             case '\\':
                 (*pSizeOut)++;
+                break;
+            case 'r':
+                refSize = findNextReference(inPos, &refVal);
+                if (refSize != 0 && refVal != NULL) {
+                    *pSizeOut += 4;
+                    inPos += refSize;
+                } else
+                    *pSizeOut += 2;
                 break;
             case '\0':
                 FatalError("ParsePatch: Unexpected end of string in escape code");
@@ -165,6 +195,17 @@ void ParsePatch(LPCSTR lpszText, LPSTR *pDataOut, DWORD *pSizeOut) {
                 break;
             case '\\':
                 *outPos++ = '\\';
+                break;
+            case 'r':
+                refSize = findNextReference(inPos, &refVal);
+                if (refSize != 0 && refVal != NULL) {
+                    memcpy(outPos, &refVal, 4);
+                    outPos += 4;
+                    inPos += refSize;
+                } else {
+                    *outPos++ = '\\';
+                    *outPos++ = 'r';
+				}
                 break;
             case '\0':
                 FatalError("ParsePatch: Unexpected end of string in escape code");

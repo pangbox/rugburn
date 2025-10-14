@@ -18,6 +18,7 @@
 #include "hex.h"
 #include "json.h"
 #include "patch.h"
+#include "custommemory.h"
 #include <ws2tcpip.h>
 #include <wspiapi.h>
 
@@ -95,6 +96,43 @@ static void ReadJsonBypassSelfSignedCertificate(LPSTR *json, LPCSTR key) {
         Config.bBypassSelfSignedCertificate = TRUE;
 }
 
+static void ReadJsonCustomMemoryMap(LPSTR *json, LPCSTR key) {
+    if (!strcmp(key, "Name")) {
+        Config.CustomMemory[Config.NumCustomMemory].name = JsonReadString(json);
+        Config.CustomMemory[Config.NumCustomMemory].nameLen = strlen(Config.CustomMemory[Config.NumCustomMemory].name);
+    } else if (!strcmp(key, "Value")) {
+        ParsePatch(JsonReadString(json), &Config.CustomMemory[Config.NumCustomMemory].value, &Config.CustomMemory[Config.NumCustomMemory].valueLen);
+    } else if (!strcmp(key, "Length")) {
+        Config.CustomMemory[Config.NumCustomMemory].newvalueLen = JsonReadInteger(json);
+    } else if (!strcmp(key, "Execute")) {
+        LPCSTR value = JsonReadString(json);
+
+        Config.CustomMemory[Config.NumCustomMemory].bExecuteMemory = FALSE;
+
+        if (value == NULL || value == "")
+            return;
+
+        if (_stricmp(value, "TRUE") == 0)
+            Config.CustomMemory[Config.NumCustomMemory].bExecuteMemory = TRUE;
+    } else {
+        FatalError("Unexpected JSON config key in custom memory: '%s'", key);
+    }
+}
+
+static void ReadJsonCustomMemoryArray(LPSTR *json) {
+    if (Config.NumCustomMemory == MAXCUSTOMMEMORY) {
+        FatalError("Reached maximum number of custom memory!");
+    }
+
+    JsonReadMap(json, ReadJsonCustomMemoryMap);
+    if (InitCustomMemory(&Config.CustomMemory[Config.NumCustomMemory]) == TRUE)
+		Config.NumCustomMemory++;
+    else {
+        Warning("CustomMemory %d at is invalid will be ignored.", Config.NumCustomMemory);
+        memset(&Config.CustomMemory[Config.NumCustomMemory], 0, sizeof(CUSTOMMEMORY));
+	}
+}
+
 static void ReadJsonConfigMap(LPSTR *json, LPCSTR key) {
     if (!strcmp(key, "UrlRewrites")) {
         JsonReadMap(json, ReadJsonUrlRewriteRuleMap);
@@ -104,7 +142,9 @@ static void ReadJsonConfigMap(LPSTR *json, LPCSTR key) {
         JsonReadMap(json, ReadJsonPatchAddressMap);
     } else if (!strcmp(key, "BypassSelfSignedCertificate")) {
         ReadJsonBypassSelfSignedCertificate(json, key);
-    } else {
+    } else if (!strcmp(key, "CustomMemory")) {
+        JsonReadArray(json, ReadJsonCustomMemoryArray);
+	} else {
         FatalError("Unexpected JSON config key '%s'", key);
     }
 }
@@ -203,4 +243,17 @@ void PatchAddress() {
         Log("PatchAddress: 0x%08lX, Len: %d, Value: %s\r\n", Config.PatchAddress[i].addr,
             Config.PatchAddress[i].patchLen, Config.PatchAddress[i].patch);
     }
+}
+
+LPVOID findCustomMemoryByReference(LPCSTR lpRef, DWORD len) {
+    for (int i = 0; i < Config.NumCustomMemory; i++) {
+        if (Config.CustomMemory[i].name == NULL || Config.CustomMemory[i].nameLen == 0 || Config.CustomMemory[i].newvalue == NULL)
+            continue;
+        if (Config.CustomMemory[i].nameLen != len)
+            continue;
+        if (memcmp(Config.CustomMemory[i].name, lpRef, len) != 0)
+            continue;
+        return Config.CustomMemory[i].newvalue;
+    }
+    return NULL;
 }
