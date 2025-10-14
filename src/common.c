@@ -256,6 +256,7 @@ VOID ConsoleLog(LPCSTR fmt, ...) {
     FreeMem(buffer);
 }
 
+// Load Lib or Fatal Error
 HMODULE LoadLib(LPCSTR szName) {
     HMODULE hModule;
 
@@ -265,6 +266,17 @@ HMODULE LoadLib(LPCSTR szName) {
     }
 
     return hModule;
+}
+
+HMODULE LoadLibOrWarning(LPCSTR szName) {
+	HMODULE hModule;
+	
+	hModule = LoadLibraryA(szName);
+	if (hModule == NULL) {
+		Warning("Could not load module %s (%08x)", szName, LastErr());
+	}
+	
+	return hModule;
 }
 
 VOID FreeLib(HMODULE hModule) { FreeLibrary(hModule); }
