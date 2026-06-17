@@ -39,8 +39,9 @@
 static VOID InitEnvironment() {
     PANGYAVER pangyaVersion;
     PSTR szPangyaArg;
-
+    //load file json
     LoadJsonRugburnConfig();
+    //bypass for load pangya
     pangyaVersion = DetectPangyaVersion();
     szPangyaArg = GetPangyaArg(pangyaVersion);
 
@@ -59,9 +60,9 @@ extern BOOL STDCALL DllMain(HANDLE hInstance, DWORD dwReason, LPVOID reserved) {
         return TRUE;
     }
 
-    InitLog();
-    InitEnvironment();
-    InitHooks();
+    InitLog();//is init game log
+    InitEnvironment();//is set env for pangya arg
+    InitHooks();//hook and patch
 
     return TRUE;
 }

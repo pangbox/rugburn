@@ -19,6 +19,7 @@
 #include "common.h"
 
 VOID Patch(LPVOID dst, LPCVOID src, DWORD size);
+VOID Read(LPCVOID src, LPVOID dst, DWORD size);
 VOID InstallHook(PVOID pfnProc, LPCVOID pfnTargetProc);
 DWORD CountOpcodeBytes(LPCVOID fn, DWORD minBytes);
 PBYTE BuildTrampoline(DWORD fn, DWORD prefixLen);

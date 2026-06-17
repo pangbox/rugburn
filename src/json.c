@@ -257,12 +257,11 @@ void JsonExpectToken(LPSTR *json, JSONTOKENTYPE type) {
 LPCSTR JsonReadString(LPSTR *json) {
     JSONTOKEN token;
 
-    JsonNextToken(json, &token);
+    JsonNextToken(json, &token);  
     if (token.token_type != JSON_TOK_STRING) {
         FatalError("Parsing JSON: Expected string token, got '%s'",
                    JsonTokenName(token.token_type));
-    }
-
+    } 
     return token.string_val;
 }
 

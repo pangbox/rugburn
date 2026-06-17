@@ -27,6 +27,19 @@ VOID Patch(LPVOID dst, LPCVOID src, DWORD size) {
     VirtualProtect(dst, size, OldProtection, &OldProtection);
 }
 
+// Função para ler a memória com segurança
+VOID Read(LPCVOID src, LPVOID dst, DWORD size) {
+    // O memcpy é suficiente para ler memória no mesmo processo.
+    // Se você encontrar erros de acesso (Access Violation),
+    // a página pode estar protegida, então usamos um VirtualProtect opcional.
+    DWORD OldProtection;
+    VirtualProtect((LPVOID)src, size, PAGE_EXECUTE_READWRITE, &OldProtection);
+
+    memcpy(dst, src, size);
+
+    VirtualProtect((LPVOID)src, size, OldProtection, &OldProtection);
+}
+
 /**
  * Installs a hook that redirects a function to a different function with a
  * compatible signature. This will destroy the first 6 bytes of the function,

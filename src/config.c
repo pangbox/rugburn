@@ -71,15 +71,60 @@ static void ReadJsonPortRewriteRuleArray(LPSTR *json) {
 }
 
 static void ReadJsonPatchAddressMap(LPSTR *json, LPCSTR key) {
-    LPCSTR value = JsonReadString(json);
 
+    // Processa o objeto aninhado (o valor associado à chave do endereço)
+    LPPATCHADDRESS p = &Config.PatchAddress[Config.NumPatchAddress];
+
+    if (!strcmp(key, "description")) {
+        p->description = DupStr(JsonReadString(json));
+    } else if (!strcmp(key, "address")) {
+        p->addr = ParseAddress(JsonReadString(json));
+
+    } else if (!strcmp(key, "type")) {
+        LPCSTR typeStr = JsonReadString(json);
+        if (!strcmp(typeStr, "nop"))
+            p->type = TYPE_NOP;
+        else if (!strcmp(typeStr, "string"))
+            p->type = TYPE_STRING;
+        else if (!strcmp(typeStr, "je"))
+            p->type = TYPE_JE;
+        else if (!strcmp(typeStr, "jne"))
+            p->type = TYPE_JNE;
+        else if (!strcmp(typeStr, "int"))
+            p->type = TYPE_INT;
+        else if (!strcmp(typeStr, "uint"))
+            p->type = TYPE_UINT;
+        else if (!strcmp(typeStr, "jmp"))
+            p->type = TYPE_JMP;
+        else if (!strcmp(typeStr, "patch"))
+            p->type = TYPE_PATCH;
+    } else if (!strcmp(key, "value")) {
+        if (p->type == TYPE_STRING) {
+            p->data.val.str = DupStr(JsonReadString(json));
+        }
+        if (p->type == TYPE_JE) {
+            p->data.val.b = 0x74; // opcode for JE
+        }
+        if (p->type == TYPE_NOP) {
+            p->data.val.b = 0x90; // opcode for JE
+        } else if (p->type == TYPE_INT || p->type == TYPE_UINT) {
+            p->data.val.i = JsonReadInteger(json);
+        } else if (p->type == TYPE_JMP) {
+            p->data.val.jmp.target = ParseAddress(JsonReadString(json));
+        } else if (p->type == TYPE_PATCH) {
+            ParsePatch(JsonReadString(json), &p->data.val.patch, &p->size);
+        }
+    } else if (!strcmp(key, "length") || !strcmp(key, "size")) {
+        p->size = JsonReadInteger(json);
+    }
+}
+
+static void ReadJsonPatchAddressMapArray(LPSTR *json) {
     if (Config.NumPatchAddress == MAXPATCHADDRESS) {
         FatalError("Reached maximum number of Patch address!");
     }
 
-    Config.PatchAddress[Config.NumPatchAddress].addr = ParseAddress(key);
-    ParsePatch(value, &Config.PatchAddress[Config.NumPatchAddress].patch,
-               &Config.PatchAddress[Config.NumPatchAddress].patchLen);
+    JsonReadMap(json, ReadJsonPatchAddressMap);
     Config.NumPatchAddress++;
 }
 
@@ -101,7 +146,7 @@ static void ReadJsonConfigMap(LPSTR *json, LPCSTR key) {
     } else if (!strcmp(key, "PortRewrites")) {
         JsonReadArray(json, ReadJsonPortRewriteRuleArray);
     } else if (!strcmp(key, "PatchAddress")) {
-        JsonReadMap(json, ReadJsonPatchAddressMap);
+        JsonReadArray(json, ReadJsonPatchAddressMapArray);
     } else if (!strcmp(key, "BypassSelfSignedCertificate")) {
         ReadJsonBypassSelfSignedCertificate(json, key);
     } else {
@@ -178,29 +223,94 @@ BOOL RewriteAddr(LPSOCKADDR_IN addr) {
 }
 
 void PatchAddress() {
-    int i;
-    MEMORY_BASIC_INFORMATION mbi;
-    for (i = 0; i < Config.NumPatchAddress; i++) {
-        if (Config.PatchAddress[i].addr == 0) {
-            Warning("Patch %d at address 0 will be ignored.", i);
+    for (int i = 0; i < Config.NumPatchAddress; i++) {
+        PATCHADDRESS *p = &Config.PatchAddress[i];
+
+        // Verificação básica de segurança
+        if (p->addr == 0)
             continue;
+
+        if (p->description) {
+            unsigned char *oldBuffer = (unsigned char *)calloc(p->size, 1);
+            if (oldBuffer) {
+                Read(p->addr, oldBuffer, p->size);
+
+                if (p->description) {
+                    if (p->type == TYPE_STRING) {
+                        Log("[Rugburn] PATCH[%s] | OLD: '%s' -> NEW: '%s'\r\n", p->description,
+                            oldBuffer, p->data.val.str);
+                    } else if (p->type == TYPE_UINT || p->type == TYPE_INT) {
+                        unsigned int oldVal = *(unsigned int *)oldBuffer;
+                        Log("[Rugburn] PATCH[%s] | OLD: %u -> NEW: %u\r\n", p->description, oldVal,
+                            p->data.val.i);
+                    }
+                }
+                free(oldBuffer);
+            }
         }
-        if (Config.PatchAddress[i].patchLen == 0) {
-            Warning("Patch %d is empty.", i);
-            continue;
+
+        switch (p->type) {
+
+        case TYPE_NOP: {
+            unsigned char *nops = (unsigned char *)malloc(p->size);
+            memset(nops, 0x90, p->size);
+            Patch(p->addr, nops, p->size);
+            free(nops);
+            break;
         }
-        if (VirtualQuery((void *)Config.PatchAddress[i].addr, &mbi, sizeof(mbi)) == 0) {
-            Log("PatchAddress 0x%08lX failed in VirtualQuery, ErrorCode: %08lX\r\n",
-                Config.PatchAddress[i].addr, LastErr());
-            continue;
+        case TYPE_BYTE:
+            Patch(p->addr, &p->data.val.b, 1);
+            break;
+        case TYPE_INT16:
+            Patch(p->addr, &p->data.val.i16, 2);
+            break;
+        case TYPE_INT:
+        case TYPE_UINT:
+            Patch(p->addr, &p->data.val.i, 4);
+            break;
+        case TYPE_ULONG:
+        case TYPE_LONG:
+            Patch(p->addr, &p->data.val.i, 8);
+            break;
+        case TYPE_STRING: {
+            unsigned char *buffer = (unsigned char *)calloc(p->size, 1);
+            if (buffer) {
+                size_t strLen = strlen(p->data.val.str);
+                size_t copyLen = (strLen < p->size) ? strLen : p->size;
+                memcpy(buffer, p->data.val.str, copyLen);
+                Patch(p->addr, buffer, p->size);
+                free(buffer);
+            }
+            break;
         }
-        if (mbi.Type != MEM_IMAGE) {
-            Log("PatchAddress 0x%08lX is not image memory.\r\n", Config.PatchAddress[i].addr);
-            continue;
+        case TYPE_JMP: {
+            unsigned char jmpCode = 0xE9;
+            DWORD offset = p->data.val.jmp.target - (p->addr + 5);
+            Patch(p->addr, &jmpCode, 1);
+            Patch(p->addr + 1, &offset, 4);
+            break;
         }
-        Patch((LPVOID)Config.PatchAddress[i].addr, Config.PatchAddress[i].patch,
-              Config.PatchAddress[i].patchLen);
-        Log("PatchAddress: 0x%08lX, Len: %d, Value: %s\r\n", Config.PatchAddress[i].addr,
-            Config.PatchAddress[i].patchLen, Config.PatchAddress[i].patch);
+        case TYPE_JZ: {
+            unsigned short jzCode = 0x840F; // Opcode 0F 84
+            DWORD offset = p->data.val.jmp.target - (p->addr + 6);
+            Patch(p->addr, &jzCode, 2);
+            Patch(p->addr + 2, &offset, 4);
+            break;
+        }
+        case TYPE_JE: {
+            unsigned char je = 0x74;
+            Patch(p->addr, &je, 1);
+            break;
+        }
+        case TYPE_JNE: {
+            unsigned char jne = 0x75;
+            Patch(p->addr, &jne, 1);
+            break;
+        }
+        case TYPE_PATCH: {
+            Patch(p->addr, p->data.val.patch, p->size);
+            break;
+        }
+        }
     }
 }

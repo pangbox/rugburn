@@ -178,6 +178,8 @@ static void PatchGG_JP() {
         Patch((LPVOID)0x00A5CE80, "\xC3", 1);
         Patch((LPVOID)0x00A5CEB0, "\xC3", 1);
         Log("Patched GG check routines (JP 983)\r\n");
+        //rebuild shot game patch
+        //->>>>>>>>>>>>> <<<<<<<<<<<<<
     } else if (compare_virtual_memory(0x005E345A, 0xFF83F1E8)) {
         Patch((LPVOID)0x005E345A, "\xB8\x01\x00\x00\x00", 5);
         Log("Patched HSHIELD check routines (JP S1 2.11)\r\n");
@@ -249,8 +251,14 @@ static void PatchGG_KR() {
     } else if (compare_virtual_memory(0x0075C670, 0xFECB7BE8)) {
         Patch((LPVOID)0x0075C670, "\xE9\x00\x00\x00\x00", 5);
         Log("Patched GG check routines (KR S5 603)\r\n");
+        //patch by acrisio
+        //make this patch so you can log in without web login.
+        Patch((LPVOID)0x007C78C4, "\x75\x34", 2);
+        Patch((LPVOID)0x0075C670, "\x75\x11", 2); 
     } else if (compare_virtual_memory(0x00A70EE5, 0xFEA346E8)) {
         Patch((LPVOID)0x00A70EE5, "\xE9\x00\x00\x00\x00", 5);
+        //remove web login
+        Patch((LPVOID)0x00A70DB9, "\x74", 1);// Patch the jump that checks if the game is running in a virtual machine, which is used by GameGuard to detect if it's being debugged.
         Log("Patched GG check routines (KR S9 839)\r\n");
     }
 }

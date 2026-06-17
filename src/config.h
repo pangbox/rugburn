@@ -23,6 +23,22 @@
 #define MAXPORTREWRITES 16
 #define MAXPATCHADDRESS 64
 
+typedef enum {
+    TYPE_BYTE,
+    TYPE_INT16,
+    TYPE_INT,
+    TYPE_UINT,
+    TYPE_ULONG,
+    TYPE_LONG,
+    TYPE_STRING,
+    TYPE_NOP,
+    TYPE_JMP,
+    TYPE_JZ,
+    TYPE_JE,
+    TYPE_JNE,
+    TYPE_PATCH
+} PATCH_TYPE;
+
 typedef struct _URLREWRITERULE {
     REGEX *from;
     LPCSTR to;
@@ -34,10 +50,25 @@ typedef struct _PORTREWRITERULE {
     LPCSTR toaddr;
 } PORTREWRITERULE, *LPPORTREWRITERULE;
 
+typedef struct _PATCH_DATA {
+    union {
+        unsigned char b;
+        short i16;
+        int i;
+        char *str;
+        LPSTR patch; // For raw patch data
+        struct {
+            DWORD target;
+        } jmp;
+    } val;
+} PATCH_DATA;
+
 typedef struct _PATCHADDRESS {
     DWORD addr;
-    LPSTR patch;
-    DWORD patchLen;
+    char *description; // For logging
+    PATCH_TYPE type;
+    PATCH_DATA data;
+    DWORD size;
 } PATCHADDRESS, *LPPATCHADDRESS;
 
 typedef struct _RUGBURNCONFIG {
@@ -59,3 +90,4 @@ void LoadJsonRugburnConfig();
 LPCSTR RewriteURL(LPCSTR url);
 BOOL RewriteAddr(LPSOCKADDR_IN addr);
 void PatchAddress();
+ 
