@@ -1,5 +1,5 @@
 /**
- * Copyright 2018-2024 John Chadwick <john@jchw.io>
+ * Copyright 2018-2026 John Chadwick <john@jchw.dev>
  *
  * Permission to use, copy, modify, and/or distribute this software for any purpose
  * with or without fee is hereby granted, provided that the above copyright notice
@@ -24,6 +24,7 @@ static HANDLE hGameguardFakeHandle;
 static PFNCREATEMUTEXAPROC pCreateMutexA;
 static PFNCREATEPROCESSAPROC pCreateProcessA = NULL;
 static PFNGETEXITCODEPROCESSPROC pGetExitCodeProcess = NULL;
+static PFNFREELIBRARYPROC pFreeLibrary = NULL;
 
 static BOOL StrContains(LPCSTR lpHaystack, LPCSTR lpNeedle) {
     LPCSTR lpCheckHaystack, lpCheckNeedle;
@@ -81,6 +82,22 @@ static BOOL STDCALL GetExitCodeProcessHook(HANDLE hProcess, LPDWORD lpExitCode) 
     return TRUE;
 }
 
+static BOOL STDCALL FreeLibraryHook(HMODULE module) {
+    if (module && module == GetModuleHandleW(L"wangreal.dll")) {
+        HMODULE pinned;
+        // Wine deadlocks on exit due to the DirectInput thread and the DllMain
+        // call for unloading wangreal trying to hold the loader lock on exit.
+        // This is a bug in Wine, but it is fine to just keep the wangreal
+        // device driver loaded until the process fully shuts down.
+        if (GetModuleHandleExW(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS |
+                               GET_MODULE_HANDLE_EX_FLAG_PIN,
+                               (LPCWSTR)module, &pinned)) {
+            Log("Refusing to unload wangreal.dll to prevent Wine deadlock.\r\n");
+        }
+    }
+    return pFreeLibrary(module);
+}
+
 VOID InitInjectHook() {
     hKernel32Module = LoadLib("kernel32");
     pCreateMutexA = (PFNCREATEMUTEXAPROC)GetProc(hKernel32Module, "CreateMutexA");
@@ -89,4 +106,9 @@ VOID InitInjectHook() {
                                                       (PVOID)CreateProcessAHook);
     pGetExitCodeProcess = (PFNGETEXITCODEPROCESSPROC)HookProc(hKernel32Module, "GetExitCodeProcess",
                                                               (PVOID)GetExitCodeProcessHook);
+
+    if (GetProcAddress(GetModuleHandleW(L"ntdll.dll"), "wine_get_version")) {
+        pFreeLibrary = (PFNFREELIBRARYPROC)HookProc(hKernel32Module, "FreeLibrary",
+                                                    (PVOID)FreeLibraryHook);
+    }
 }
