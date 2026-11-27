@@ -43,7 +43,7 @@ static VOID InitMsvcr100Hook() {
     const char *oldlocale;
     int result;
 
-    hMsvcrModule = LoadLib("msvcr100");
+    hMsvcrModule = LoadLibOrWarning("msvcr100");
     if (!hMsvcrModule) {
         Log("Not checking for Wine _stricmp bug: msvcr100 not found.\n");
         return;
@@ -76,7 +76,7 @@ static VOID InitMsvcr71Hook() {
     const char *oldlocale;
     int result;
 
-    hMsvcrModule = LoadLib("msvcr71");
+    hMsvcrModule = LoadLibOrWarning("msvcr71");
     if (!hMsvcrModule) {
         Log("Not checking for Wine _stricmp bug: msvcr71 not found.\n");
         return;

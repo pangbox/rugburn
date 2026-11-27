@@ -104,6 +104,7 @@
   <ItemGroup>
     <ClCompile Include="src\common.c" />
     <ClCompile Include="src\config.c" />
+    <ClCompile Include="src\custommemory.c" />
     <ClCompile Include="src\dll\rugburn\main.c" />
     <ClCompile Include="src\hex.c" />
     <ClCompile Include="src\hooks\ole32\web_browser.c" />

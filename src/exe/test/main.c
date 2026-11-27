@@ -19,6 +19,7 @@
 #include "../../json.h"
 #include "../../patch.h"
 #include "../../regex.h"
+#include "../../config.h"
 
 #include "../../../third_party/ijl/ijl.h"
 
@@ -59,6 +60,9 @@ typedef struct _PARSEPATCH_TESTCASE {
     DWORD expectedLen;
 } PARSEPATCH_TESTCASE;
 
+LPVOID custommemorref = (LPVOID)0x77777777;
+const char custommemoryname[] = "validref";
+
 const PARSEPATCH_TESTCASE patch_tests[] = {
     {"\"lobby_gbin\"", "lobby_gbin", 10},
     // note: escaped twice: once for C, once for JSON decode
@@ -67,6 +71,10 @@ const PARSEPATCH_TESTCASE patch_tests[] = {
      "lobby_west.gbin\0", 16},
     // Escaped *three* times: once for C, once for JSON decode, once for binary parse!
     {"\"test\\\\\\\\test\"", "test\\test", 9},
+	// Custom Memory invalid reference parse
+	{"\"test\\\\rinvalidref\\\\rmoretext\\\\rinvalidescapref\"", "test\\rinvalidref\\rmoretext\\rinvalidescapref", 43},
+	// Custom Memory valid reference parse - \\rvalidref\\r replace to 0x77, 0x77, 0x77, 0x77
+	{"\"test\\\\rvalidref\\\\rmoretext\\\\rinvalidescapref\"", "test\x77\x77\x77\x77moretext\\rinvalidescapref", 33}
 };
 
 typedef struct _DISPATCH_TESTCASE DISPATCH_TESTCASE;
@@ -196,6 +204,13 @@ extern void __cdecl start(void) {
             ConsoleLog("ok %d - ParseAddress(%s)\r\n", testnum, test.text);
         }
     }
+
+	// CustomMemory
+    Config.NumCustomMemory = 1;
+    Config.CustomMemory[0].name = custommemoryname;
+    Config.CustomMemory[0].nameLen = sizeof(custommemoryname) - 1;
+    Config.CustomMemory[0].newvalue = (LPSTR)custommemorref;
+    Config.CustomMemory[0].newvalueLen = 1024;
 
     for (i = 0; i < COUNT_OF(patch_tests); ++i) {
         PARSEPATCH_TESTCASE test = patch_tests[i];
