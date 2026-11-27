@@ -14,7 +14,7 @@ redistributable license.
 
 All other files are licensed under the ISC license:
 
-Pangbox © 2018-2024, John Chadwick <john@jchw.io>
+Pangbox © 2018-2026, John Chadwick <john@jchw.dev>
 
 Permission to use, copy, modify, and/or distribute this software for any purpose
 with or without fee is hereby granted, provided that the above copyright notice
